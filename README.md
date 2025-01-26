@@ -9,13 +9,15 @@ Supports:
 
 Usage:
 
-- Ensure [Homebrew](https://brew.sh/) is installed and PATH is configured
-- If not on macOS, ensure the terminal uses some [Nerd Font](https://www.nerdfonts.com/)
+First, ensure [Homebrew](https://brew.sh/) is installed and PATH is configured
 
 ```
 brew install starship chezmoi
 chezmoi init sargunv --apply
 ```
+
+Finally, ensure the terminal uses some [Nerd Font](https://www.nerdfonts.com/). If
+on macOS, one has been installed via `brew --cask`.
 
 If Homebrew can't be used, install chezmoi and starship some other way, and check
 .chezmoidata/packages.yml for a list of other optional packages to install. 
