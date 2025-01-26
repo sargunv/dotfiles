@@ -1,5 +1,7 @@
 #!/bin/bash
 
+[ -z "$PS1" ] && return
+
 if [ -f /etc/bashrc ]; then
     . /etc/bashrc
 fi
@@ -37,8 +39,11 @@ if [ -z "$BLING_SOURCED" ]; then
 
     [ -f "/etc/profile.d/bash-preexec.sh" ] && . "/etc/profile.d/bash-preexec.sh"
     [ -f "/usr/share/bash-prexec" ] && . "/usr/share/bash-prexec" 
-    [ -z "$HOMEBREW_PREFIX" && -f "${HOMEBREW_PREFIX}/etc/profile.d/bash-preexec.sh" ] && . "${HOMEBREW_PREFIX}/etc/profile.d/bash-preexec.sh"
+    [ -n "$HOMEBREW_PREFIX" ] && [ -f "${HOMEBREW_PREFIX}/etc/profile.d/bash-preexec.sh" ] && . "${HOMEBREW_PREFIX}/etc/profile.d/bash-preexec.sh"
     [ "$(command -v starship)" ] && eval "$(starship init bash)"
     [ "$(command -v atuin)" ] && eval "$(atuin init bash ${ATUIN_INIT_FLAGS})"
     [ "$(command -v zoxide)" ] && eval "$(zoxide init bash)"
 fi
+
+# misc
+source <(chezmoi completion bash)

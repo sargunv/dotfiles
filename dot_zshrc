@@ -59,9 +59,17 @@ compinit -u
 
 # zsh plugins
 function brew-zsh-plugin() {
-    [ -f "$HOMEBREW_PREFIX/share/$1" ] && . "$HOMEBREW_PREFIX/share/$1"
+    local prefix='/usr'
+    [ -n "$HOMEBREW_PREFIX" ] && prefix="$HOMEBREW_PREFIX"
+    [ -f "$prefix/share/$1" ] && . "$prefix/share/$1"
+    return $?
 }
-brew-zsh-plugin zsh-fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
-brew-zsh-plugin zsh-autosuggestions/zsh-autosuggestions.zsh
-brew-zsh-plugin zsh-autopair/autopair.zsh
+brew-zsh-plugin zsh-fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh \
+    || brew-zsh-plugin zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+brew-zsh-plugin zsh-autosuggestions/zsh-autosuggestions.zsh || true
+brew-zsh-plugin zsh-autopair/autopair.zsh || true
 unset -f brew-zsh-plugin
+
+# misc
+source <(chezmoi completion zsh)
+command -v batcat && ! command -v bat && alias bat='batcat'
