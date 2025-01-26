@@ -1,0 +1,33 @@
+#!/bin/zsh
+
+setopt COMPLETE_IN_WORD
+
+### bling.sh source start
+# test -f /usr/share/ublue-os/bluefin-cli/bling.sh && source /usr/share/ublue-os/bluefin-cli/bling.sh
+### bling.sh source end
+
+# non-bluefin, do it manually
+if [ -z "$BLING_SOURCED" ]; then
+    if [ "$(command -v eza)" ]; then
+        alias ll='eza -l --icons=auto --group-directories-first'
+        alias l.='eza -d .*'
+        alias ls='eza'
+        alias l1='eza -1'
+    fi
+
+    if [ "$(command -v ug)" ]; then
+        alias grep='ug'
+        alias egrep='ug -E'
+        alias fgrep='ug -F'
+        alias xzgrep='ug -z'
+        alias xzegrep='ug -zE'
+        alias xzfgrep='ug -zF'
+    fi
+
+    [ "$(command -v starship)" ] && eval "$(starship init zsh)"
+    [ "$(command -v atuin)" ] && eval "$(atuin init zsh)"
+    [ "$(command -v zoxide)" ] && eval "$(zoxide init zsh)"
+fi
+
+[ -f "$HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ] && . "$HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+[ -f "$HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ] && . "$HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh"

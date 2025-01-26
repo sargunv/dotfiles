@@ -1,0 +1,36 @@
+packages:
+  common:
+    brews:
+      - atuin
+      - bash-preexec
+      - bat
+      - chezmoi
+      - direnv
+      - dysk
+      - eza
+      - fd
+      - jq
+      - gcc
+      - gh
+      - glab
+      - node
+      - rg
+      - shellcheck
+      - starship
+      - tealdeer
+      - television
+      - trash-cli
+      - ugrep
+      - withgraphite/tap/graphite
+      - yq
+      - zoxide
+      - zsh-syntax-highlighting
+      - zsh-autosuggestions
+  darwin:
+    brews:
+    casks:
+      - font-fira-code-nerd-font
+  linux:
+    brews:
+      - swift
+      - swift-format

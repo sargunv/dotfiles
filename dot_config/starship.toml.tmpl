@@ -1,0 +1,8 @@
+{{
+    index (
+        dict
+            "preset" (output "starship" "preset" .starship.preset | fromToml)
+            "config" .starship.config
+        | jq ".preset * .config"
+    ) 0 | toToml
+}}

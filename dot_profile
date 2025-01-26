@@ -1,0 +1,4 @@
+#!/bin/sh
+
+export PATH="$PATH:$HOME/.local/share/JetBrains/Toolbox/scripts"
+export PATH="$HOME/.local/bin:$HOME/bin:$PATH"

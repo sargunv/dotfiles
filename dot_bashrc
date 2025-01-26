@@ -1,0 +1,44 @@
+#!/bin/bash
+
+if [ -f /etc/bashrc ]; then
+    . /etc/bashrc
+fi
+
+if [ -d ~/.bashrc.d ]; then
+    for rc in ~/.bashrc.d/*; do
+        if [ -f "$rc" ]; then
+            . "$rc"
+        fi
+    done
+fi
+unset rc
+
+### bling.sh source start
+test -f /usr/share/ublue-os/bluefin-cli/bling.sh && source /usr/share/ublue-os/bluefin-cli/bling.sh
+### bling.sh source end
+
+# non-bluefin, do it manually
+if [ -z "$BLING_SOURCED" ]; then
+    if [ "$(command -v eza)" ]; then
+        alias ll='eza -l --icons=auto --group-directories-first'
+        alias l.='eza -d .*'
+        alias ls='eza'
+        alias l1='eza -1'
+    fi
+
+    if [ "$(command -v ug)" ]; then
+        alias grep='ug'
+        alias egrep='ug -E'
+        alias fgrep='ug -F'
+        alias xzgrep='ug -z'
+        alias xzegrep='ug -zE'
+        alias xzfgrep='ug -zF'
+    fi
+
+    [ -f "/etc/profile.d/bash-preexec.sh" ] && . "/etc/profile.d/bash-preexec.sh"
+    [ -f "/usr/share/bash-prexec" ] && . "/usr/share/bash-prexec" 
+    [ -z "$HOMEBREW_PREFIX" && -f "${HOMEBREW_PREFIX}/etc/profile.d/bash-preexec.sh" ] && . "${HOMEBREW_PREFIX}/etc/profile.d/bash-preexec.sh"
+    [ "$(command -v starship)" ] && eval "$(starship init bash)"
+    [ "$(command -v atuin)" ] && eval "$(atuin init bash)"
+    [ "$(command -v zoxide)" ] && eval "$(zoxide init bash)"
+fi
