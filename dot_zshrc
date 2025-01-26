@@ -72,4 +72,4 @@ unset -f brew-zsh-plugin
 
 # misc
 source <(chezmoi completion zsh)
-command -v batcat && ! command -v bat && alias bat='batcat'
+command -v batcat > /dev/null && ! command -v bat > /dev/null && alias bat='batcat'
