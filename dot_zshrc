@@ -55,7 +55,7 @@ bindkey '^[b' emacs-backward-word # opt-left
 
 # all completions should be sourced after this.
 autoload -Uz compinit
-compinit
+compinit -u
 
 # zsh plugins
 function brew-zsh-plugin() {
