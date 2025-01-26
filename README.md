@@ -9,7 +9,9 @@ Supports:
 
 Usage:
 
-First, ensure [Homebrew](https://brew.sh/) is installed and PATH is configured
+First, ensure [Homebrew](https://brew.sh/) is installed and PATH is configured.
+
+Set up the dotfiles with:
 
 ```
 brew install starship chezmoi
