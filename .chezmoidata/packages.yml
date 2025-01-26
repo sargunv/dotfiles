@@ -8,7 +8,6 @@ packages:
       - bat
       - chezmoi
       - direnv
-      - dysk
       - eza
       - fd
       - jq
@@ -37,5 +36,6 @@ packages:
   linux:
     taps:
     brews:
+      - dysk
       - swift
       - swift-format
