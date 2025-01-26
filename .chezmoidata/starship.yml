@@ -2,7 +2,7 @@ starship:
   preset: nerd-font-symbols
   config:
     format: "$all"
-    right_format: "$os$shell$custom$time"
+    right_format: "$os$custom$shell$time"
     git_metrics:
       disabled: false
     os:
