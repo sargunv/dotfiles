@@ -10,5 +10,5 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: Homebrew/actions/setup-homebrew@master
-      - run: ./install.sh
-      - run: chezmoi data
+      - run: brew install chezmoi starship
+      - run: chezmoi init . --promptDefaults
