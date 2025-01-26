@@ -25,9 +25,39 @@ if [ -z "$BLING_SOURCED" ]; then
     fi
 
     [ "$(command -v starship)" ] && eval "$(starship init zsh)"
-    [ "$(command -v atuin)" ] && eval "$(atuin init zsh)"
+    [ "$(command -v atuin)" ] && eval "$(atuin init zsh ${ATUIN_INIT_FLAGS})"
     [ "$(command -v zoxide)" ] && eval "$(zoxide init zsh)"
 fi
 
-[ -f "$HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ] && . "$HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
-[ -f "$HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ] && . "$HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+# zsh history tweaks
+export HISTSIZE=100000
+setopt HIST_IGNORE_SPACE # don't enter into history if command starts with space
+setopt HIST_IGNORE_DUPS  # don't enter into history if duplicate of previous command
+setopt SHARE_HISTORY     # write to history file after every command, and import into other zsh instances
+
+# zsh keybindings
+autoload -U select-word-style
+select-word-style bash
+autoload -U up-line-or-beginning-search
+autoload -U down-line-or-beginning-search
+zle -N up-line-or-beginning-search
+zle -N down-line-or-beginning-search
+bindkey "^[[A" up-line-or-beginning-search # up
+bindkey "^[[B" down-line-or-beginning-search # down
+bindkey '^[[1;5C' emacs-forward-word # ctrl-right
+bindkey '^[[1;5D' emacs-backward-word # ctrl-left
+bindkey '^[f' emacs-forward-word # opt-right
+bindkey '^[b' emacs-backward-word # opt-left
+
+# all completions should be sourced after this.
+autoload -Uz compinit
+compinit
+
+# zsh plugins
+function brew-zsh-plugin() {
+    [ -f "$HOMEBREW_PREFIX/share/$1" ] && . "$HOMEBREW_PREFIX/share/$1"
+}
+brew-zsh-plugin zsh-fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
+brew-zsh-plugin zsh-autosuggestions/zsh-autosuggestions.zsh
+brew-zsh-plugin zsh-autopair/autopair.zsh
+unset -f brew-zsh-plugin
