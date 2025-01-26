@@ -26,7 +26,8 @@ packages:
       - withgraphite/tap/graphite
       - yq
       - zoxide
-      - zsh-syntax-highlighting
+      - zsh-fast-syntax-highlighting
+      - zsh-autopair
       - zsh-autosuggestions
   darwin:
     taps:
