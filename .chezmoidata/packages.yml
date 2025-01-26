@@ -31,8 +31,11 @@ packages:
   darwin:
     taps:
     brews:
+      - mas
     casks:
       - font-fira-code-nerd-font
+      - komet
+    apps:
   linux:
     taps:
     brews:
