@@ -65,7 +65,7 @@ function auto-zsh-plugin() {
     return $?
 }
 auto-zsh-plugin zsh-fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh \
-    || brew-zsh-plugin zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+    || auto-zsh-plugin zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 auto-zsh-plugin zsh-autosuggestions/zsh-autosuggestions.zsh || true
 auto-zsh-plugin zsh-autopair/autopair.zsh || true
 unset -f auto-zsh-plugin
