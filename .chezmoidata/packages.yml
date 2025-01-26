@@ -1,5 +1,7 @@
 packages:
   common:
+    taps:
+      - withgraphite/tap
     brews:
       - atuin
       - bash-preexec
@@ -27,10 +29,12 @@ packages:
       - zsh-syntax-highlighting
       - zsh-autosuggestions
   darwin:
+    taps:
     brews:
     casks:
       - font-fira-code-nerd-font
   linux:
+    taps:
     brews:
       - swift
       - swift-format

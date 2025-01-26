@@ -1,0 +1,27 @@
+[push]
+autoSetupRemote = true
+
+[user]
+name={{ .chezmoi.config.data.full_name }}
+email={{ .chezmoi.config.data.github_username }}@users.noreply.github.com
+
+{{ if eq .chezmoi.os "linux" -}}
+[credential "https://github.com"]
+helper=
+helper=!/home/linuxbrew/.linuxbrew/bin/gh auth git-credential
+
+[credential "https://gist.github.com"]
+helper=
+helper=!/home/linuxbrew/.linuxbrew/bin/gh auth git-credential
+
+[core]
+editor=flatpak run re.sonny.Commit
+
+[re.sonny.Commit]
+title-length-hint=50
+body-length-wrap=72
+auto-capitalize-title=true
+{{end}}
+
+{{ if eq .chezmoi.os "darwin" -}}
+{{ end }}

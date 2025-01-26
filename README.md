@@ -10,4 +10,5 @@ Supports:
 Usage:
 
 - Ensure [Homebrew](https://brew.sh/) is installed and PATH is configured
-- Clone this repo and `./install.sh`
+- `brew install starship chezmoi`
+- `chezmoi init sargunv --apply`
