@@ -39,3 +39,5 @@ packages:
       - dysk
       - swift
       - swift-format
+    flatpaks:
+      - re.sonny.Commit
