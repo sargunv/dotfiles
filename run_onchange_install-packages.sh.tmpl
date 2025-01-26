@@ -22,6 +22,9 @@ brew {{ . | quote }}
 {{ range .packages.darwin.casks -}}
 cask {{ . | quote }}
 {{ end -}}
+{{ range .packages.darwin.apps -}}
+mas {{ . | quote }}
+{{ end -}}
 {{ end -}}
 
 {{ if eq .chezmoi.os "linux" -}}
