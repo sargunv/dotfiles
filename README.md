@@ -16,3 +16,6 @@ Usage:
 brew install starship chezmoi
 chezmoi init sargunv --apply
 ```
+
+If Homebrew can't be used, install chezmoi and starship some other way, and check
+.chezmoidata/packages.yml for a list of other optional packages to install. 
