@@ -15,6 +15,7 @@ packages:
       - gh
       - glab
       - node
+      - nvim
       - rg
       - shellcheck
       - starship
