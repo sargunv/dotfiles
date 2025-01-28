@@ -10,6 +10,8 @@ starship:
       disabled: false
     shell:
       disabled: false
+    sudo:
+      disabled: false
     time:
       disabled: false
     status:
