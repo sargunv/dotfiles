@@ -36,6 +36,10 @@ packages:
     casks:
       - font-fira-code-nerd-font
       - komet
+      - iterm2
+      - itermai
+      - jetbrains-toolbox
+      - visual-studio-code
     apps:
   linux:
     taps:
