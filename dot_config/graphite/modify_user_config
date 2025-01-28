@@ -1,0 +1,11 @@
+{{- /* chezmoi:modify-template */ -}}
+{{
+  fromJson .chezmoi.stdin
+  | setValueAtPath "branchDate" false
+  | setValueAtPath "branchPrefix" "sv/"
+  | setValueAtPath "editor" "vim"
+  | setValueAtPath "tips" false
+  | setValueAtPath "submitViaCli" true
+  | setValueAtPath "submitIncludeCommitMessages" false
+  | toPrettyJson
+}}
