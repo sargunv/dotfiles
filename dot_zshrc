@@ -75,3 +75,4 @@ command -v chezmoi > /dev/null && source <(chezmoi completion zsh)
 command -v gt > /dev/null && source <(gt completion)
 command -v batcat > /dev/null && ! command -v bat > /dev/null && alias bat='batcat'
 test -f ~/.iterm2_shell_integration.zsh && source ~/.iterm2_shell_integration.zsh
+alias rm='echo "This is not the command you are looking for."; false'
