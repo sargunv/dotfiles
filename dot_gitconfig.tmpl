@@ -13,9 +13,16 @@ helper = !gh auth git-credential
 helper =
 helper = !gh auth git-credential
 
+[submodule]
+recurse = true
+
+[push]
+autoSetupRemote = true
+
 {{ if eq .chezmoi.os "linux" -}}
-{{ if lookPath "flatpak" }}
 [core]
+excludesfile = /home/sargunv/.gitignore_global
+{{ if lookPath "flatpak" }}
 editor=flatpak run re.sonny.Commit
 
 [re.sonny.Commit]
@@ -27,5 +34,6 @@ auto-capitalize-title=true
 
 {{ if eq .chezmoi.os "darwin" -}}
 [core]
+excludesfile = /home/sargunv/.gitignore_global
 editor = /Applications/Komet.app/Contents/MacOS/Komet
 {{ end }}
