@@ -74,25 +74,7 @@ require("lazy").setup({
     build = ":TSUpdate",
     config = function()
       require("nvim-treesitter.configs").setup({
-        ensure_installed = {
-          -- Basic
-          "lua", "vim", "vimdoc",
-
-          -- Web Development
-          "html", "css", "javascript", "typescript", "tsx", "json", "yaml",
-
-          -- Backend
-          "python", "rust", "go", "java", "kotlin", "ruby", "php",
-
-          -- System
-          "bash", "c", "cpp", "cmake", "make",
-
-          -- Data/Config
-          "toml", "xml", "sql", "dockerfile", "regex",
-
-          -- Markup
-          "markdown", "latex",
-        },
+        ensure_installed = "all",
         highlight = { enable = true },
       })
     end,
