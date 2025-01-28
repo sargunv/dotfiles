@@ -20,7 +20,7 @@ packages:
       - starship
       - tealdeer
       - television
-      - trash-cli
+      - trash
       - ugrep
       - withgraphite/tap/graphite
       - yq
@@ -42,5 +42,6 @@ packages:
       - dysk
       - swift
       - swift-format
+      - trash-cli
     flatpaks:
       - re.sonny.Commit

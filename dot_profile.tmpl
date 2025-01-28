@@ -19,6 +19,9 @@ if [ -f /opt/homebrew/bin/brew ]; then
     GNU_MANPATH=$GNU_MANPATH:$HOMEBREW_PREFIX/opt/gnu-sed/libexec/gnuman
     GNU_MANPATH=$GNU_MANPATH:$HOMEBREW_PREFIX/opt/gnu-tar/libexec/gnuman
     MANPATH=$GNU_MANPATH:$MANPATH
+
+    # trash-cli is keg only
+    export PATH="/opt/homebrew/opt/trash/bin:$PATH"
 fi
 {{- end }}
 

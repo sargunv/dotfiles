@@ -49,3 +49,4 @@ fi
 source <(chezmoi completion bash)
 command -v batcat > /dev/null && ! command -v bat > /dev/null && alias bat='batcat'
 test -f ~/.iterm2_shell_integration.bash && source ~/.iterm2_shell_integration.bash
+alias rm='echo "This is not the command you are looking for."; false'
