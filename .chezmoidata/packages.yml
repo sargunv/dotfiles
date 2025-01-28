@@ -38,6 +38,7 @@ packages:
       - komet
       - iterm2
       - itermai
+      - ollama
       - jetbrains-toolbox
       - visual-studio-code
     apps:
