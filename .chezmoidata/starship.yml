@@ -3,6 +3,7 @@ starship:
   config:
     format: "$all"
     right_format: "$os$custom$shell$time"
+    command_timeout: 1000
     git_metrics:
       disabled: false
     os:
@@ -11,6 +12,9 @@ starship:
       disabled: false
     time:
       disabled: false
+    status:
+      disabled: false
+      symbol: "✘"
     custom:
       arch:
         when: "true"
