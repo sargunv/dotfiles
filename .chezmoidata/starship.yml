@@ -8,8 +8,6 @@ starship:
       disabled: false
     os:
       disabled: false
-    shell:
-      disabled: false
     sudo:
       disabled: false
     time:
