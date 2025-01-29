@@ -71,6 +71,7 @@ auto-zsh-plugin zsh-autopair/autopair.zsh || true
 unset -f auto-zsh-plugin
 
 # misc
+command -v starship > /dev/null && source <(starship completions zsh)
 command -v chezmoi > /dev/null && source <(chezmoi completion zsh)
 command -v gt > /dev/null && source <(gt completion)
 command -v batcat > /dev/null && ! command -v bat > /dev/null && alias bat='batcat'
