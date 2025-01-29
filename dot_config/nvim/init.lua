@@ -17,7 +17,7 @@ vim.opt.expandtab = true     -- Use spaces instead of tabs
 vim.opt.termguicolors = true -- Enable 24-bit RGB colors
 
 -- Basic key mappings
-vim.g.mapleader = ','        -- Set leader key to comma
+vim.g.mapleader = ' '        -- Set leader key to space
 
 -- Package manager setup
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
@@ -87,7 +87,16 @@ require("lazy").setup({
     event = "InsertEnter",
     config = function()
       require("copilot").setup({
-        suggestion = { auto_trigger = true },
+        suggestion = {
+          enabled = true,
+          auto_trigger = true,
+          keymap = {
+            accept = "<Tab>",
+            next = "<M-]>",
+            prev = "<M-[>",
+            dismiss = "<C-]>",
+          },
+        },
       })
     end,
   },
@@ -102,5 +111,14 @@ require("lazy").setup({
     config = function()
       require("toggleterm").setup({})
     end
+  },
+
+  -- Which-key
+  {
+    "folke/which-key.nvim",
+    event = "VeryLazy",
+    opts = {
+      presets = "helix",
+    },
   },
 })
