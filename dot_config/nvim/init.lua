@@ -108,9 +108,7 @@ require("lazy").setup({
     keys = {
       { "<leader>t", "<cmd>ToggleTerm<cr>", desc = "Toggle Terminal" },
     },
-    config = function()
-      require("toggleterm").setup({})
-    end
+    config = true
   },
 
   -- Which-key
@@ -120,5 +118,26 @@ require("lazy").setup({
     opts = {
       presets = "helix",
     },
+    config = true,
+  },
+
+  -- Status line
+  {
+    "nvim-lualine/lualine.nvim",
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    config = true,
+  },
+
+  -- Git signs
+  {
+    "lewis6991/gitsigns.nvim",
+    config = function()
+      require("gitsigns").setup({
+        current_line_blame = true,
+        current_line_blame_opts = {
+          delay = 100,
+        },
+      })
+    end,
   },
 })
