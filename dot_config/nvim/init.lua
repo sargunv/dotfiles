@@ -35,14 +35,16 @@ vim.opt.rtp:prepend(lazypath)
 
 -- Plugin specifications
 require("lazy").setup({
-  -- Color scheme
+  -- https://github.com/scottmckendry/cyberdream.nvim
   {
     "scottmckendry/cyberdream.nvim",
-    lazy = false,
     priority = 1000,
+    config = function()
+      vim.cmd.colorscheme 'cyberdream'
+    end
   },
 
-  -- File explorer
+  -- https://github.com/nvim-neo-tree/neo-tree.nvim
   {
     "nvim-neo-tree/neo-tree.nvim",
     dependencies = {
@@ -55,7 +57,7 @@ require("lazy").setup({
     },
   },
 
-  -- Fuzzy finder
+  -- https://github.com/nvim-telescope/telescope.nvim
   {
     "nvim-telescope/telescope.nvim",
     dependencies = { "nvim-lua/plenary.nvim" },
@@ -65,7 +67,7 @@ require("lazy").setup({
     },
   },
 
-  -- Syntax highlighting
+  -- https://github.com/nvim-treesitter/nvim-treesitter
   {
     "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
@@ -77,7 +79,7 @@ require("lazy").setup({
     end,
   },
 
-  -- GitHub Copilot
+  -- https://github.com/zbirenbaum/copilot.lua
   {
     "zbirenbaum/copilot.lua",
     cmd = "Copilot",
@@ -98,7 +100,7 @@ require("lazy").setup({
     end,
   },
 
-  -- Terminal
+  -- https://github.com/akinsho/toggleterm.nvim
   {
     'akinsho/toggleterm.nvim',
     version = "*",
@@ -108,7 +110,7 @@ require("lazy").setup({
     config = true
   },
 
-  -- Which-key
+  -- https://github.com/folke/which-key.nvim
   {
     "folke/which-key.nvim",
     event = "VeryLazy",
@@ -118,23 +120,14 @@ require("lazy").setup({
     config = true,
   },
 
-  -- Status line
+  -- https://github.com/echasnovski/mini.nvim/tree/main/readmes
   {
-    "nvim-lualine/lualine.nvim",
-    dependencies = { "nvim-tree/nvim-web-devicons" },
-    config = true,
-  },
-
-  -- Git signs
-  {
-    "lewis6991/gitsigns.nvim",
+    'echasnovski/mini.nvim',
+    version = false,
     config = function()
-      require("gitsigns").setup({
-        current_line_blame = true,
-        current_line_blame_opts = {
-          delay = 100,
-        },
-      })
+      require('mini.statusline').setup()
+      require('mini.git').setup()
+      require('mini.diff').setup()
     end,
   },
 })
