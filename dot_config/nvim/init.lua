@@ -37,12 +37,9 @@ vim.opt.rtp:prepend(lazypath)
 require("lazy").setup({
   -- Color scheme
   {
-    "folke/tokyonight.nvim",
+    "scottmckendry/cyberdream.nvim",
     lazy = false,
     priority = 1000,
-    config = function()
-      vim.cmd([[colorscheme tokyonight]])
-    end,
   },
 
   -- File explorer
