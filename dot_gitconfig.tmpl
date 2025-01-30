@@ -1,3 +1,17 @@
+[core]
+excludesfile = /home/sargunv/.gitignore_global
+pager = delta
+editor = nvim
+
+[interactive]
+diffFilter = delta --color-only
+
+[merge]
+conflictstyle = zdiff3
+
+[delta]
+navigate = true
+
 [push]
 autoSetupRemote = true
 
@@ -18,22 +32,3 @@ recurse = true
 
 [push]
 autoSetupRemote = true
-
-{{ if eq .chezmoi.os "linux" -}}
-[core]
-excludesfile = /home/sargunv/.gitignore_global
-{{ if lookPath "flatpak" }}
-editor=flatpak run re.sonny.Commit
-
-[re.sonny.Commit]
-title-length-hint=50
-body-length-wrap=72
-auto-capitalize-title=true
-{{ end }}
-{{ end }}
-
-{{ if eq .chezmoi.os "darwin" -}}
-[core]
-excludesfile = /home/sargunv/.gitignore_global
-editor = /Applications/Komet.app/Contents/MacOS/Komet
-{{ end }}

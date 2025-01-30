@@ -13,6 +13,7 @@ packages:
       - jq
       - gcc
       - gh
+      - git-delta
       - glab
       - node
       - nvim
@@ -35,7 +36,6 @@ packages:
       - mas
     casks:
       - font-fira-code-nerd-font
-      - komet
       - iterm2
       - itermai
       - ollama
@@ -50,4 +50,3 @@ packages:
       - swift-format
       - trash-cli
     flatpaks:
-      - re.sonny.Commit
