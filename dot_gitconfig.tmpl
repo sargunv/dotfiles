@@ -16,6 +16,21 @@ navigate = true
 autoSetupRemote = true
 useForceIfIncludes = true
 
+[pull]
+rebase = true
+
+[rebase]
+autoStash = true
+
+[init]
+defaultBranch = main
+
+[diff]
+algorithm = histogram
+
+[branch]
+sort = -committerdate
+
 [user]
 name={{ .chezmoi.config.data.full_name }}
 email={{ .chezmoi.config.data.github_username }}@users.noreply.github.com
