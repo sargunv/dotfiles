@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.github.sargunv.dotfiles.update</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/opt/homebrew/bin/chezmoi</string>
+        <string>update</string>
+        <string>--verbose</string>
+    </array>
+    <key>WorkingDirectory</key>
+    <string>/Users/sargunv</string>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+        <key>HOME</key>
+        <string>/Users/sargunv</string>
+        <key>USER</key>
+        <string>sargunv</string>
+        <key>NO_FANCY_SHELL</key>
+        <string>true</string>
+    </dict>
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key>
+        <integer>1</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
+    <key>StandardOutPath</key>
+    <string>/Users/sargunv/Library/Logs/com.github.sargunv.dotfiles.update.stdout.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/sargunv/Library/Logs/com.github.sargunv.dotfiles.update.stderr.log</string>
+</dict>
+</plist>

@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# hash: {{ include "private_Library/LaunchAgents/com.github.sargunv.dotfiles.update.plist" | sha256sum }}
+
+launchctl unload ~/Library/LaunchAgents/com.github.sargunv.dotfiles.update.plist
+launchctl load ~/Library/LaunchAgents/com.github.sargunv.dotfiles.update.plist
