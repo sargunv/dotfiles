@@ -1,3 +1,4 @@
+# List all just targets
 default:
     @just --list
 
@@ -5,18 +6,15 @@ default:
 apply:
     chezmoi apply --verbose
 
-# Edit a file in the source state
-edit *PATHS:
-    chezmoi edit {{PATHS}}
-
-# Add a file to source state
-add *PATHS:
-    chezmoi add {{PATHS}}
+# Dry run changes
+dryrun:
+    chezmoi apply --dry-run --verbose
 
 # Show diff between source state and destination state
 diff:
     chezmoi diff
 
+# Watch for changes and apply them
 watch:
     #!/usr/bin/env bash
     export CHEZMOI_SOURCE_PATH="$(chezmoi source-path)"

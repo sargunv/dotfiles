@@ -1,3 +1,6 @@
 data:
-    full_name: {{ promptString "Full name" | quote }}
-    github_username: {{ promptString "GitHub username" .chezmoi.username | quote }}
+  full_name: {{ promptString "Full name" | quote }}
+  github_username: {{ promptString "GitHub username" .chezmoi.username | quote }}
+
+diff:
+  pager: sh -c '[ -z "$NO_FANCY_SHELL" ] && delta || [ -z "$PAGER" ] && less -RF --mouse || $PAGER'
