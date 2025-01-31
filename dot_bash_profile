@@ -4,6 +4,15 @@ if [ -f ~/.profile ]; then
     . ~/.profile
 fi
 
+if [ -d ~/.profile.d ]; then
+  for profile_file in ~/.profile.d/*; do
+    if [ -f "$profile_file" ]; then
+      . "$profile_file"
+    fi
+  done
+fi
+unset profile_file
+
 if [ -f ~/.bashrc ]; then
     . ~/.bashrc
 fi
