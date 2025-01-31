@@ -6,36 +6,39 @@ if [ -f /etc/bashrc ]; then
   . /etc/bashrc
 fi
 
-# aliases
-if [ "$(command -v eza)" ]; then
-  alias ll='eza -l --icons=auto --group-directories-first'
-  alias l.='eza -d .*'
-  alias ls='eza'
-  alias l1='eza -1'
+if [ -z "$NO_FANCY_SHELL" ]; then
+
+  # aliases
+  if [ "$(command -v eza)" ]; then
+    alias ll='eza -l --icons=auto --group-directories-first'
+    alias l.='eza -d .*'
+    alias ls='eza'
+    alias l1='eza -1'
+  fi
+
+  if [ "$(command -v ug)" ]; then
+    alias grep='ug'
+    alias egrep='ug -E'
+    alias fgrep='ug -F'
+    alias xzgrep='ug -z'
+    alias xzegrep='ug -zE'
+    alias xzfgrep='ug -zF'
+  fi
+
+  command -v batcat > /dev/null && ! command -v bat > /dev/null && alias bat='batcat'
+  command -v chezmoi > /dev/null && alias reload='chezmoi apply && exec bash'
+
+  # tools
+  [ -f "/etc/profile.d/bash-preexec.sh" ] && . "/etc/profile.d/bash-preexec.sh"
+  [ -f "/usr/share/bash-prexec" ] && . "/usr/share/bash-prexec"
+  [ -n "$HOMEBREW_PREFIX" ] && [ -f "${HOMEBREW_PREFIX}/etc/profile.d/bash-preexec.sh" ] && . "${HOMEBREW_PREFIX}/etc/profile.d/bash-preexec.sh"
+  [ "$(command -v starship)" ] && eval "$(starship init bash)"
+  [ "$(command -v atuin)" ] && eval "$(atuin init bash ${ATUIN_INIT_FLAGS})"
+  [ "$(command -v zoxide)" ] && eval "$(zoxide init bash)"
+  [ "$(command -v chezmoi)" ] && source <(chezmoi completion bash)
+
 fi
 
-if [ "$(command -v ug)" ]; then
-  alias grep='ug'
-  alias egrep='ug -E'
-  alias fgrep='ug -F'
-  alias xzgrep='ug -z'
-  alias xzegrep='ug -zE'
-  alias xzfgrep='ug -zF'
-fi
-
-command -v batcat > /dev/null && ! command -v bat > /dev/null && alias bat='batcat'
-command -v chezmoi > /dev/null && alias reload='chezmoi apply && exec bash'
-
-# tools
-[ -f "/etc/profile.d/bash-preexec.sh" ] && . "/etc/profile.d/bash-preexec.sh"
-[ -f "/usr/share/bash-prexec" ] && . "/usr/share/bash-prexec"
-[ -n "$HOMEBREW_PREFIX" ] && [ -f "${HOMEBREW_PREFIX}/etc/profile.d/bash-preexec.sh" ] && . "${HOMEBREW_PREFIX}/etc/profile.d/bash-preexec.sh"
-[ "$(command -v starship)" ] && eval "$(starship init bash)"
-[ "$(command -v atuin)" ] && eval "$(atuin init bash ${ATUIN_INIT_FLAGS})"
-[ "$(command -v zoxide)" ] && eval "$(zoxide init bash)"
-[ "$(command -v chezmoi)" ] && source <(chezmoi completion bash)
-
-# source user config
 if [ -d ~/.bashrc.d ]; then
   for rc in ~/.bashrc.d/*; do
     if [ -f "$rc" ]; then
