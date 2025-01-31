@@ -1,71 +1,9 @@
 #!/bin/zsh
 
-setopt COMPLETE_IN_WORD
-
-if [ "$(command -v eza)" ]; then
-  alias ll='eza -l --icons=auto --group-directories-first'
-  alias l.='eza -d .*'
-  alias ls='eza'
-  alias l1='eza -1'
+if [ -d ~/.zshrc.d ]; then
+  for rc in ~/.zshrc.d/*; do
+    if [ -f "$rc" ]; then
+      . "$rc"
+    fi
+  done
 fi
-
-if [ "$(command -v ug)" ]; then
-  alias grep='ug'
-  alias egrep='ug -E'
-  alias fgrep='ug -F'
-  alias xzgrep='ug -z'
-  alias xzegrep='ug -zE'
-  alias xzfgrep='ug -zF'
-fi
-
-[ "$(command -v starship)" ] && eval "$(starship init zsh)"
-[ "$(command -v atuin)" ] && eval "$(atuin init zsh ${ATUIN_INIT_FLAGS})"
-[ "$(command -v zoxide)" ] && eval "$(zoxide init zsh)"
-
-# zsh history tweaks
-export HISTSIZE=100000
-export SAVEHIST=100000
-export HISTFILE="$HOME/.zsh_history"
-setopt HIST_REDUCE_BLANKS # remove leading blanks from history
-setopt APPEND_HISTORY     # append to history file, don't overwrite it
-setopt HIST_IGNORE_SPACE # don't enter into history if command starts with space
-setopt HIST_IGNORE_DUPS  # don't enter into history if duplicate of previous command
-setopt SHARE_HISTORY     # write to history file after every command, and import into other zsh instances
-
-# zsh keybindings
-autoload -U select-word-style
-select-word-style bash
-autoload -U up-line-or-beginning-search
-autoload -U down-line-or-beginning-search
-zle -N up-line-or-beginning-search
-zle -N down-line-or-beginning-search
-bindkey "^[[A" up-line-or-beginning-search # up
-bindkey "^[[B" down-line-or-beginning-search # down
-bindkey '^[[1;5C' emacs-forward-word # ctrl-right
-bindkey '^[[1;5D' emacs-backward-word # ctrl-left
-bindkey '^[f' emacs-forward-word # opt-right
-bindkey '^[b' emacs-backward-word # opt-left
-
-# all completions should be sourced after this.
-autoload -Uz compinit
-compinit -u
-
-# zsh plugins
-function auto-zsh-plugin() {
-  local prefix='/usr'
-  [ -n "$HOMEBREW_PREFIX" ] && prefix="$HOMEBREW_PREFIX"
-  [ -f "$prefix/share/$1" ] && . "$prefix/share/$1"
-  return $?
-}
-auto-zsh-plugin zsh-fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh \
-    || auto-zsh-plugin zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-auto-zsh-plugin zsh-autosuggestions/zsh-autosuggestions.zsh || true
-auto-zsh-plugin zsh-autopair/autopair.zsh || true
-unset -f auto-zsh-plugin
-
-# misc
-command -v starship > /dev/null && source <(starship completions zsh)
-command -v chezmoi > /dev/null && source <(chezmoi completion zsh)
-command -v gt > /dev/null && source <(gt completion)
-command -v batcat > /dev/null && ! command -v bat > /dev/null && alias bat='batcat'
-alias reload='chezmoi apply && exec zsh'
