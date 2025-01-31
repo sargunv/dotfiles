@@ -14,6 +14,7 @@ navigate = true
 
 [push]
 autoSetupRemote = true
+useForceIfIncludes = true
 
 [user]
 name={{ .chezmoi.config.data.full_name }}
@@ -29,6 +30,3 @@ helper = !gh auth git-credential
 
 [submodule]
 recurse = true
-
-[push]
-autoSetupRemote = true
