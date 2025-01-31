@@ -78,7 +78,7 @@ unset -f auto-zsh-plugin
 
 # source user config
 if [ -d ~/.zshrc.d ]; then
-  for rc in ~/.zshrc.d/*; do
+  for rc in ~/.zshrc.d/*(N); do
     if [ -f "$rc" ]; then
       . "$rc"
     fi
