@@ -37,7 +37,7 @@ if [ -z "$NO_FANCY_SHELL" ]; then
 
   command -v starship > /dev/null && source <(starship completions zsh)
   command -v chezmoi > /dev/null && source <(chezmoi completion zsh)
-  command -v gt > /dev/null && source <(gt completion)
+  command -v gt > /dev/null && source <(SHELL=zsh gt completion)
 
   # aliases
   if [ "$(command -v eza)" ]; then
