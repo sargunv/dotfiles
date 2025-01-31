@@ -3,6 +3,7 @@ packages:
     taps:
       - withgraphite/tap
     brews:
+      - antidote
       - atuin
       - bash-preexec
       - bat
