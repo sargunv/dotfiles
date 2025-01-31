@@ -1,7 +1,6 @@
 default:
     @just --list
 
-
 # Apply changes manually
 apply:
     chezmoi apply --verbose
