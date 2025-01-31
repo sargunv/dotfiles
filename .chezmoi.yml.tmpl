@@ -1,6 +1,7 @@
 data:
   full_name: {{ promptString "Full name" | quote }}
   github_username: {{ promptString "GitHub username" .chezmoi.username | quote }}
+  starship_preset: {{ promptChoice "Starship preset" (list "no-nerd-font" "nerd-font-symbols") | quote }}
 
 diff:
   pager: sh -c '[ -z "$NO_FANCY_SHELL" ] && delta || [ -z "$PAGER" ] && less -RF --mouse || $PAGER'

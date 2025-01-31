@@ -1,5 +1,5 @@
 starship:
-  preset: no-nerd-font
+  preset: {{ .starship_preset }}
   config:
     format: "$all"
     right_format: "$time"
