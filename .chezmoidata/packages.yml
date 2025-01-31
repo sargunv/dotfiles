@@ -10,11 +10,13 @@ packages:
       - direnv
       - eza
       - fd
+      - fzf
       - jq
       - gcc
       - gh
       - git-delta
       - glab
+      - just
       - node
       - nvim
       - rg
@@ -36,8 +38,7 @@ packages:
       - mas
     casks:
       - font-fira-code-nerd-font
-      - iterm2
-      - itermai
+      - wezterm
       - ollama
       - jetbrains-toolbox
       - visual-studio-code
@@ -50,3 +51,4 @@ packages:
       - swift-format
       - trash-cli
     flatpaks:
+      - org.wezfurlong.wezterm

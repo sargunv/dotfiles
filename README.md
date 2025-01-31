@@ -13,7 +13,7 @@ First, ensure [Homebrew](https://brew.sh/) is installed and PATH is configured.
 
 Set up the dotfiles with:
 
-```
+```sh
 brew install starship chezmoi
 chezmoi init sargunv --apply
 ```
