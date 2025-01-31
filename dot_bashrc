@@ -6,6 +6,10 @@ if [ -f /etc/bashrc ]; then
     . /etc/bashrc
 fi
 
+### bling.sh source start
+test -f /usr/share/ublue-os/bluefin-cli/bling.sh && source /usr/share/ublue-os/bluefin-cli/bling.sh
+### bling.sh source end
+
 if [ -d ~/.bashrc.d ]; then
     for rc in ~/.bashrc.d/*; do
         if [ -f "$rc" ]; then
@@ -14,10 +18,6 @@ if [ -d ~/.bashrc.d ]; then
     done
 fi
 unset rc
-
-### bling.sh source start
-test -f /usr/share/ublue-os/bluefin-cli/bling.sh && source /usr/share/ublue-os/bluefin-cli/bling.sh
-### bling.sh source end
 
 # non-bluefin, do it manually
 if [ -z "$BLING_SOURCED" ]; then
@@ -48,4 +48,3 @@ fi
 # misc
 source <(chezmoi completion bash)
 command -v batcat > /dev/null && ! command -v bat > /dev/null && alias bat='batcat'
-test -f ~/.iterm2_shell_integration.bash && source ~/.iterm2_shell_integration.bash
