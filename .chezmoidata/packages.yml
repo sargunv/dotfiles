@@ -3,47 +3,48 @@ packages:
     taps:
       - withgraphite/tap
     brews:
+      - chezmoi
+
+      # shell utilities
       - antidote
       - atuin
       - bash-preexec
-      - bat
-      - chezmoi
       - direnv
+      - starship
+      - zoxide
+
+      # git utilities
+      - gh
+      - git-delta
+      - glab
+      - withgraphite/tap/graphite
+
+      # dev tools
+      - just
+      - node
+      - shellcheck
+      - watchman
+
+      # fancy cli tools
+      - bat
       - eza
       - fd
       - fzf
       - jq
-      - gcc
-      - gh
-      - git-delta
-      - glab
-      - just
-      - node
       - nvim
       - rg
-      - shellcheck
-      - starship
       - tealdeer
       - television
-      - trash
       - ugrep
-      - watchman
-      - withgraphite/tap/graphite
       - yq
-      - zoxide
-      - zsh-fast-syntax-highlighting
-      - zsh-autopair
-      - zsh-autosuggestions
   darwin:
     taps:
     brews:
       - mas
+      - trash
     casks:
       - font-fira-code-nerd-font
       - wezterm
-      - ollama
-      - jetbrains-toolbox
-      - visual-studio-code
     apps:
   linux:
     taps:

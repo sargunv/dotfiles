@@ -1,10 +1,13 @@
+[user]
+name={{ .chezmoi.config.data.full_name }}
+email={{ .chezmoi.config.data.github_username }}@users.noreply.github.com
+
 [core]
 excludesfile = /home/sargunv/.gitignore_global
-pager = delta
-editor = nvim
+pager = sh -c '[ -z "$NO_FANCY_SHELL" ] && delta || [ -z "$PAGER" ] && less -RF --mouse || $PAGER'
 
 [interactive]
-diffFilter = delta --color-only
+diffFilter = sh -c '[ -z "$NO_FANCY_SHELL" ] && delta --color-only || cat'
 
 [merge]
 conflictstyle = zdiff3
@@ -30,10 +33,6 @@ algorithm = histogram
 
 [branch]
 sort = -committerdate
-
-[user]
-name={{ .chezmoi.config.data.full_name }}
-email={{ .chezmoi.config.data.github_username }}@users.noreply.github.com
 
 [credential "https://github.com"]
 helper =

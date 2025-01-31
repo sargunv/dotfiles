@@ -7,9 +7,10 @@ return {
   },
   {
     "ahmedkhalf/project.nvim",
-    opts = {
-      manual_mode = false,
-    },
+    optional = true,
+    opts = function(_, opts)
+      opts.manual_mode = false
+    end,
   },
   {
     "folke/trouble.nvim",
