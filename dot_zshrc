@@ -2,32 +2,25 @@
 
 setopt COMPLETE_IN_WORD
 
-### bling.sh source start
-# test -f /usr/share/ublue-os/bluefin-cli/bling.sh && source /usr/share/ublue-os/bluefin-cli/bling.sh
-### bling.sh source end
-
-# non-bluefin, do it manually
-if [ -z "$BLING_SOURCED" ]; then
-    if [ "$(command -v eza)" ]; then
-        alias ll='eza -l --icons=auto --group-directories-first'
-        alias l.='eza -d .*'
-        alias ls='eza'
-        alias l1='eza -1'
-    fi
-
-    if [ "$(command -v ug)" ]; then
-        alias grep='ug'
-        alias egrep='ug -E'
-        alias fgrep='ug -F'
-        alias xzgrep='ug -z'
-        alias xzegrep='ug -zE'
-        alias xzfgrep='ug -zF'
-    fi
-
-    [ "$(command -v starship)" ] && eval "$(starship init zsh)"
-    [ "$(command -v atuin)" ] && eval "$(atuin init zsh ${ATUIN_INIT_FLAGS})"
-    [ "$(command -v zoxide)" ] && eval "$(zoxide init zsh)"
+if [ "$(command -v eza)" ]; then
+  alias ll='eza -l --icons=auto --group-directories-first'
+  alias l.='eza -d .*'
+  alias ls='eza'
+  alias l1='eza -1'
 fi
+
+if [ "$(command -v ug)" ]; then
+  alias grep='ug'
+  alias egrep='ug -E'
+  alias fgrep='ug -F'
+  alias xzgrep='ug -z'
+  alias xzegrep='ug -zE'
+  alias xzfgrep='ug -zF'
+fi
+
+[ "$(command -v starship)" ] && eval "$(starship init zsh)"
+[ "$(command -v atuin)" ] && eval "$(atuin init zsh ${ATUIN_INIT_FLAGS})"
+[ "$(command -v zoxide)" ] && eval "$(zoxide init zsh)"
 
 # zsh history tweaks
 export HISTSIZE=100000
@@ -59,10 +52,10 @@ compinit -u
 
 # zsh plugins
 function auto-zsh-plugin() {
-    local prefix='/usr'
-    [ -n "$HOMEBREW_PREFIX" ] && prefix="$HOMEBREW_PREFIX"
-    [ -f "$prefix/share/$1" ] && . "$prefix/share/$1"
-    return $?
+  local prefix='/usr'
+  [ -n "$HOMEBREW_PREFIX" ] && prefix="$HOMEBREW_PREFIX"
+  [ -f "$prefix/share/$1" ] && . "$prefix/share/$1"
+  return $?
 }
 auto-zsh-plugin zsh-fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh \
     || auto-zsh-plugin zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
