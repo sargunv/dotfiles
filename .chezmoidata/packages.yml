@@ -1,57 +1,41 @@
 packages:
-  common:
-    taps:
-      - withgraphite/tap
-    brews:
-      - chezmoi
+  taps:
+    - withgraphite/tap
+  brews:
+    - chezmoi
 
-      # shell utilities
-      - antidote
-      - atuin
-      - bash-preexec
-      - direnv
-      - starship
-      - zoxide
+    # shell utilities
+    - antidote
+    - atuin
+    - bash-preexec
+    - direnv
+    - starship
+    - zoxide
 
-      # git utilities
-      - gh
-      - git-delta
-      - glab
-      - withgraphite/tap/graphite
+    # git utilities
+    - gh
+    - git-delta
+    - glab
+    - withgraphite/tap/graphite
 
-      # dev tools
-      - just
-      - node
-      - shellcheck
-      - watchman
+    # dev tools
+    - just
+    - fnm
+    - pyenv
+    - shellcheck
+    - watchman
 
-      # fancy cli tools
-      - bat
-      - eza
-      - fd
-      - fzf
-      - jq
-      - nvim
-      - rg
-      - tealdeer
-      - television
-      - ugrep
-      - yq
-  darwin:
-    taps:
-    brews:
-      - mas
-      - trash
-    casks:
-      - font-fira-code-nerd-font
-      - wezterm
-    apps:
-  linux:
-    taps:
-    brews:
-      - dysk
-      - swift
-      - swift-format
-      - trash-cli
-    flatpaks:
-      - org.wezfurlong.wezterm
+    # fancy cli tools
+    - bat
+    - eza
+    - fd
+    - fzf
+    - jq
+    - nvim
+    - rg
+    - tealdeer
+    - television
+    - trash
+    - ugrep
+    - yq
+  casks:

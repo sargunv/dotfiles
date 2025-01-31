@@ -2,8 +2,3 @@
 LICENSE
 README.md
 justfile
-
-{{ if ne .chezmoi.os "darwin" }}
-private_Library/
-run_onchange_launchctl_load.sh
-{{ end }}
