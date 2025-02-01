@@ -1,0 +1,38 @@
+#!/bin/sh
+
+# Create a temporary gitconfig file
+tmp_config=$(mktemp)
+cat > "$tmp_config"
+
+gitset() {
+    git config -f "$tmp_config" "$@"
+}
+
+# Set user info
+gitset user.name "{{ .chezmoi.config.data.full_name }}"
+gitset user.email "{{ .chezmoi.config.data.github_username }}@users.noreply.github.com"
+
+# GitHub credentials
+gitset --replace-all credential."https://github.com".helper "!gh auth git-credential"
+gitset --replace-all credential."https://gist.github.com".helper "!gh auth git-credential"
+
+# Improved defaults
+gitset core.excludesfile "$HOME/.gitignore_global"
+gitset init.defaultBranch "main"
+gitset push.autoSetupRemote "true"
+gitset push.useForceIfIncludes "true"
+gitset pull.rebase "true"
+gitset rebase.autoStash "true"
+gitset diff.algorithm "histogram"
+gitset branch.sort "-committerdate"
+gitset submodule.recurse "true"
+gitset merge.conflictstyle "zdiff3"
+
+# Fancy pager and diffs
+gitset core.pager 'sh -c "[ -z \"\$NO_FANCY_SHELL\" ] && delta || [ -z \"\$PAGER\" ] && less -RF --mouse || \$PAGER"'
+gitset interactive.diffFilter 'sh -c "[ -z \"\$NO_FANCY_SHELL\" ] && delta --color-only || cat"'
+gitset delta.navigate "true"
+
+# Output the modified config and cleanup
+cat "$tmp_config"
+rm -f "$tmp_config"
