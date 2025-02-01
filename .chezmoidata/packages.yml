@@ -35,6 +35,7 @@ packages:
       - rg
       - tealdeer
       - television
+      - tree-sitter
       - ugrep
       - yq
   darwin:

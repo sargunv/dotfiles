@@ -2,7 +2,7 @@ return {
   {
     "LazyVim/LazyVim",
     opts = function(_, opts)
-      opts.colorscheme = "cyberdream"
+      opts.colorscheme = "tokyonight-night"
     end,
   },
   {
@@ -21,10 +21,7 @@ return {
   {
     "nvim-treesitter/nvim-treesitter",
     opts = function(_, opts)
-      opts.ensure_installed = "all"
+      opts.auto_install = true
     end,
-  },
-  {
-    "scottmckendry/cyberdream.nvim",
   },
 }
