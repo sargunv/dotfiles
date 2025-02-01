@@ -9,3 +9,10 @@ Library/
 Library/**
 launchctl-load.sh
 {{ end }}
+
+{{ if ne .chezmoi.os "linux" }}
+.config/solaar/
+.config/solaar/**
+.config/systemd/
+.config/systemd/**
+{{ end }}
