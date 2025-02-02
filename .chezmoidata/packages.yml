@@ -45,7 +45,6 @@ packages:
       - trash
     casks:
       - font-fira-code-nerd-font
-      - wezterm
     apps:
   linux:
     taps:
@@ -55,4 +54,3 @@ packages:
       - swift-format
       - trash-cli
     flatpaks:
-      - org.wezfurlong.wezterm
