@@ -11,26 +11,26 @@ export PATH="$HOME/.atuin/bin:$PATH"
 
 # homebrew
 case "$(uname -s)" in
-  Darwin)
-    if [ -f /opt/homebrew/bin/brew ]; then
-      eval "$(/opt/homebrew/bin/brew shellenv)"
-      export FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
+Darwin)
+  if [ -f /opt/homebrew/bin/brew ]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+    export FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
 
-      # gnu tooling
-      GNU_PATH=$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin
-      GNU_PATH=$GNU_PATH:$HOMEBREW_PREFIX/opt/gnu-sed/libexec/gnubin
-      GNU_PATH=$GNU_PATH:$HOMEBREW_PREFIX/opt/gnu-tar/libexec/gnubin
-      export PATH=$GNU_PATH:$PATH
+    # gnu tooling
+    GNU_PATH=$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin
+    GNU_PATH=$GNU_PATH:$HOMEBREW_PREFIX/opt/gnu-sed/libexec/gnubin
+    GNU_PATH=$GNU_PATH:$HOMEBREW_PREFIX/opt/gnu-tar/libexec/gnubin
+    export PATH=$GNU_PATH:$PATH
 
-      GNU_MANPATH=$HOMEBREW_PREFIX/opt/coreutils/libexec/gnuman
-      GNU_MANPATH=$GNU_MANPATH:$HOMEBREW_PREFIX/opt/gnu-sed/libexec/gnuman
-      GNU_MANPATH=$GNU_MANPATH:$HOMEBREW_PREFIX/opt/gnu-tar/libexec/gnuman
-      export MANPATH=$GNU_MANPATH:$MANPATH
+    GNU_MANPATH=$HOMEBREW_PREFIX/opt/coreutils/libexec/gnuman
+    GNU_MANPATH=$GNU_MANPATH:$HOMEBREW_PREFIX/opt/gnu-sed/libexec/gnuman
+    GNU_MANPATH=$GNU_MANPATH:$HOMEBREW_PREFIX/opt/gnu-tar/libexec/gnuman
+    export MANPATH=$GNU_MANPATH:$MANPATH
 
-      # trash-cli is keg only
-      export PATH="/opt/homebrew/opt/trash/bin:$PATH"
-    fi
-    ;;
+    # trash-cli is keg only
+    export PATH="/opt/homebrew/opt/trash/bin:$PATH"
+  fi
+  ;;
 esac
 
 # cargo / rust
@@ -40,13 +40,20 @@ export PATH="$HOME/.cargo/bin:$PATH"
 export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/bin:$PATH"
 export PIPENV_PYTHON="$PYENV_ROOT/shims/python"
-if command -v pyenv > /dev/null; then
-    eval "$(pyenv init --path)"
-    eval "$(pyenv init -)"
+if command -v pyenv >/dev/null; then
+  eval "$(pyenv init --path)"
+  eval "$(pyenv init -)"
 fi
 
+# rbenv
+command -v rbenv >/dev/null && eval "$(rbenv init -)"
+
 # fnm
-command -v fnm > /dev/null && eval "$(fnm env --use-on-cd)"
+command -v fnm >/dev/null && eval "$(fnm env --use-on-cd)"
+
+# openjdk
+export JAVA_HOME="$HOMEBREW_PREFIX/opt/openjdk"
+export PATH="$JAVA_HOME/bin:$PATH"
 
 # misc env vars
 export ATUIN_INIT_FLAGS='--disable-up-arrow'
