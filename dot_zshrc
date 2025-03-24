@@ -45,6 +45,7 @@ if [ -z "$NO_FANCY_SHELL" ]; then
     alias l.='eza -d .*'
     alias ls='eza'
     alias l1='eza -1'
+    alias proxyman='set -a && source "/Users/sargunv/Library/Application Support/com.proxyman.NSProxy-setapp/app-data/proxyman_env_automatic_setup.sh" && set +a'
   fi
 
   if [ "$(command -v ug)" ]; then
