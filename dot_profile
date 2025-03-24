@@ -36,6 +36,9 @@ Darwin)
   ;;
 esac
 
+# dotnet
+export PATH="$PATH:$HOME/.dotnet/tools"
+
 # cargo / rust
 export PATH="$HOME/.cargo/bin:$PATH"
 
