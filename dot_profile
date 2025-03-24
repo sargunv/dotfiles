@@ -29,6 +29,9 @@ Darwin)
 
     # trash-cli is keg only
     export PATH="/opt/homebrew/opt/trash/bin:$PATH"
+
+    # llvm is keg-only
+    export PATH="/opt/homebrew/opt/llvm/bin:$PATH"
   fi
   ;;
 esac
