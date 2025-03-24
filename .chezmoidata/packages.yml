@@ -24,6 +24,7 @@ packages:
       - node
       - shellcheck
       - watchman
+      - httpie
 
       # fancy cli tools
       - bat
