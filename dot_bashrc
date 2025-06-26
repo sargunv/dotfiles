@@ -11,6 +11,7 @@ if [ -z "$NO_FANCY_SHELL" ]; then
   # completions
   [ "$(command -v chezmoi)" ] && source <(chezmoi completion bash)
   [ "$(command -v gt)" ] && source <(SHELL=bash gt completion)
+  [ "$(command -v jj)" ] && source <(jj util completion bash)
 
   # aliases
   if [ "$(command -v eza)" ]; then
