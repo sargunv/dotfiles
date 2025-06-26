@@ -1,6 +1,7 @@
 packages:
   common:
     taps:
+      - aviator-co/tap
     brews:
       - chezmoi
 
@@ -16,6 +17,7 @@ packages:
       - gh
       - git-delta
       - jj
+      - aviator-co/tap/av
 
       # dev tools
       - just

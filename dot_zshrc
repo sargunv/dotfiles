@@ -39,6 +39,7 @@ if [ -z "$NO_FANCY_SHELL" ]; then
   command -v chezmoi > /dev/null && source <(chezmoi completion zsh)
   command -v gt > /dev/null && source <(SHELL=zsh gt completion)
   command -v jj > /dev/null && source <(jj util completion zsh)
+  command -v av > /dev/null && source <(av completion zsh)
 
   # aliases
   if [ "$(command -v eza)" ]; then
