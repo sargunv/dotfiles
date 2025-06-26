@@ -1,18 +1,19 @@
 starship:
-  preset: nerd-font-symbols
+  preset: pure-preset
   config:
-    format: "$all"
+    format: $username$hostname$directory${custom.jj}$git_branch$git_state$git_status$cmd_duration$line_break$character
     right_format: "$time"
     command_timeout: 1000
-    git_metrics:
-      disabled: false
-    os:
-      disabled: false
-    sudo:
-      disabled: false
     time:
       disabled: false
       style: dimmed
-    status:
-      disabled: false
-      symbol: "✘"
+    directory:
+      truncate_to_repo: false
+    custom:
+      jj:
+        shell: ["starship-jj", "--ignore-working-copy", "starship"]
+        command: prompt
+        format: $output
+        ignore_timeout: true
+        use_stdin: false
+        when: true

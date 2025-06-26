@@ -61,6 +61,10 @@ command -v fnm >/dev/null && eval "$(fnm env --use-on-cd)"
 export JAVA_HOME="$HOMEBREW_PREFIX/opt/openjdk"
 export PATH="$JAVA_HOME/bin:$PATH"
 
+# android
+export ANDROID_HOME="$HOME/Library/Android/sdk"
+export PATH="$ANDROID_HOME/platform-tools:$PATH"
+
 # misc env vars
 export ATUIN_INIT_FLAGS='--disable-up-arrow'
 export PAGER='less -RF --mouse'

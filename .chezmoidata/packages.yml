@@ -1,7 +1,6 @@
 packages:
   common:
     taps:
-      - withgraphite/tap
     brews:
       - chezmoi
 
@@ -13,11 +12,10 @@ packages:
       - starship
       - zoxide
 
-      # git utilities
+      # vcs utilities
       - gh
       - git-delta
-      - glab
-      - withgraphite/tap/graphite
+      - jj
 
       # dev tools
       - just
@@ -39,6 +37,9 @@ packages:
       - tree-sitter
       - ugrep
       - yq
+    crates:
+      - starship-jj
+
   darwin:
     taps:
     brews:
