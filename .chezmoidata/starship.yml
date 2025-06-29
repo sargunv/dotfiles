@@ -1,7 +1,7 @@
 starship:
   preset: pure-preset
   config:
-    format: $username$hostname$directory${custom.jj}$git_branch$git_state$git_status$cmd_duration$line_break$character
+    format: $username$hostname$directory${custom.jj}$git_branch${custom.av}$git_state$git_status$cmd_duration$line_break$character
     right_format: "$time"
     command_timeout: 1000
     time:
@@ -13,7 +13,20 @@ starship:
       jj:
         shell: ["starship-jj", "--ignore-working-copy", "starship"]
         command: prompt
-        format: $output
+        format: "$output "
         ignore_timeout: true
         use_stdin: false
         when: true
+      av:
+        command: |
+          current_branch=$(git branch --show-current 2>/dev/null) || exit 1
+          jq -r --arg branch "$current_branch" '
+            if .branches[$branch] and .branches[$branch].pullRequest.number then
+              "#" + (.branches[$branch].pullRequest.number | tostring)
+            else
+              empty
+            end
+          ' .git/av/av.db 2>/dev/null || exit 1
+        format: '[$output]($style)'
+        style: dimmed
+        when: "[ -f .git/av/av.db ]"
