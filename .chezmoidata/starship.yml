@@ -22,7 +22,11 @@ starship:
           current_branch=$(git branch --show-current 2>/dev/null) || exit 1
           jq -r --arg branch "$current_branch" '
             if .branches[$branch] and .branches[$branch].pullRequest.number then
-              "#" + (.branches[$branch].pullRequest.number | tostring)
+              "\u001B]8;;" +
+              .branches[$branch].pullRequest.permalink +
+              "\u001B\\#" +
+              (.branches[$branch].pullRequest.number | tostring) +
+              "\u001B]8;;\u001B\\"
             else
               empty
             end
