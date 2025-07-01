@@ -30,10 +30,10 @@ if [ -z "$NO_FANCY_SHELL" ]; then
 
   # aliases
   if [ "$(command -v eza)" ]; then
-    alias ll='eza -l --icons=auto --group-directories-first'
-    alias l.='eza -d .*'
-    alias ls='eza'
-    alias l1='eza -1'
+    alias ls='eza --hyperlink --icons=auto'
+    alias ll='ls -l --group-directories-first --git'
+    alias lt='ls --tree'
+    alias llt='ll --tree'
     alias proxyman='set -a && source "/Users/sargunv/Library/Application Support/com.proxyman.NSProxy-setapp/app-data/proxyman_env_automatic_setup.sh" && set +a'
   fi
 
