@@ -27,6 +27,8 @@ gitset diff.algorithm "histogram"
 gitset branch.sort "-committerdate"
 gitset submodule.recurse "true"
 gitset merge.conflictstyle "zdiff3"
+gitset core.untrackedCache "true"
+gitset core.fsmonitor "true"
 
 # Fancy pager and diffs
 gitset core.pager 'sh -c "[ -z \"\$NO_FANCY_SHELL\" ] && delta || [ -z \"\$PAGER\" ] && less -RF --mouse || \$PAGER"'
