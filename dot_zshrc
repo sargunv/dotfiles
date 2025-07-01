@@ -16,20 +16,7 @@ if [ -z "$NO_FANCY_SHELL" ]; then
   setopt HIST_IGNORE_DUPS  # don't enter into history if duplicate of previous command
   setopt SHARE_HISTORY     # write to history file after every command, and import into other zsh instances
   setopt COMPLETE_IN_WORD  # complete from the cursor position
-
-  # keybindings
-  autoload -U select-word-style
-  select-word-style bash
-  autoload -U up-line-or-beginning-search
-  autoload -U down-line-or-beginning-search
-  zle -N up-line-or-beginning-search
-  zle -N down-line-or-beginning-search
-  bindkey "^[[A" up-line-or-beginning-search # up
-  bindkey "^[[B" down-line-or-beginning-search # down
-  bindkey '^[[1;5C' emacs-forward-word # ctrl-right
-  bindkey '^[[1;5D' emacs-backward-word # ctrl-left
-  bindkey '^[f' emacs-forward-word # opt-right
-  bindkey '^[b' emacs-backward-word # opt-left
+  bindkey -e
 
   # completion
   autoload -Uz compinit

@@ -1,4 +1,4 @@
 zdharma-continuum/fast-syntax-highlighting
 zsh-users/zsh-autosuggestions
 hlissner/zsh-autopair
-jeffreytse/zsh-vi-mode
+jirutka/zsh-shift-select
