@@ -41,6 +41,7 @@ if [ -z "$NO_FANCY_SHELL" ]; then
   [ "$(command -v starship)" ] && eval "$(starship init bash)"
   [ "$(command -v atuin)" ] && eval "$(atuin init bash ${ATUIN_INIT_FLAGS})"
   [ "$(command -v zoxide)" ] && eval "$(zoxide init bash)"
+  [ "$(command -v direnv)" ] && eval "$(direnv hook bash)"
 
 fi
 
