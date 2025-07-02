@@ -1,0 +1,4 @@
+theme = Dracula
+font-thicken = true
+keybind = global:super+grave_accent=toggle_quick_terminal
+quick-terminal-animation-duration = 0.15
