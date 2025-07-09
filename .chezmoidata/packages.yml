@@ -16,12 +16,10 @@ packages:
       # vcs utilities
       - gh
       - git-delta
-      - jj
       - aviator-co/tap/av
 
       # dev tools
       - just
-      - node
       - shellcheck
       - watchman
       - httpie
@@ -39,8 +37,6 @@ packages:
       - tree-sitter
       - ugrep
       - yq
-    crates:
-      - starship-jj
 
   darwin:
     taps:
