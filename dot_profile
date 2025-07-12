@@ -6,6 +6,9 @@ export PATH="$HOME/.local/bin:$HOME/bin:$PATH"
 # Jetbrains
 export PATH="$PATH:$HOME/.local/share/JetBrains/Toolbox/scripts"
 
+# Claude
+export PATH="$PATH:$HOME/.claude/local"
+
 # manually installed atuin
 export PATH="$HOME/.atuin/bin:$PATH"
 
