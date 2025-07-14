@@ -1,4 +1,4 @@
-theme = dark:Builtin Solarized Dark,light:Builtin Solarized Light
+theme = dark:Atom,light:AtomOneLight
 font-thicken = true
 keybind = global:super+grave_accent=toggle_quick_terminal
 keybind = shift+enter=text:\x0a
