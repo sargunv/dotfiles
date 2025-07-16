@@ -31,15 +31,19 @@ starship:
         command: |
           current_branch=$(git branch --show-current 2>/dev/null) || exit 1
           jq -r --arg branch "$current_branch" '
-            .prInfos[] | 
-            select(.headRefName == $branch) | 
-            (.url | capture("https://app.graphite.dev/github/pr/(?<owner>[^/]+)/(?<repo>[^/]+)/(?<pr>[0-9]+)") | "\u001B]8;;https://github.com/" + .owner + "/" + .repo + "/pull/" + .pr + "\u001B\\#" + .pr + "\u001B]8;;\u001B\\") +
-            " " + 
-            (if .state == "OPEN" then ""
-             elif .state == "MERGED" then ""
-             elif .state == "CLOSED" then ""
-             elif .state == "DRAFT" then ""
-             else .state end)
+            .prInfos[]
+            | select(.headRefName == $branch)
+            | . as $pr
+            | ($pr.url | capture("https://app.graphite.dev/github/pr/(?<owner>[^/]+)/(?<repo>[^/]+)/(?<pr>[0-9]+)") ) as $url
+            | (if $pr.state == "OPEN" then "\u001B[1m\u001B[32m\u001B[0m"
+               elif $pr.state == "MERGED" then "\u001B[1m\u001B[35m\u001B[0m"
+               elif $pr.state == "CLOSED" then "\u001B[1m\u001B[31m\u001B[0m"
+               elif $pr.state == "DRAFT" then "\u001B[1m\u001B[33m\u001B[0m"
+               else "\u001B[1m\u001B[2m" + $pr.state + "\u001B[0m" end) as $icon
+            | (
+                "\u001B]8;;https://github.com/" + $url.owner + "/" + $url.repo + "/pull/" + $url.pr +
+                "\u001B\\#" + $url.pr + " " + $icon + "\u001B]8;;\u001B\\"
+              )
           ' .git/.graphite_pr_info 2>/dev/null || exit 1
         format: " [$output]($style)"
         style: dimmed
