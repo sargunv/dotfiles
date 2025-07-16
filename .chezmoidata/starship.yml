@@ -1,7 +1,7 @@
 starship:
   preset: pure-preset
   config:
-    format: $username$hostname$directory$git_branch${custom.av}$git_state$git_status$cmd_duration$line_break$character
+    format: $username$hostname$directory$git_branch${custom.av}${custom.graphite}$git_state$git_status$cmd_duration$line_break$character
     right_format: "$time"
     command_timeout: 1000
     time:
@@ -24,6 +24,19 @@ starship:
               empty
             end
           ' .git/av/av.db 2>/dev/null || exit 1
-        format: '[$output]($style)'
+        format: "[$output]($style)"
         style: dimmed
         when: "[ -f .git/av/av.db ]"
+      graphite:
+        command: |
+          current_branch=$(git branch --show-current 2>/dev/null) || exit 1
+          jq -r --arg branch "$current_branch" '
+            .prInfos[] | 
+            select(.headRefName == $branch) | 
+            .url | 
+            capture("https://app.graphite.dev/github/pr/(?<owner>[^/]+)/(?<repo>[^/]+)/(?<pr>[0-9]+)") |
+            "\u001B]8;;https://github.com/" + .owner + "/" + .repo + "/pull/" + .pr + "\u001B\\#" + .pr + "\u001B]8;;\u001B\\"
+          ' .git/.graphite_pr_info 2>/dev/null || exit 1
+        format: "[$output]($style)"
+        style: dimmed
+        when: "[ -f .git/.graphite_pr_info ]"
