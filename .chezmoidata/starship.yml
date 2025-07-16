@@ -24,7 +24,7 @@ starship:
               empty
             end
           ' .git/av/av.db 2>/dev/null || exit 1
-        format: "[$output]($style)"
+        format: " [$output]($style)"
         style: dimmed
         when: "[ -f .git/av/av.db ]"
       graphite:
@@ -33,10 +33,14 @@ starship:
           jq -r --arg branch "$current_branch" '
             .prInfos[] | 
             select(.headRefName == $branch) | 
-            .url | 
-            capture("https://app.graphite.dev/github/pr/(?<owner>[^/]+)/(?<repo>[^/]+)/(?<pr>[0-9]+)") |
-            "\u001B]8;;https://github.com/" + .owner + "/" + .repo + "/pull/" + .pr + "\u001B\\#" + .pr + "\u001B]8;;\u001B\\"
+            (.url | capture("https://app.graphite.dev/github/pr/(?<owner>[^/]+)/(?<repo>[^/]+)/(?<pr>[0-9]+)") | "\u001B]8;;https://github.com/" + .owner + "/" + .repo + "/pull/" + .pr + "\u001B\\#" + .pr + "\u001B]8;;\u001B\\") +
+            " " + 
+            (if .state == "OPEN" then ""
+             elif .state == "MERGED" then ""
+             elif .state == "CLOSED" then ""
+             elif .state == "DRAFT" then ""
+             else .state end)
           ' .git/.graphite_pr_info 2>/dev/null || exit 1
-        format: "[$output]($style)"
+        format: " [$output]($style)"
         style: dimmed
         when: "[ -f .git/.graphite_pr_info ]"
