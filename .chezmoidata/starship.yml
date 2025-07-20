@@ -1,15 +1,24 @@
 starship:
   preset: pure-preset
   config:
+    # Modify the pure preset to include custom modules in the appropriate places
     format: $username$hostname$directory$git_branch${custom.av}${custom.graphite}$git_state$git_status$cmd_duration$line_break$character
     right_format: "$time"
+
+    # Some repos are slow to load git info
     command_timeout: 1000
+
+    # Add time for easily assembling timelines
     time:
       disabled: false
       style: dimmed
+
+    # Simplify directory display
     directory:
       truncate_to_repo: false
+
     custom:
+      # Add custom module to display a PR URL for aviator stacked PRs
       av:
         command: |
           current_branch=$(git branch --show-current 2>/dev/null) || exit 1
@@ -27,6 +36,8 @@ starship:
         format: " [$output]($style)"
         style: dimmed
         when: "[ -f .git/av/av.db ]"
+
+      # Add custom module to display a PR URL for graphite stacked PRs
       graphite:
         command: |
           current_branch=$(git branch --show-current 2>/dev/null) || exit 1

@@ -3,54 +3,52 @@ packages:
     taps:
       - aviator-co/tap
     brews:
-      - chezmoi
-
-      # shell utilities
-      - antidote
-      - atuin
-      - bash-preexec
-      - direnv
-      - starship
-      - zoxide
-
-      # vcs utilities
-      - gh
-      - git-delta
-      - aviator-co/tap/av
+      # dotfiles manager
+      - chezmoi # dotfiles manager
 
       # dev tools
-      - just
-      - shellcheck
-      - watchman
-      - httpie
+      - aviator-co/tap/av # stacked pr manager
+      - gh # github cli
+      - git-delta # fancy git diff viewer
+      - httpie # friendly http client
+      - just # friendly make alternative
+      - watchman # file watcher
+      - jq # json processor
+      - yq # yaml processor
 
-      # fancy cli tools
-      - bat
-      - eza
-      - fd
-      - fzf
-      - jq
-      - nvim
-      - rg
-      - tealdeer
-      - television
-      - tree-sitter
-      - ugrep
-      - yq
+      # fancy shell
+      - antidote # zsh plugin manager
+      - atuin # zsh history
+      - bash-preexec # used by certain bash integrations
+      - direnv # per-directory shell environment manager
+      - starship # fancy shell prompt
+      - bat # fancy cat
+      - eza # fancy ls
+      - fd # fancy find
+      - fzf # fuzzy finder
+      - nvim # editor
+      - rg # fancy grep
+      - tealdeer # tldr cli docs
+      - zoxide # smarter cd command
+
+      # dependencies
+      - television # used by nvim config
+      - tree-sitter # used by nvim config
+      - ugrep # used by nvim config
 
   darwin:
     taps:
     brews:
-      - mas
-      - trash
+      - mas # mac app store cli
+      - trash # trash cli
     casks:
-      - font-fira-code-nerd-font
+      - font-jetbrains-mono-nerd-font # nerd font for symbols
     apps:
   linux:
     taps:
     brews:
-      - dysk
-      - swift
-      - swift-format
-      - trash-cli
+      - dysk # fancy df
+      - swift # swift compiler
+      - swift-format # swift formatter
+      - trash-cli # trash cli
     flatpaks:
