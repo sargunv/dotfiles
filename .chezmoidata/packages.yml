@@ -47,8 +47,5 @@ packages:
   linux:
     taps:
     brews:
-      - dysk # fancy df
       - swift # swift compiler
       - swift-format # swift formatter
-      - trash-cli # trash cli
-    flatpaks:
