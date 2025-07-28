@@ -44,6 +44,7 @@ export PATH="$PATH:$HOME/.dotnet/tools"
 
 # cargo / rust
 export PATH="$HOME/.cargo/bin:$PATH"
+export PATH="$ANDROID_HOME/platform-tools:$PATH"
 
 # pyenv
 export PYENV_ROOT="$HOME/.pyenv"
@@ -60,13 +61,11 @@ command -v rbenv >/dev/null && eval "$(rbenv init -)"
 # fnm
 command -v fnm >/dev/null && eval "$(fnm env --use-on-cd)"
 
-# openjdk
-export JAVA_HOME="$HOMEBREW_PREFIX/opt/openjdk"
-export PATH="$JAVA_HOME/bin:$PATH"
-
 # android
-export ANDROID_HOME="$HOME/Library/Android/sdk"
-export PATH="$ANDROID_HOME/platform-tools:$PATH"
+[ -d "$HOME/Library/Android/sdk" ] && {
+  export ANDROID_HOME="$HOME/Library/Android/sdk"
+  export PATH="$ANDROID_HOME/platform-tools:$PATH"
+}
 
 # misc env vars
 export ATUIN_INIT_FLAGS='--disable-up-arrow'

@@ -39,9 +39,3 @@ brew {{ . | quote }}
 
 EOF
 fi
-
-{{ if eq .chezmoi.os "linux" }}
-if command -v flatpak > /dev/null; then
-  flatpak install -y {{ .packages.linux.flatpaks | join " " }}
-fi
-{{ end }}

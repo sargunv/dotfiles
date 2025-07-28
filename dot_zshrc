@@ -49,9 +49,11 @@ if [ -z "$NO_FANCY_SHELL" ]; then
   command -v batcat > /dev/null && ! command -v bat > /dev/null && alias bat='batcat'
   command -v chezmoi > /dev/null && alias reload='chezmoi apply && exec zsh'
 
-  # plugins
-  source $HOMEBREW_PREFIX/opt/antidote/share/antidote/antidote.zsh
-  antidote load
+  # zsh plugins
+  [ -n "$HOMEBREW_PREFIX" ] && [ -d "$HOMEBREW_PREFIX/opt/antidote/share/antidote" ] && {
+    source $HOMEBREW_PREFIX/opt/antidote/share/antidote/antidote.zsh
+    antidote load
+  }
 
   # tools
   [ "$(command -v starship)" ] && eval "$(starship init zsh)"
