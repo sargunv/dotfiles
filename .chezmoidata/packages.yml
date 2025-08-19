@@ -40,7 +40,6 @@ packages:
     taps:
     brews:
       - mas # mac app store cli
-      - trash # trash cli
     casks:
       - font-jetbrains-mono-nerd-font # nerd font for symbols
     apps:
