@@ -29,12 +29,11 @@ Darwin)
     GNU_MANPATH=$GNU_MANPATH:$HOMEBREW_PREFIX/opt/gnu-sed/libexec/gnuman
     GNU_MANPATH=$GNU_MANPATH:$HOMEBREW_PREFIX/opt/gnu-tar/libexec/gnuman
     export MANPATH=$GNU_MANPATH:$MANPATH
-
-    # trash-cli is keg only
-    export PATH="/opt/homebrew/opt/trash/bin:$PATH"
-
-    # llvm is keg-only
-    export PATH="/opt/homebrew/opt/llvm/bin:$PATH"
+  fi
+  ;;
+Linux)
+  if [ -f /home/linuxbrew/.linuxbrew/bin/brew ]; then
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
   fi
   ;;
 esac
