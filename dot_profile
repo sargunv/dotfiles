@@ -29,6 +29,11 @@ Darwin)
     GNU_MANPATH=$GNU_MANPATH:$HOMEBREW_PREFIX/opt/gnu-sed/libexec/gnuman
     GNU_MANPATH=$GNU_MANPATH:$HOMEBREW_PREFIX/opt/gnu-tar/libexec/gnuman
     export MANPATH=$GNU_MANPATH:$MANPATH
+
+    # MoltenVK / Vulkan SDK
+    if [ -d "/opt/homebrew/opt/molten-vk" ]; then
+      export VULKAN_SDK="/opt/homebrew/opt/molten-vk"
+    fi
   fi
   ;;
 Linux)
