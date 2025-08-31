@@ -15,8 +15,12 @@ export PATH="$HOME/.atuin/bin:$PATH"
 # homebrew
 case "$(uname -s)" in
 Darwin)
-  if [ -f /opt/homebrew/bin/brew ]; then
+  if [ -f /usr/local/bin/brew ]; then
+    eval "$(/usr/local/bin/brew shellenv)"
+  elif [ -f /opt/homebrew/bin/brew ]; then
     eval "$(/opt/homebrew/bin/brew shellenv)"
+  fi  
+  if [ -n "$HOMEBREW_PREFIX" ]; then
     export FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
 
     # gnu tooling
@@ -31,8 +35,8 @@ Darwin)
     export MANPATH=$GNU_MANPATH:$MANPATH
 
     # MoltenVK / Vulkan SDK
-    if [ -d "/opt/homebrew/opt/molten-vk" ]; then
-      export VULKAN_SDK="/opt/homebrew/opt/molten-vk"
+    if [ -d "$HOMEBREW_PREFIX/opt/molten-vk" ]; then
+      export VULKAN_SDK="$HOMEBREW_PREFIX/opt/molten-vk"
     fi
   fi
   ;;
@@ -42,6 +46,9 @@ Linux)
   fi
   ;;
 esac
+
+# java
+export JAVA_HOME=$(/usr/libexec/java_home)
 
 # dotnet
 export PATH="$PATH:$HOME/.dotnet/tools"
