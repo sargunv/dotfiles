@@ -14,7 +14,7 @@ Set up the dotfiles with:
 
 ```sh
 brew install starship chezmoi
-chezmoi init sargunv --apply
+chezmoi init sargunv --branch headway --apply
 ```
 
 If Homebrew can't be used, install [chezmoi](https://www.chezmoi.io/) and
