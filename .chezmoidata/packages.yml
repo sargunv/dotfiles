@@ -19,7 +19,6 @@ packages:
       - antidote # zsh plugin manager
       - atuin # zsh history
       - bash-preexec # used by certain bash integrations
-      - direnv # per-directory shell environment manager
       - starship # fancy shell prompt
       - bat # fancy cat
       - eza # fancy ls
