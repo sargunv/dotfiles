@@ -4,8 +4,7 @@ This project contains the files I use to set up my personal environment.
 
 Supports:
 
-- Linux (tested with [Bluefin](https://projectbluefin.io/) and Ubuntu/WSL)
-- macOS (arm64)
+- macOS (arm64 and x86_64)
 
 Usage:
 

@@ -1,5 +1,0 @@
-theme = dark:Adwaita Dark,light:Adwaita
-font-thicken = true
-keybind = global:super+grave_accent=toggle_quick_terminal
-keybind = shift+enter=text:\x0a
-quick-terminal-animation-duration = 0.15

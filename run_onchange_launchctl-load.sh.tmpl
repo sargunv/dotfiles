@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# hash: {{ include "private_Library/LaunchAgents/com.github.sargunv.dotfiles.update.plist" | sha256sum }}
-
-launchctl unload ~/Library/LaunchAgents/com.github.sargunv.dotfiles.update.plist
-launchctl load ~/Library/LaunchAgents/com.github.sargunv.dotfiles.update.plist
+plist_path="$HOME/Library/LaunchAgents/co.headway.dotfiles.update.plist"
+launchctl unload "$plist_path"
+launchctl load "$plist_path"

@@ -18,25 +18,6 @@ starship:
       truncate_to_repo: false
 
     custom:
-      # Add custom module to display a PR URL for aviator stacked PRs
-      av:
-        command: |
-          current_branch=$(git branch --show-current 2>/dev/null) || exit 1
-          jq -r --arg branch "$current_branch" '
-            if .branches[$branch] and .branches[$branch].pullRequest.number then
-              "\u001B]8;;" +
-              .branches[$branch].pullRequest.permalink +
-              "\u001B\\#" +
-              (.branches[$branch].pullRequest.number | tostring) +
-              "\u001B]8;;\u001B\\"
-            else
-              empty
-            end
-          ' .git/av/av.db 2>/dev/null || exit 1
-        format: " [$output]($style)"
-        style: dimmed
-        when: "[ -f .git/av/av.db ]"
-
       # Add custom module to display a PR URL for graphite stacked PRs
       graphite:
         command: |

@@ -1,9 +1,14 @@
 #!/bin/zsh
 
+# common profile
 if [ -f ~/.profile ]; then
     . ~/.profile
 fi
 
+# mise
+command -v mise >/dev/null && eval "$(mise env --shell zsh)"
+
+# local profile
 if [ -d ~/.profile.d ]; then
   for profile_file in ~/.profile.d/*(N); do
     if [ -f "$profile_file" ]; then

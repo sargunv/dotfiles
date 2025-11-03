@@ -1,14 +1,13 @@
 packages:
   common:
     taps:
-      - aviator-co/tap
     brews:
       # dotfiles manager
-      - chezmoi # dotfiles manager
+      - chezmoi
 
       # dev tools
-      - aviator-co/tap/av # stacked pr manager
       - gh # github cli
+      - mise # mise cli
       - git-delta # fancy git diff viewer
       - httpie # friendly http client
       - just # friendly make alternative
@@ -26,7 +25,6 @@ packages:
       - eza # fancy ls
       - fd # fancy find
       - fzf # fuzzy finder
-      - nvim # editor
       - rg # fancy grep
       - tealdeer # tldr cli docs
       - zoxide # smarter cd command
@@ -43,8 +41,3 @@ packages:
     casks:
       - font-jetbrains-mono-nerd-font # nerd font for symbols
     apps:
-  linux:
-    taps:
-    brews:
-      - swift # swift compiler
-      - swift-format # swift formatter
