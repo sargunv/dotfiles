@@ -4,8 +4,5 @@
 type = "file"
 refreshPeriod = "24h"
 url = "https://raw.githubusercontent.com/github/gitignore/refs/heads/main/Global/macOS.gitignore"
-# jgitver-gradle struggles with the Icon line; let's filter it out
-filter.command = "sed"
-filter.args = ["/Icon\\[/d"]
 
 {{ end }}

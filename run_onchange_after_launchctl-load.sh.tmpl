@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# hash: {{ include (expandenv "$HOME/Library/LaunchAgents/co.headway.dotfiles.update.plist") | sha256sum }}
+
 plist_path="$HOME/Library/LaunchAgents/co.headway.dotfiles.update.plist"
 launchctl unload "$plist_path"
 launchctl load "$plist_path"

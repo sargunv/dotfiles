@@ -7,13 +7,15 @@ packages:
 
       # dev tools
       - gh # github cli
-      - mise # mise cli
       - git-delta # fancy git diff viewer
       - httpie # friendly http client
       - just # friendly make alternative
       - watchman # file watcher
       - jq # json processor
       - yq # yaml processor
+      - tokei # code line counter
+      - tmux # terminal multiplexer
+      - mise # dev tool manager
 
       # fancy shell
       - antidote # zsh plugin manager
@@ -27,11 +29,6 @@ packages:
       - rg # fancy grep
       - tealdeer # tldr cli docs
       - zoxide # smarter cd command
-
-      # dependencies
-      - television # used by nvim config
-      - tree-sitter # used by nvim config
-      - ugrep # used by nvim config
 
   darwin:
     taps:

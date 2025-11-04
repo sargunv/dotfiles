@@ -2,7 +2,7 @@ starship:
   preset: pure-preset
   config:
     # Modify the pure preset to include custom modules in the appropriate places
-    format: $username$hostname$directory$git_branch${custom.av}${custom.graphite}$git_state$git_status$cmd_duration$line_break$character
+    format: $username$hostname$directory$git_branch${custom.graphite}$git_state$git_status$cmd_duration$line_break$character
     right_format: "$time"
 
     # Some repos are slow to load git info
