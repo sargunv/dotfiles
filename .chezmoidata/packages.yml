@@ -7,12 +7,15 @@ packages:
       # dev tools
       - gh # github cli
       - git-delta # fancy git diff viewer
+      - git-lfs # git large file storage
       - helix # editor
       - httpie # friendly http client
       - just # friendly make alternative
       - watchman # file watcher
       - jq # json processor
       - yq # yaml processor
+      - tokei # code line counter
+      - tmux # terminal multiplexer
 
       # fancy shell
       - antidote # zsh plugin manager
