@@ -57,4 +57,4 @@ esac
 export ATUIN_INIT_FLAGS='--disable-up-arrow'
 export PAGER='less -RF --mouse'
 export DELTA_PAGER="$PAGER"
-export EDITOR='nvim'
+export EDITOR='hx'
