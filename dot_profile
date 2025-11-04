@@ -1,17 +1,5 @@
 #!/bin/sh
 
-# local bin
-export PATH="$HOME/.local/bin:$HOME/bin:$PATH"
-
-# Jetbrains
-export PATH="$PATH:$HOME/.local/share/JetBrains/Toolbox/scripts"
-
-# Claude
-export PATH="$PATH:$HOME/.claude/local"
-
-# manually installed atuin
-export PATH="$HOME/.atuin/bin:$PATH"
-
 # homebrew
 case "$(uname -s)" in
 Darwin)
@@ -47,11 +35,26 @@ Linux)
   ;;
 esac
 
+# Jetbrains
+export PATH="$PATH:$HOME/.local/share/JetBrains/Toolbox/scripts"
+
+# Claude
+export PATH="$PATH:$HOME/.claude/local"
+
+# manually installed atuin
+export PATH="$HOME/.atuin/bin:$PATH"
+
 # android
 [ -d "$HOME/Library/Android/sdk" ] && {
   export ANDROID_HOME="$HOME/Library/Android/sdk"
   export PATH="$ANDROID_HOME/platform-tools:$PATH"
 }
+
+# mise shims
+export PATH="$HOME/.local/share/mise/shims:$PATH"
+
+# local bin
+export PATH="$HOME/.local/bin:$HOME/bin:$PATH"
 
 # misc env vars
 export ATUIN_INIT_FLAGS='--disable-up-arrow'
