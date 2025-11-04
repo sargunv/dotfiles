@@ -24,9 +24,7 @@ if [ -z "$NO_FANCY_SHELL" ]; then
 
   command -v starship > /dev/null && source <(starship completions zsh)
   command -v chezmoi > /dev/null && source <(chezmoi completion zsh)
-  command -v gt > /dev/null && source <(SHELL=zsh gt completion)
-  command -v av > /dev/null && source <(av completion zsh)
-  command -v rustup > /dev/null && source <(rustup completions zsh)
+  command -v mise > /dev/null && source <(mise completion zsh)
 
   # aliases
   if [ "$(command -v eza)" ]; then
@@ -34,7 +32,7 @@ if [ -z "$NO_FANCY_SHELL" ]; then
     alias ll='ls -l --group-directories-first --git'
     alias lt='ls --tree'
     alias llt='ll --tree'
-    alias proxyman='set -a && source "/Users/sargunv/Library/Application Support/com.proxyman.NSProxy-setapp/app-data/proxyman_env_automatic_setup.sh" && set +a'
+    alias proxyman='set -a && source "$HOME/Library/Application Support/com.proxyman.NSProxy-setapp/app-data/proxyman_env_automatic_setup.sh" && set +a'
   fi
 
   if [ "$(command -v ug)" ]; then
@@ -59,8 +57,7 @@ if [ -z "$NO_FANCY_SHELL" ]; then
   [ "$(command -v starship)" ] && eval "$(starship init zsh)"
   [ "$(command -v atuin)" ] && eval "$(atuin init zsh ${ATUIN_INIT_FLAGS})"
   [ "$(command -v zoxide)" ] && eval "$(zoxide init zsh)"
-  [ "$(command -v direnv)" ] && eval "$(direnv hook zsh)"
-
+  [ "$(command -v mise)" ] && eval "$(mise activate zsh)"
 fi
 
 if [ -d ~/.zshrc.d ]; then

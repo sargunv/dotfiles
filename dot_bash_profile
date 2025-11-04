@@ -1,9 +1,14 @@
 #!/bin/bash
 
+# common profile
 if [ -f ~/.profile ]; then
     . ~/.profile
 fi
 
+# mise
+[ "$(command -v mise)" ] && eval "$(mise env --shell bash)"
+
+# local profile
 if [ -d ~/.profile.d ]; then
   for profile_file in ~/.profile.d/*; do
     if [ -f "$profile_file" ]; then
@@ -13,6 +18,7 @@ if [ -d ~/.profile.d ]; then
 fi
 unset profile_file
 
+# bashrc
 if [ -f ~/.bashrc ]; then
     . ~/.bashrc
 fi

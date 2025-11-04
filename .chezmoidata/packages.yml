@@ -1,15 +1,13 @@
 packages:
   common:
     taps:
-      - aviator-co/tap
     brews:
-      # dotfiles manager
       - chezmoi # dotfiles manager
 
       # dev tools
-      - aviator-co/tap/av # stacked pr manager
       - gh # github cli
       - git-delta # fancy git diff viewer
+      - helix # editor
       - httpie # friendly http client
       - just # friendly make alternative
       - watchman # file watcher
@@ -20,21 +18,14 @@ packages:
       - antidote # zsh plugin manager
       - atuin # zsh history
       - bash-preexec # used by certain bash integrations
-      - direnv # per-directory shell environment manager
       - starship # fancy shell prompt
       - bat # fancy cat
       - eza # fancy ls
       - fd # fancy find
       - fzf # fuzzy finder
-      - nvim # editor
       - rg # fancy grep
       - tealdeer # tldr cli docs
       - zoxide # smarter cd command
-
-      # dependencies
-      - television # used by nvim config
-      - tree-sitter # used by nvim config
-      - ugrep # used by nvim config
 
   darwin:
     taps:
@@ -46,5 +37,3 @@ packages:
   linux:
     taps:
     brews:
-      - swift # swift compiler
-      - swift-format # swift formatter

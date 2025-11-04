@@ -11,15 +11,15 @@
         <string>--verbose</string>
     </array>
     <key>WorkingDirectory</key>
-    <string>/Users/sargunv</string>
+    <string>/Users/{{ .chezmoi.username }}</string>
     <key>EnvironmentVariables</key>
     <dict>
         <key>PATH</key>
         <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
         <key>HOME</key>
-        <string>/Users/sargunv</string>
+        <string>/Users/{{ .chezmoi.username }}</string>
         <key>USER</key>
-        <string>sargunv</string>
+        <string>{{ .chezmoi.username }}</string>
         <key>NO_FANCY_SHELL</key>
         <string>true</string>
     </dict>
@@ -31,8 +31,8 @@
         <integer>0</integer>
     </dict>
     <key>StandardOutPath</key>
-    <string>/Users/sargunv/Library/Logs/com.github.sargunv.dotfiles.update.stdout.log</string>
+    <string>/Users/{{ .chezmoi.username }}/Library/Logs/com.github.sargunv.dotfiles.update.stdout.log</string>
     <key>StandardErrorPath</key>
-    <string>/Users/sargunv/Library/Logs/com.github.sargunv.dotfiles.update.stderr.log</string>
+    <string>/Users/{{ .chezmoi.username }}/Library/Logs/com.github.sargunv.dotfiles.update.stderr.log</string>
 </dict>
 </plist>

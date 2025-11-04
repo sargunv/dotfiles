@@ -1,8 +1,7 @@
 starship:
   preset: pure-preset
   config:
-    # Modify the pure preset to include custom modules in the appropriate places
-    format: $username$hostname$directory$git_branch${custom.av}${custom.graphite}$git_state$git_status$cmd_duration$line_break$character
+    format: $username$hostname$directory$git_branch$git_state$git_status$cmd_duration$line_break$character
     right_format: "$time"
 
     # Some repos are slow to load git info
@@ -18,54 +17,3 @@ starship:
       truncate_to_repo: false
 
     custom:
-      # Add custom module to display a PR URL for aviator stacked PRs
-      av:
-        command: |
-          current_branch=$(git branch --show-current 2>/dev/null) || exit 1
-          jq -r --arg branch "$current_branch" '
-            if .branches[$branch] and .branches[$branch].pullRequest.number then
-              "\u001B]8;;" +
-              .branches[$branch].pullRequest.permalink +
-              "\u001B\\#" +
-              (.branches[$branch].pullRequest.number | tostring) +
-              "\u001B]8;;\u001B\\"
-            else
-              empty
-            end
-          ' .git/av/av.db 2>/dev/null || exit 1
-        format: " [$output]($style)"
-        style: dimmed
-        when: "[ -f .git/av/av.db ]"
-
-      # Add custom module to display a PR URL for graphite stacked PRs
-      graphite:
-        command: |
-          current_branch=$(git branch --show-current 2>/dev/null) || exit 1
-          jq -r --arg branch "$current_branch" '
-            {
-              bold: "\u001B[1m",
-              green: "\u001B[32m",
-              purple: "\u001B[35m",
-              red: "\u001B[31m",
-              reset: "\u001B[0m",
-              url_start: "\u001B]8;;",
-              url_text: "\u001B\\",
-              url_end: "\u001B]8;;\u001B\\"
-            } as $colors
-            | .prInfos[]
-            | select(.headRefName == $branch)
-            | . as $pr
-            | ($pr.url | capture("https://app.graphite.dev/github/pr/(?<owner>[^/]+)/(?<repo>[^/]+)/(?<pr>[0-9]+)") ) as $url
-            | (if $pr.state == "OPEN" then $colors.bold + $colors.green + " " + $colors.reset
-              elif $pr.state == "MERGED" then $colors.bold + $colors.purple + " " + $colors.reset
-              elif $pr.state == "CLOSED" then $colors.bold + $colors.red + " " + $colors.reset
-              elif $pr.state == "DRAFT" then $colors.bold + " " + $colors.reset
-              else $colors.bold + $pr.state + $colors.reset end) as $icon
-            | (
-                $colors.url_start + "https://github.com/" + $url.owner + "/" + $url.repo + "/pull/" + $url.pr +
-                $colors.url_text + "#" + $url.pr + $colors.url_end + $colors.reset + " " + $icon
-              )
-              ' .git/.graphite_pr_info 2>/dev/null || exit 1
-        format: " [$output]($style)"
-        style: dimmed
-        when: "[ -f .git/.graphite_pr_info ]"
