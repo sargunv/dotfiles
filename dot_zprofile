@@ -5,9 +5,6 @@ if [ -f ~/.profile ]; then
     . ~/.profile
 fi
 
-# mise
-[ "$(command -v mise)" ] && eval "$(mise env --shell zsh)"
-
 # local profile
 if [ -d ~/.profile.d ]; then
   for profile_file in ~/.profile.d/*(N); do

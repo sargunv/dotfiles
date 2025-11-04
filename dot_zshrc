@@ -33,6 +33,7 @@ if [ -z "$NO_FANCY_SHELL" ]; then
     alias lt='ls --tree'
     alias llt='ll --tree'
     alias proxyman='set -a && source "$HOME/Library/Application Support/com.proxyman.NSProxy-setapp/app-data/proxyman_env_automatic_setup.sh" && set +a'
+    alias paths='echo $PATH | tr ":" "\n"'
   fi
 
   if [ "$(command -v ug)" ]; then
