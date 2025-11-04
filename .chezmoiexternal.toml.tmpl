@@ -16,24 +16,3 @@ refreshPeriod = "24h"
 url = "https://raw.githubusercontent.com/github/gitignore/refs/heads/main/Global/Linux.gitignore"
 
 {{ end }}
-
-[".config/nvim"]
-type = "archive"
-refreshPeriod = "24h"
-url = "https://github.com/LazyVim/starter/archive/refs/heads/main.tar.gz"
-exact = false
-stripComponents = 1
-exclude = [
-  "starter-main/lua/config/autocmds.lua",
-  "starter-main/lua/config/options.lua",
-  "starter-main/lua/config/keymaps.lua",
-  "starter-main/lua/config/lazy.lua",
-  "starter-main/lua/plugins/",
-]
-
-[".config/ghostty/shaders"]
-type = "archive"
-refreshPeriod = "24h"
-url = "https://github.com/hackr-sh/ghostty-shaders/archive/refs/heads/main.tar.gz"
-exact = true
-stripComponents = 1

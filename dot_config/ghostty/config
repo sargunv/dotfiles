@@ -1,5 +1,9 @@
-theme = dark:Adwaita Dark,light:Adwaita
-font-thicken = true
+# Quick terminal dropdown
 keybind = global:super+grave_accent=toggle_quick_terminal
-keybind = shift+enter=text:\x0a
 quick-terminal-animation-duration = 0.15
+
+# Shift-enter for Claude Code
+keybind = shift+enter=text:\x0a
+
+# https://ghostty.org/docs/config#splitting-into-multiple-files
+config-file = ?local-config
