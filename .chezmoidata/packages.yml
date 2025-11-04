@@ -16,6 +16,7 @@ packages:
       - yq # yaml processor
       - tokei # code line counter
       - tmux # terminal multiplexer
+      - mise # dev tool manager
 
       # fancy shell
       - antidote # zsh plugin manager
