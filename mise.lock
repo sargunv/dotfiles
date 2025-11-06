@@ -1,0 +1,11 @@
+[[tools.jq]]
+version = "1.8.1"
+backend = "aqua:jqlang/jq"
+
+[[tools.node]]
+version = "24.11.0"
+backend = "core:node"
+
+[[tools."npm:watchman"]]
+version = "1.0.0"
+backend = "npm:watchman"

@@ -2,7 +2,8 @@
 .github/**
 LICENSE
 README.md
-justfile
+mise.toml
+mise.lock
 
 {{ if ne .chezmoi.os "darwin" }}
 Library/

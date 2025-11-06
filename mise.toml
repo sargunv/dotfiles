@@ -1,0 +1,40 @@
+[tools]
+jq = "latest"
+node = "lts"
+"npm:watchman" = "latest"
+
+[settings]
+lockfile = true
+
+[tasks.apply]
+description = "Apply changes manually"
+run = "chezmoi apply"
+
+[tasks.diff]
+description = "Show diff between source state and destination state"
+run = "chezmoi diff"
+
+[tasks.start]
+description = "Watch for changes and apply them"
+run = """
+#!/usr/bin/env bash
+watchman watch "$(chezmoi source-path)"
+jq -n \
+    --arg path "$(chezmoi source-path)" \
+    '[
+        "trigger",
+        $path,
+        {
+            name: "chezmoi-apply",
+            command: ["chezmoi", "apply", "--force"]
+        }
+    ]' | watchman -j
+"""
+
+[tasks.stop]
+description = "Stop watching and remove triggers"
+run = """
+#!/usr/bin/env bash
+watchman trigger-del "$(chezmoi source-path)" chezmoi-apply
+watchman watch-del "$(chezmoi source-path)"
+"""
