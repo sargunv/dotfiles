@@ -1,0 +1,5 @@
+[settings]
+trusted_config_paths = [
+    '~/Code',
+    '~/conductor',
+]
