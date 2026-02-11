@@ -18,4 +18,8 @@ starship:
     directory:
       truncate_to_repo: false
 
+    # libgit2 reports incorrect status in worktrees
+    git_status:
+      use_git_executable: true
+
     custom:
