@@ -3,22 +3,20 @@ packages:
     taps:
     brews:
       - chezmoi # dotfiles manager
-
-      # dev tools
       - gh # github cli
       - git-delta # fancy git diff viewer
       - git-lfs # git large file storage
       - helix # editor
       - httpie # friendly http client
-      - just # friendly make alternative
       - watchman # file watcher
       - jq # json processor
       - yq # yaml processor
       - tokei # code line counter
       - tmux # terminal multiplexer
       - mise # dev tool manager
-
-      # fancy shell
+      - lazygit # git tui
+      - btop # fancy system monitor
+      - opencode # opencode cli
       - antidote # zsh plugin manager
       - atuin # zsh history
       - bash-preexec # used by certain bash integrations
@@ -30,6 +28,8 @@ packages:
       - rg # fancy grep
       - tealdeer # tldr cli docs
       - zoxide # smarter cd command
+    casks:
+      - claude-code # claude code cli
 
   darwin:
     taps:
