@@ -8,11 +8,9 @@ packages:
       - git-lfs # git large file storage
       - helix # editor
       - httpie # friendly http client
-      - watchman # file watcher
       - jq # json processor
       - yq # yaml processor
       - tokei # code line counter
-      - tmux # terminal multiplexer
       - mise # dev tool manager
       - lazygit # git tui
       - btop # fancy system monitor
@@ -34,10 +32,8 @@ packages:
   darwin:
     taps:
     brews:
-      - mas # mac app store cli
     casks:
       - font-jetbrains-mono-nerd-font # nerd font for symbols
-    apps:
   linux:
     taps:
     brews:
