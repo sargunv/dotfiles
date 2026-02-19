@@ -27,13 +27,16 @@ packages:
       - tealdeer # tldr cli docs
       - zoxide # smarter cd command
     casks:
-      - claude-code # claude code cli
+    scripts:
+      - https://claude.ai/install.sh # claude code cli
 
   darwin:
     taps:
     brews:
     casks:
       - font-jetbrains-mono-nerd-font # nerd font for symbols
+    scripts:
   linux:
     taps:
     brews:
+    scripts:

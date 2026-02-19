@@ -36,3 +36,19 @@ brew {{ . | quote }}
 
 EOF
 fi
+
+# Install scripts
+{{ range .packages.common.scripts -}}
+curl -fsSL {{ . | quote }} | bash
+{{ end -}}
+{{ if eq .chezmoi.os "darwin" -}}
+{{ range .packages.darwin.scripts -}}
+curl -fsSL {{ . | quote }} | bash
+{{ end -}}
+{{ end -}}
+{{ if eq .chezmoi.os "linux" -}}
+{{ range .packages.linux.scripts -}}
+curl -fsSL {{ . | quote }} | bash
+{{ end -}}
+{{ end -}}
+

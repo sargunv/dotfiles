@@ -22,10 +22,6 @@ Darwin)
     GNU_MANPATH=$GNU_MANPATH:$HOMEBREW_PREFIX/opt/gnu-tar/libexec/gnuman
     export MANPATH=$GNU_MANPATH:$MANPATH
 
-    # MoltenVK / Vulkan SDK
-    if [ -d "$HOMEBREW_PREFIX/opt/molten-vk" ]; then
-      export VULKAN_SDK="$HOMEBREW_PREFIX/opt/molten-vk"
-    fi
   fi
   ;;
 Linux)
@@ -43,12 +39,6 @@ export PATH="$PATH:$HOME/.claude/local"
 
 # manually installed atuin
 export PATH="$HOME/.atuin/bin:$PATH"
-
-# android
-[ -d "$HOME/Library/Android/sdk" ] && {
-  export ANDROID_HOME="$HOME/Library/Android/sdk"
-  export PATH="$ANDROID_HOME/platform-tools:$PATH"
-}
 
 # mise shims
 export PATH="$HOME/.local/share/mise/shims:$PATH"
