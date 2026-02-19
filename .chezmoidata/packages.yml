@@ -2,28 +2,37 @@ packages:
   common:
     taps:
     brews:
-      - chezmoi # dotfiles manager
-      - gh # github cli
-      - git-delta # fancy git diff viewer
-      - git-lfs # git large file storage
-      - helix # editor
-      - httpie # friendly http client
-      - jq # json processor
-      - tokei # code line counter
-      - mise # dev tool manager
-      - lazygit # git tui
-      - btop # fancy system monitor
-      - opencode # opencode cli
+      # shell infrastructure
       - antidote # zsh plugin manager
-      - atuin # zsh history
+      - atuin # shell history
       - bash-preexec # used by certain bash integrations
       - starship # fancy shell prompt
+      - zoxide # smarter cd command
+
+      # cli replacements
       - bat # fancy cat
       - eza # fancy ls
       - fd # fancy find
       - rg # fancy grep
+
+      # git
+      - gh # github cli
+      - git-delta # fancy git diff viewer
+      - git-lfs # git large file storage
+      - lazygit # git tui
+
+      # dev tools
+      - chezmoi # dotfiles manager
+      - helix # editor
+      - mise # dev tool manager
+      - opencode # opencode cli
+
+      # utilities
+      - btop # system monitor
+      - httpie # http client
+      - jq # json processor
       - tealdeer # tldr cli docs
-      - zoxide # smarter cd command
+      - tokei # code line counter
     scripts:
       - https://claude.ai/install.sh # claude code cli
 
