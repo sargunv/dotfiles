@@ -11,26 +11,6 @@ tap {{ . | quote }}
 brew {{ . | quote }}
 {{ end -}}
 
-{{ if eq .chezmoi.os "darwin" -}}
-# Darwin
-{{ range .packages.darwin.taps -}}
-tap {{ . | quote }}
-{{ end -}}
-{{ range .packages.darwin.brews -}}
-brew {{ . | quote }}
-{{ end -}}
-{{ end -}}
-
-{{ if eq .chezmoi.os "linux" -}}
-# Linux
-{{ range .packages.linux.taps -}}
-tap {{ . | quote }}
-{{ end -}}
-{{ range .packages.linux.brews -}}
-brew {{ . | quote }}
-{{ end -}}
-{{ end -}}
-
 EOF
 fi
 

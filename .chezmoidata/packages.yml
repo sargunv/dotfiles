@@ -28,10 +28,6 @@ packages:
       - https://claude.ai/install.sh # claude code cli
 
   darwin:
-    taps:
-    brews:
     scripts:
   linux:
-    taps:
-    brews:
     scripts:
