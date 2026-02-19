@@ -47,6 +47,7 @@ if [ -z "$NO_FANCY_SHELL" ]; then
 
   command -v batcat > /dev/null && ! command -v bat > /dev/null && alias bat='batcat'
   command -v chezmoi > /dev/null && alias reload='chezmoi apply && exec zsh'
+  command -v claude > /dev/null && alias clauded='claude --dangerously-skip-permissions'
 
   # zsh plugins
   [ -n "$HOMEBREW_PREFIX" ] && [ -d "$HOMEBREW_PREFIX/opt/antidote/share/antidote" ] && {
