@@ -9,7 +9,6 @@ packages:
       - helix # editor
       - httpie # friendly http client
       - jq # json processor
-      - yq # yaml processor
       - tokei # code line counter
       - mise # dev tool manager
       - lazygit # git tui
@@ -22,19 +21,15 @@ packages:
       - bat # fancy cat
       - eza # fancy ls
       - fd # fancy find
-      - fzf # fuzzy finder
       - rg # fancy grep
       - tealdeer # tldr cli docs
       - zoxide # smarter cd command
-    casks:
     scripts:
       - https://claude.ai/install.sh # claude code cli
 
   darwin:
     taps:
     brews:
-    casks:
-      - font-jetbrains-mono-nerd-font # nerd font for symbols
     scripts:
   linux:
     taps:
