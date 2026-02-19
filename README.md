@@ -4,7 +4,7 @@ This project contains the files I use to set up my personal environment.
 
 Supports:
 
-- Linux (tested withFedora and Ubuntu/WSL)
+- Linux (tested with Fedora and Ubuntu/WSL on x86_64)
 - macOS (arm64 and x86_64)
 
 Usage:

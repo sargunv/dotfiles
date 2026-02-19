@@ -8,12 +8,20 @@ url = "https://raw.githubusercontent.com/github/gitignore/refs/heads/main/Global
 filter.command = "sed"
 filter.args = ["/Icon\\[/d"]
 
-{{ else if eq .chezmoi.os "Linux" }}
+["Library/Fonts"]
+type = "archive"
+url = "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/Monaspace.zip"
+
+{{ else if eq .chezmoi.os "linux" }}
 
 [".gitignore_global"]
 type = "file"
 refreshPeriod = "24h"
 url = "https://raw.githubusercontent.com/github/gitignore/refs/heads/main/Global/Linux.gitignore"
+
+[".local/share/fonts"]
+type = "archive"
+url = "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/Monaspace.zip"
 
 {{ end }}
 
