@@ -9,6 +9,7 @@ mise.lock
 Library/
 Library/**
 launchctl-load.sh
+set-macos-defaults.sh
 {{ end }}
 
 {{ if ne .chezmoi.os "linux" }}

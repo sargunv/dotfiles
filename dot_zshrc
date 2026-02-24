@@ -4,64 +4,6 @@ if [ -f /etc/zshrc ]; then
   . /etc/zshrc
 fi
 
-if [ -z "$NO_FANCY_SHELL" ]; then
-
-  # options
-  export HISTSIZE=100000
-  export SAVEHIST=100000
-  export HISTFILE="$HOME/.zsh_history"
-  setopt HIST_REDUCE_BLANKS # remove leading blanks from history
-  setopt APPEND_HISTORY     # append to history file, don't overwrite it
-  setopt HIST_IGNORE_SPACE  # don't enter into history if command starts with space
-  setopt HIST_IGNORE_DUPS   # don't enter into history if duplicate of previous command
-  setopt SHARE_HISTORY      # write to history file after every command, and import into other zsh instances
-  setopt COMPLETE_IN_WORD   # complete from the cursor position
-  bindkey -e                # emacs keybindings
-
-  # completion
-  autoload -Uz compinit
-  compinit -u
-
-  command -v starship > /dev/null && source <(starship completions zsh)
-  command -v chezmoi > /dev/null && source <(chezmoi completion zsh)
-  command -v mise > /dev/null && source <(mise completion zsh)
-
-  # aliases
-  if [ "$(command -v eza)" ]; then
-    alias ls='eza --hyperlink --icons=auto'
-    alias ll='ls -l --group-directories-first --git'
-    alias lt='ls --tree'
-    alias llt='ll --tree'
-    alias proxyman='set -a && source "$HOME/Library/Application Support/com.proxyman.NSProxy-setapp/app-data/proxyman_env_automatic_setup.sh" && set +a'
-    alias paths='echo $PATH | tr ":" "\n"'
-  fi
-
-  if [ "$(command -v ug)" ]; then
-    alias grep='ug'
-    alias egrep='ug -E'
-    alias fgrep='ug -F'
-    alias xzgrep='ug -z'
-    alias xzegrep='ug -zE'
-    alias xzfgrep='ug -zF'
-  fi
-
-  command -v batcat > /dev/null && ! command -v bat > /dev/null && alias bat='batcat'
-  command -v chezmoi > /dev/null && alias reload='chezmoi apply && exec zsh'
-  command -v claude > /dev/null && alias clauded='claude --dangerously-skip-permissions'
-
-  # zsh plugins
-  [ -n "$HOMEBREW_PREFIX" ] && [ -d "$HOMEBREW_PREFIX/opt/antidote/share/antidote" ] && {
-    source $HOMEBREW_PREFIX/opt/antidote/share/antidote/antidote.zsh
-    antidote load
-  }
-
-  # tools
-  [ "$(command -v starship)" ] && eval "$(starship init zsh)"
-  [ "$(command -v atuin)" ] && eval "$(atuin init zsh ${ATUIN_INIT_FLAGS})"
-  [ "$(command -v zoxide)" ] && eval "$(zoxide init zsh)"
-  [ "$(command -v mise)" ] && eval "$(mise activate zsh)"
-fi
-
 if [ -d ~/.zshrc.d ]; then
   for rc in ~/.zshrc.d/*(N); do
     if [ -f "$rc" ]; then
