@@ -1,5 +1,11 @@
 {{ if eq .chezmoi.os "darwin" }}
 
+[".local/bin/starship-multi-config"]
+type = "archive-file"
+url = {{ gitHubLatestReleaseAssetURL "sargunv/starship-multi-config" "starship-multi-config-aarch64-apple-darwin.tar.gz" | quote }}
+executable = true
+path = "starship-multi-config"
+
 [".gitignore_global"]
 type = "file"
 refreshPeriod = "24h"
@@ -13,6 +19,12 @@ type = "archive"
 url = "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/Monaspace.zip"
 
 {{ else if eq .chezmoi.os "linux" }}
+
+[".local/bin/starship-multi-config"]
+type = "archive-file"
+url = {{ gitHubLatestReleaseAssetURL "sargunv/starship-multi-config" "starship-multi-config-x86_64-unknown-linux-gnu.tar.gz" | quote }}
+executable = true
+path = "starship-multi-config"
 
 [".gitignore_global"]
 type = "file"

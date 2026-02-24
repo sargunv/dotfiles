@@ -1,0 +1,18 @@
+format = "$username$hostname$directory$git_branch$git_state$git_status$cmd_duration$line_break$character"
+right_format = "$time"
+
+[mise]
+disabled = false
+
+# Add time for easily assembling timelines
+[time]
+disabled = false
+style = "dimmed"
+
+# Simplify directory display
+[directory]
+truncate_to_repo = false
+
+# libgit2 reports incorrect status in worktrees
+[git_status]
+use_git_executable = true
