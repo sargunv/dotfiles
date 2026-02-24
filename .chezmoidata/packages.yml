@@ -33,6 +33,7 @@ packages:
       - jq # json processor
       - tealdeer # tldr cli docs
       - tokei # code line counter
+      - zellij # terminal multiplexer
     scripts:
       - https://claude.ai/install.sh # claude code cli
 
