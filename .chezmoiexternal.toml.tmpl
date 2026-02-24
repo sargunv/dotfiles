@@ -6,6 +6,12 @@ url = {{ gitHubLatestReleaseAssetURL "sargunv/starship-multi-config" "starship-m
 executable = true
 path = "starship-multi-config"
 
+[".local/bin/has-nerd-font"]
+type = "archive-file"
+url = {{ gitHubLatestReleaseAssetURL "sargunv/has-nerd-font" "has-nerd-font-aarch64-apple-darwin.tar.gz" | quote }}
+executable = true
+path = "has-nerd-font"
+
 [".gitignore_global"]
 type = "file"
 refreshPeriod = "24h"
@@ -25,6 +31,12 @@ type = "archive-file"
 url = {{ gitHubLatestReleaseAssetURL "sargunv/starship-multi-config" "starship-multi-config-x86_64-unknown-linux-gnu.tar.gz" | quote }}
 executable = true
 path = "starship-multi-config"
+
+[".local/bin/has-nerd-font"]
+type = "archive-file"
+url = {{ gitHubLatestReleaseAssetURL "sargunv/has-nerd-font" "has-nerd-font-x86_64-unknown-linux-gnu.tar.gz" | quote }}
+executable = true
+path = "has-nerd-font"
 
 [".gitignore_global"]
 type = "file"

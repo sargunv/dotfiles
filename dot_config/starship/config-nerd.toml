@@ -1,0 +1,11 @@
+# Nerd Font symbol overrides for modules in our format string
+
+[directory]
+read_only = " 󰌾"
+
+[git_branch]
+format = "[$symbol$branch]($style)"
+symbol = " "
+
+[hostname]
+ssh_symbol = " "
