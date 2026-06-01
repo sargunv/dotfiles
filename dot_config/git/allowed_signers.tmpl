@@ -1,0 +1,3 @@
+{{- range $name, $key := .ssh_public_keys -}}
+{{ printf "%s %s\n" $.git_signing_email $key -}}
+{{- end -}}

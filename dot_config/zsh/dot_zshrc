@@ -1,0 +1,69 @@
+#!/bin/zsh
+
+typeset -U path fpath
+
+autoload -Uz compinit
+compinit
+
+ZSH_AUTOSUGGEST_STRATEGY=(history)
+
+HISTSIZE=100000
+SAVEHIST=100000
+HISTFILE="$ZDOTDIR/.zsh_history"
+mkdir -p "${HISTFILE:h}"
+
+setopt EXTENDED_HISTORY    # Save timestamps and durations.
+setopt HIST_IGNORE_ALL_DUPS # Remove older duplicate commands.
+setopt HIST_IGNORE_DUPS    # Skip consecutive duplicate commands.
+setopt HIST_IGNORE_SPACE   # Do not save commands starting with a space.
+setopt SHARE_HISTORY       # Share history across open shells.
+
+bindkey '^[[1;5D' backward-word   # Ctrl-left
+bindkey '^[[1;5C' forward-word    # Ctrl-right
+bindkey '^[[1;3D' backward-word   # Alt-left
+bindkey '^[[1;3C' forward-word    # Alt-right
+bindkey '^[[1;5H' beginning-of-line # Ctrl-home
+bindkey '^[[1;5F' end-of-line     # Ctrl-end
+
+command -v fzf >/dev/null 2>&1 && source <(fzf --zsh)
+command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init zsh)"
+command -v mise >/dev/null 2>&1 && eval "$(mise activate zsh)"
+command -v atuin >/dev/null 2>&1 && eval "$(atuin init zsh --disable-up-arrow)"
+
+[ -n "$GHOSTTY_RESOURCES_DIR" ] && . "$GHOSTTY_RESOURCES_DIR"/shell-integration/zsh/ghostty-integration
+
+if command -v starship >/dev/null 2>&1; then
+  if command -v starship-multi-config >/dev/null 2>&1; then
+    export STARSHIP_CONFIG="$(
+      starship-multi-config \
+        --preset pure-preset \
+        "$HOME/.config/starship/config.toml" \
+        "$HOME"/.config/starship/config.d/*.toml(N)
+    )"
+  fi
+  eval "$(starship init zsh)"
+fi
+
+if command -v eza >/dev/null 2>&1; then
+  alias ls='eza --icons auto --git'
+  alias ll='eza -l --icons auto --git'
+  alias la='eza -a --icons auto --git'
+  alias lla='eza -la --icons auto --git'
+  alias lt='eza --tree --icons auto --git'
+fi
+
+function lg() {
+  export LAZYGIT_NEW_DIR_FILE="$HOME/.lazygit/newdir"
+  command lazygit "$@"
+  if [ -f "$LAZYGIT_NEW_DIR_FILE" ]; then
+    cd "$(cat "$LAZYGIT_NEW_DIR_FILE")" || return
+    rm -f "$LAZYGIT_NEW_DIR_FILE" >/dev/null
+  fi
+}
+
+if [ -f "$ZDOTDIR/antidote/antidote.zsh" ]; then
+  . "$ZDOTDIR/antidote/antidote.zsh"
+  antidote load "$ZDOTDIR/.zsh_plugins.txt"
+fi
+
+[ -f "$ZDOTDIR/.zshrc.local" ] && . "$ZDOTDIR/.zshrc.local"

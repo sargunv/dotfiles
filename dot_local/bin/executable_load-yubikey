@@ -1,0 +1,10 @@
+#!/bin/sh
+set -eu
+
+mkdir -p "$HOME/.ssh"
+echo "downloading resident SSH keys from YubiKey..."
+echo "(touch YubiKey when it blinks)"
+cd "$HOME/.ssh"
+ssh-keygen -K -w /usr/lib/ssh-keychain.dylib
+echo
+echo "SSH key handle installed to ~/.ssh/"

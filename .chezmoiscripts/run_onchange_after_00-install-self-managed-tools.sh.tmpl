@@ -1,0 +1,10 @@
+#!/bin/sh
+set -eu
+
+export PATH="$HOME/.local/bin:$HOME/bin:$PATH"
+
+{{ template "install_if_missing.sh" }}
+
+{{ range .self_managed_tools -}}
+install_if_missing {{ .command | quote }} {{ .install | quote }}
+{{ end -}}

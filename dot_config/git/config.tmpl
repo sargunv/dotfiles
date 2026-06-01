@@ -1,0 +1,70 @@
+[alias]
+	delete-gone = "!f() { git fetch --prune && git branch -vv | awk '/: gone]/{print ($1 == \"*\" ? $2 : $1)}' | while read -r branch; do git branch -D \"$branch\"; done; }; f"
+	gone = "!f() { git fetch --prune && git branch -vv | awk '/: gone]/{print ($1 == \"*\" ? $2 : $1)}'; }; f"
+	sync-fork = "!f() { branch=\"${1:-$(git remote show upstream | sed -n 's/.*HEAD branch: //p')}\"; test -n \"$branch\" || { echo \"Could not detect upstream default branch\" >&2; return 1; }; git checkout \"$branch\" && git fetch upstream && git pull --ff-only upstream \"$branch\" && git push origin \"$branch\"; }; f"
+
+[branch]
+	sort = -committerdate
+
+[commit]
+	gpgSign = true
+
+[credential "https://gist.github.com"]
+	helper =
+	helper = !gh auth git-credential
+
+[credential "https://github.com"]
+	helper =
+	helper = !gh auth git-credential
+
+[diff]
+	algorithm = histogram
+
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	process = git-lfs filter-process
+	required = true
+	smudge = git-lfs smudge -- %f
+
+[gpg]
+	format = ssh
+
+[gpg "ssh"]
+	allowedSignersFile = ~/.config/git/allowed_signers
+	program = {{ .chezmoi.homeDir }}/.local/bin/git-ssh-sign
+
+[init]
+	defaultBranch = main
+
+[interactive]
+	diffFilter = delta --color-only
+
+[merge]
+	conflictstyle = zdiff3
+
+[pager]
+	blame = delta
+	diff = delta
+	log = delta
+	show = delta
+
+[pull]
+	rebase = true
+
+[push]
+	autoSetupRemote = true
+	useForceIfIncludes = true
+
+[rebase]
+	autoStash = true
+
+[tag]
+	gpgSign = true
+
+[user]
+	email = {{ .github_username }}@users.noreply.github.com
+	name = {{ .full_name }}
+	signingKey = ~/.ssh/signing_key.pub
+
+[include]
+	path = ~/.config/git/config.local

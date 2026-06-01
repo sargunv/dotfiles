@@ -1,0 +1,14 @@
+gitignore_sources:
+  - https://raw.githubusercontent.com/github/gitignore/main/Global/Linux.gitignore
+  - https://raw.githubusercontent.com/github/gitignore/main/Global/macOS.gitignore
+  - https://raw.githubusercontent.com/github/gitignore/main/Global/Windows.gitignore
+  - https://raw.githubusercontent.com/github/gitignore/main/Global/Vim.gitignore
+  - https://raw.githubusercontent.com/github/gitignore/main/Global/VisualStudioCode.gitignore
+  - https://raw.githubusercontent.com/github/gitignore/main/Global/Xcode.gitignore
+  - https://raw.githubusercontent.com/github/gitignore/main/Global/Zed.gitignore
+  - https://raw.githubusercontent.com/github/gitignore/main/Global/mise.gitignore
+  - https://raw.githubusercontent.com/github/gitignore/main/Global/Agents.gitignore
+
+gitignore_local_patterns:
+  - ".pi/*"
+  - "!.pi/settings.json"

@@ -2,17 +2,7 @@
 .github/**
 LICENSE
 README.md
-mise.toml
-mise.lock
 
 {{ if ne .chezmoi.os "darwin" }}
-Library/
-Library/**
-launchctl-load.sh
-set-macos-defaults.sh
-{{ end }}
-
-{{ if ne .chezmoi.os "linux" }}
-.config/systemd/
-.config/systemd/**
+run_onchange_after_set-macos-defaults.sh
 {{ end }}

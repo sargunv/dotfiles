@@ -1,5 +1,0 @@
-zdharma-continuum/fast-syntax-highlighting
-zsh-users/zsh-autosuggestions
-hlissner/zsh-autopair
-jirutka/zsh-shift-select
-zpm-zsh/clipboard

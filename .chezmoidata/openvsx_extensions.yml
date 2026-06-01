@@ -1,0 +1,18 @@
+openvsx_extensions:
+  - bradlc.vscode-tailwindcss
+  - continue.continue
+  - dprint.dprint
+  - github.vscode-github-actions
+  - github.vscode-pull-request-github
+  - golang.go
+  - hverlin.mise-vscode
+  - jnoortheen.nix-ide
+  - joaopaulocmarra.inline-blame-mini
+  - llvm-vs-code-extensions.vscode-clangd
+  - opentofu.vscode-opentofu
+  - rust-lang.rust-analyzer
+  - tchoupinax.tilt
+  - tombi-toml.tombi
+  - typespec.typespec-vscode
+  - vitest.explorer
+  - voidzero.vite-plus-extension-pack

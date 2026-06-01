@@ -1,0 +1,10 @@
+{{ range .gitignore_sources -}}
+{{ range $line := splitList "\n" (output "curl" "-fsSL" .) -}}
+{{ if and (ne $line "") (not (hasPrefix "#" $line)) (not (hasPrefix "Icon[" $line)) -}}
+{{ $line }}
+{{ end -}}
+{{ end -}}
+{{ end -}}
+{{ range .gitignore_local_patterns -}}
+{{ . }}
+{{ end -}}

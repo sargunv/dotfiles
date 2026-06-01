@@ -1,0 +1,13 @@
+#!/bin/zsh
+
+typeset -U path fpath
+
+path=("$HOME/.local/bin" "$HOME/bin" "$HOME/.local/share/mise/shims" "$HOME/.opencode/bin" $path)
+
+export PAGER="less -RF --mouse"
+export DELTA_PAGER="$PAGER"
+export SSH_SK_PROVIDER="/usr/lib/ssh-keychain.dylib"
+
+if [ -d "/Applications/Ghostty.app/Contents/Resources/terminfo" ]; then
+  export TERMINFO_DIRS="${TERMINFO_DIRS:+$TERMINFO_DIRS:}/Applications/Ghostty.app/Contents/Resources/terminfo"
+fi

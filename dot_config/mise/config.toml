@@ -1,6 +1,29 @@
 [settings]
-trusted_config_paths = [
-    '~/Code',
-    '~/conductor',
-    '~/.local/share/worktrees'
-]
+trusted_config_paths = ["~/Code"]
+
+[settings.python]
+compile = false
+
+[tools]
+"core:go" = "latest"
+"core:java" = "temurin-25"
+"core:node" = "lts"
+"core:python" = "latest"
+
+"aqua:ajeetdsouza/zoxide" = "latest"
+"aqua:astral-sh/uv" = "latest"
+"aqua:atuinsh/atuin" = "latest"
+"aqua:BurntSushi/ripgrep" = "latest"
+"aqua:cli/cli" = "latest"
+"aqua:dandavison/delta" = "latest"
+"aqua:eza-community/eza" = "latest"
+"aqua:git-lfs/git-lfs" = "latest"
+"aqua:jesseduffield/lazygit" = "latest"
+"aqua:jqlang/jq" = "latest"
+"aqua:junegunn/fzf" = "latest"
+"aqua:neovim/neovim" = "latest"
+"aqua:sharkdp/bat" = "latest"
+"aqua:sharkdp/fd" = "latest"
+"aqua:starship/starship" = "latest"
+"aqua:zyedidia/eget" = "latest"
+"github:sargunv/starship-multi-config" = "latest"

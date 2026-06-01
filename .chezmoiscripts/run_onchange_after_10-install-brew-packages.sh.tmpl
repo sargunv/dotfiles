@@ -1,0 +1,35 @@
+#!/bin/sh
+set -eu
+
+if [ -x /opt/homebrew/bin/brew ]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [ -x /usr/local/bin/brew ]; then
+  eval "$(/usr/local/bin/brew shellenv)"
+fi
+
+if ! command -v brew >/dev/null 2>&1; then
+  echo "Homebrew is required for macOS app installation. Install it manually, then re-run chezmoi apply." >&2
+  exit 1
+fi
+
+brew bundle --file=/dev/stdin <<'EOF'
+brew "mas"
+{{ range .brew_casks -}}
+cask {{ . | quote }}
+{{ end -}}
+{{ range $name, $id := .brew_mas -}}
+mas {{ $name | quote }}, id: {{ $id }}
+{{ end -}}
+EOF
+
+if command -v mise >/dev/null 2>&1; then
+  mise install --yes
+fi
+
+export PATH="$HOME/.local/bin:$HOME/bin:$HOME/.local/share/mise/shims:$PATH"
+
+{{ template "install_if_missing.sh" }}
+
+{{ range .post_mise_self_managed_tools -}}
+install_if_missing {{ .command | quote }} {{ .install | quote }}
+{{ end -}}
