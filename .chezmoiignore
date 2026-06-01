@@ -13,6 +13,8 @@ README.md
 {{ end }}
 
 {{ if ne .chezmoi.os "linux" }}
+.chezmoiscripts/linux
+.chezmoiscripts/linux/**
 dot_config/systemd
 dot_config/systemd/**
 dot_local/bin/executable_setup-tpm-key.tmpl
