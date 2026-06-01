@@ -1,0 +1,7 @@
+Host *
+  ForwardAgent yes
+{{ if eq .chezmoi.os "darwin" }}
+  IdentityFile ~/.ssh/id_ecdsa_sk_rk
+{{ else if eq .chezmoi.os "linux" }}
+  IdentityFile ~/.ssh/id_ecdsa_tpm.tpm
+{{ end }}

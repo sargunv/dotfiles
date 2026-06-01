@@ -1,0 +1,25 @@
+#!/bin/sh
+set -eu
+
+{{ if eq .chezmoi.os "linux" -}}
+export SSH_AUTH_SOCK="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/ssh-tpm-agent.sock"
+
+set -- "$@" __chezmoi_arg_end__
+while [ "$1" != "__chezmoi_arg_end__" ]; do
+  arg="$1"
+  shift
+  set -- "$@" "$arg"
+  if [ "$arg" = "sign" ]; then
+    set -- "$@" "-U"
+  fi
+done
+shift
+{{ else if eq .chezmoi.os "darwin" -}}
+export SSH_SK_PROVIDER="${SSH_SK_PROVIDER:-/usr/lib/ssh-keychain.dylib}"
+{{ end -}}
+
+if [ -x /usr/bin/ssh-keygen ]; then
+  exec /usr/bin/ssh-keygen "$@"
+fi
+
+exec ssh-keygen "$@"

@@ -5,6 +5,13 @@ mkdir -p "$HOME/.ssh"
 echo "downloading resident SSH keys from YubiKey..."
 echo "(touch YubiKey when it blinks)"
 cd "$HOME/.ssh"
+{{ if eq .chezmoi.os "darwin" -}}
 ssh-keygen -K -w /usr/lib/ssh-keychain.dylib
+{{ else if eq .chezmoi.os "linux" -}}
+ssh-keygen -K
+{{ else -}}
+echo "load-yubikey is not configured for {{ .chezmoi.os }}" >&2
+exit 1
+{{ end -}}
 echo
 echo "SSH key handle installed to ~/.ssh/"
