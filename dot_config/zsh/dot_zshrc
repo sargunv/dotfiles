@@ -52,6 +52,8 @@ if command -v eza >/dev/null 2>&1; then
   alias lt='eza --tree --icons auto --git'
 fi
 
+alias codexd='codex --dangerously-bypass-approvals-and-sandbox'
+
 function lg() {
   export LAZYGIT_NEW_DIR_FILE="$HOME/.lazygit/newdir"
   command lazygit "$@"

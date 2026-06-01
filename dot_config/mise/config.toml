@@ -9,6 +9,7 @@ compile = false
 "core:java" = "temurin-25"
 "core:node" = "lts"
 "core:python" = "latest"
+"core:rust" = "latest"
 
 "aqua:astral-sh/uv" = "latest"
 "github:Foxboron/ssh-tpm-agent" = { version = "latest", os = ["linux"] }

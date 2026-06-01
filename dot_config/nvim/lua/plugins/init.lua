@@ -1,12 +1,17 @@
 return {
   {
     "nvim-treesitter/nvim-treesitter",
+    lazy = false,
     build = ":TSUpdate",
-    opts = {
-      indent = { enable = true },
-    },
-    config = function(_, opts)
-      require("nvim-treesitter.configs").setup(opts)
+    config = function()
+      vim.api.nvim_create_autocmd("FileType", {
+        callback = function(args)
+          local ok = pcall(vim.treesitter.start, args.buf)
+          if ok then
+            vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+          end
+        end,
+      })
     end,
   },
   {
@@ -184,16 +189,16 @@ return {
     },
     config = function(_, opts)
       require("mason").setup()
-      require("mason-lspconfig").setup(opts)
 
       local capabilities = require("blink.cmp").get_lsp_capabilities()
-      local lspconfig = require("lspconfig")
 
       vim.lsp.inlay_hint.enable(true)
 
       for _, server in ipairs(opts.ensure_installed) do
-        lspconfig[server].setup({ capabilities = capabilities })
+        vim.lsp.config(server, { capabilities = capabilities })
       end
+
+      require("mason-lspconfig").setup(opts)
     end,
   },
   {
