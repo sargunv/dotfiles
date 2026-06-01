@@ -11,5 +11,6 @@ compile = false
 "core:python" = "latest"
 
 "aqua:astral-sh/uv" = "latest"
+"github:Foxboron/ssh-tpm-agent" = { version = "latest", os = ["linux"] }
 "github:sargunv/starship-multi-config" = "latest"
 "npm:@earendil-works/pi-coding-agent" = "latest"

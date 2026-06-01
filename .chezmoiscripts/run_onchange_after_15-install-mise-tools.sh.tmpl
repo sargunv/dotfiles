@@ -1,7 +1,10 @@
 #!/bin/sh
 set -eu
 
-if command -v mise >/dev/null 2>&1; then
-  mise install --yes
-  mise prune --yes
+if ! command -v mise >/dev/null 2>&1; then
+  echo "mise is required to install configured mise tools." >&2
+  exit 1
 fi
+
+mise install --yes
+mise prune --yes

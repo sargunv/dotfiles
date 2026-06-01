@@ -7,3 +7,13 @@ README.md
 .chezmoiscripts/darwin
 .chezmoiscripts/darwin/**
 {{ end }}
+
+{{ if or (ne .chezmoi.os "linux") (ne .chezmoi.osRelease.id "fedora") }}
+.chezmoiscripts/linux/05-install-dnf-packages.sh
+{{ end }}
+
+{{ if ne .chezmoi.os "linux" }}
+dot_config/systemd
+dot_config/systemd/**
+dot_local/bin/executable_setup-tpm-key.tmpl
+{{ end }}

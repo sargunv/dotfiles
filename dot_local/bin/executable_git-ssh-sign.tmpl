@@ -2,7 +2,7 @@
 set -eu
 
 {{ if eq .chezmoi.os "linux" -}}
-export SSH_AUTH_SOCK="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/ssh-tpm-agent.sock"
+export SSH_AUTH_SOCK="${SSH_TPM_AUTH_SOCK:-${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/ssh-tpm-agent.sock}"
 
 set -- "$@" __chezmoi_arg_end__
 while [ "$1" != "__chezmoi_arg_end__" ]; do

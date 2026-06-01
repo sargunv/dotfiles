@@ -1,0 +1,11 @@
+[Unit]
+Description=SSH TPM agent socket
+Documentation=https://github.com/Foxboron/ssh-tpm-agent
+
+[Socket]
+ListenStream=%t/ssh-tpm-agent.sock
+SocketMode=0600
+Service=ssh-tpm-agent.service
+
+[Install]
+WantedBy=sockets.target

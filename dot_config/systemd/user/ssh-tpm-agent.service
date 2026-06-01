@@ -1,0 +1,12 @@
+[Unit]
+ConditionEnvironment=!SSH_AGENT_PID
+Description=SSH TPM agent service
+Documentation=https://github.com/Foxboron/ssh-tpm-agent
+Requires=ssh-tpm-agent.socket
+
+[Service]
+Environment=SSH_TPM_AUTH_SOCK=%t/ssh-tpm-agent.sock
+ExecStart=%h/.local/share/mise/shims/ssh-tpm-agent
+PassEnvironment=SSH_AGENT_PID
+SuccessExitStatus=2
+Type=simple

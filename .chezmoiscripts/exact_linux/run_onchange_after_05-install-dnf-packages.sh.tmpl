@@ -1,0 +1,37 @@
+#!/bin/sh
+set -eu
+
+if ! command -v dnf >/dev/null 2>&1; then
+  echo "dnf is required for Fedora package installation." >&2
+  exit 1
+fi
+
+run_as_root() {
+  if [ "$(id -u)" -eq 0 ]; then
+    "$@"
+  else
+    sudo "$@"
+  fi
+}
+
+if [ "$(id -u)" -ne 0 ]; then
+  if ! command -v sudo >/dev/null 2>&1; then
+    echo "sudo is required to install Fedora packages as a non-root user." >&2
+    exit 1
+  fi
+
+  sudo -v
+fi
+
+{{ range .dnf_coprs -}}
+run_as_root dnf copr enable -y {{ . | quote }}
+{{ end }}
+
+set --{{ range .dnf_packages }} {{ . | quote }}{{ end }}
+
+if [ "$#" -eq 0 ]; then
+  echo "dnf_packages is empty; refusing to mark Fedora package installation complete." >&2
+  exit 1
+fi
+
+run_as_root dnf install -y "$@"

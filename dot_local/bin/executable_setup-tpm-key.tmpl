@@ -1,0 +1,84 @@
+#!/bin/sh
+set -eu
+
+{{ if eq .chezmoi.os "linux" -}}
+ssh_tpm_keygen="${SSH_TPM_KEYGEN:-$HOME/.local/share/mise/shims/ssh-tpm-keygen}"
+ssh_tpm_agent="${SSH_TPM_AGENT:-$HOME/.local/share/mise/shims/ssh-tpm-agent}"
+ssh_tpm_add="${SSH_TPM_ADD:-$HOME/.local/share/mise/shims/ssh-tpm-add}"
+key_path="${SSH_TPM_KEY_PATH:-$HOME/.ssh/id_ecdsa_tpm}"
+signing_key_path="${GIT_SSH_SIGNING_KEY_PATH:-$HOME/.ssh/signing_key.pub}"
+comment="${SSH_TPM_KEY_COMMENT:-$(id -un)@$(hostname)}"
+force=0
+
+usage() {
+  echo "usage: setup-tpm-key [--force]" >&2
+}
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --force)
+      force=1
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      usage
+      exit 2
+      ;;
+  esac
+  shift
+done
+
+for command_path in "$ssh_tpm_keygen" "$ssh_tpm_agent" "$ssh_tpm_add"; do
+  if [ ! -x "$command_path" ]; then
+    echo "required command is missing or not executable: $command_path" >&2
+    exit 1
+  fi
+done
+
+if [ ! -e /dev/tpmrm0 ]; then
+  echo "TPM resource manager device is missing: /dev/tpmrm0" >&2
+  exit 1
+fi
+
+if [ ! -r /dev/tpmrm0 ] || [ ! -w /dev/tpmrm0 ]; then
+  echo "Cannot access /dev/tpmrm0." >&2
+  echo "On Fedora, add your user to the tss group, then log out and back in:" >&2
+  echo "  sudo usermod -aG tss $(id -un)" >&2
+  exit 1
+fi
+
+mkdir -p "$HOME/.ssh"
+chmod 700 "$HOME/.ssh"
+
+if [ -e "$key_path.tpm" ] || [ -e "$key_path.pub" ]; then
+  if [ "$force" -ne 1 ]; then
+    echo "TPM key already exists at $key_path.tpm or $key_path.pub." >&2
+    echo "Re-run with --force to replace it." >&2
+    exit 1
+  fi
+fi
+
+"$ssh_tpm_keygen" -f "$key_path" -C "$comment"
+cp "$key_path.pub" "$signing_key_path"
+chmod 644 "$key_path.pub" "$signing_key_path"
+
+auth_sock="$("$ssh_tpm_agent" --print-socket)"
+SSH_AUTH_SOCK="$auth_sock" "$ssh_tpm_add" "$key_path.tpm"
+
+echo
+echo "TPM SSH key created:"
+echo "  $key_path.tpm"
+echo "  $key_path.pub"
+echo
+echo "Git signing key updated:"
+echo "  $signing_key_path"
+echo
+echo "Public key:"
+cat "$key_path.pub"
+{{ else -}}
+echo "setup-tpm-key is only configured for Linux." >&2
+exit 1
+{{ end -}}
