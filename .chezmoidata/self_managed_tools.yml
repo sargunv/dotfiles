@@ -15,8 +15,3 @@ self_managed_tools:
   - name: opencode
     command: opencode
     install: "curl -fsSL https://opencode.ai/install | bash -s -- --no-modify-path"
-
-post_mise_self_managed_tools:
-  - name: pi
-    command: pi
-    install: 'curl -fsSL https://pi.dev/install.sh | PATH="$HOME/.local/share/mise/shims:$PATH" NPM_CONFIG_PREFIX="$HOME/.local" sh'

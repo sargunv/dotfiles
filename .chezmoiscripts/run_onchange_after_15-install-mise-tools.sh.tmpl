@@ -3,12 +3,5 @@ set -eu
 
 if command -v mise >/dev/null 2>&1; then
   mise install --yes
+  mise prune --yes
 fi
-
-export PATH="$HOME/.local/bin:$HOME/bin:$HOME/.local/share/mise/shims:$PATH"
-
-{{ template "install_if_missing.sh" }}
-
-{{ range .post_mise_self_managed_tools -}}
-install_if_missing {{ .command | quote }} {{ .install | quote }}
-{{ end -}}

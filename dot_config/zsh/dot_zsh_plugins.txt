@@ -1,5 +1,5 @@
-hlissner/zsh-autopair path:share/zsh/zsh-autopair/autopair.zsh
-jirutka/zsh-shift-select pin:da460999b7d31aef0f0a82a3e749d70edf6f2ef9
-zpm-zsh/clipboard pin:c3a4a054cefe313d853dc9c32debb1b18aa7513c
+hlissner/zsh-autopair
+jirutka/zsh-shift-select
+zpm-zsh/clipboard
 zsh-users/zsh-autosuggestions
 zsh-users/zsh-syntax-highlighting

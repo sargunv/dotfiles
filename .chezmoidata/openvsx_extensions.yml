@@ -15,4 +15,4 @@ openvsx_extensions:
   - tombi-toml.tombi
   - typespec.typespec-vscode
   - vitest.explorer
-  - voidzero.vite-plus-extension-pack
+  - void-zero.vite-plus-extension-pack

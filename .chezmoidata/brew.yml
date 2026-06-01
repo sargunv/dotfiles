@@ -1,3 +1,21 @@
+brew_formulae:
+  # Shell startup and workstation CLIs
+  - atuin
+  - bat
+  - eget
+  - eza
+  - fd
+  - fzf
+  - gh
+  - git-delta
+  - git-lfs
+  - jq
+  - lazygit
+  - neovim
+  - ripgrep
+  - starship
+  - zoxide
+
 brew_casks:
   # Terminal and development
   - ghostty
