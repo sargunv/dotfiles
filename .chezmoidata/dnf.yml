@@ -3,7 +3,6 @@ dnf_coprs:
   - dejan/lazygit
 
 dnf_packages:
-  # Shell startup and workstation CLIs
   - atuin
   - bat
   # TODO: Add eget if a good Fedora package source appears.

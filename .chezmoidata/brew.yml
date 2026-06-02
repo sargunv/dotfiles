@@ -1,5 +1,4 @@
 brew_formulae:
-  # Shell startup and workstation CLIs
   - atuin
   - bat
   - eget
