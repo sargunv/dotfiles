@@ -1,6 +1,7 @@
 {{ range .gitignore_sources -}}
 {{ range $line := splitList "\n" (output "curl" "-fsSL" .) -}}
-{{ if and (ne $line "") (not (hasPrefix "#" $line)) (not (hasPrefix "Icon[" $line)) -}}
+{{/* JGit rejects gitignore patterns containing literal carriage returns. */ -}}
+{{ if and (ne $line "") (not (contains "\r" $line)) (not (hasPrefix "#" $line)) -}}
 {{ $line }}
 {{ end -}}
 {{ end -}}
