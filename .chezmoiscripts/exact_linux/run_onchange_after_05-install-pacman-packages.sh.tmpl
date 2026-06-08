@@ -1,0 +1,33 @@
+#!/bin/sh
+set -eu
+
+if ! command -v pacman >/dev/null 2>&1; then
+  echo "pacman is required for Arch/CachyOS package installation." >&2
+  exit 1
+fi
+
+run_as_root() {
+  if [ "$(id -u)" -eq 0 ]; then
+    "$@"
+  else
+    sudo "$@"
+  fi
+}
+
+if [ "$(id -u)" -ne 0 ]; then
+  if ! command -v sudo >/dev/null 2>&1; then
+    echo "sudo is required to install Arch/CachyOS packages as a non-root user." >&2
+    exit 1
+  fi
+
+  sudo -v
+fi
+
+set --{{ range .pacman_packages }} {{ . | quote }}{{ end }}
+
+if [ "$#" -eq 0 ]; then
+  echo "pacman_packages is empty; refusing to mark Arch/CachyOS package installation complete." >&2
+  exit 1
+fi
+
+run_as_root pacman -Syu --needed --noconfirm "$@"
