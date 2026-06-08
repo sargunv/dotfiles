@@ -1,5 +1,5 @@
 [settings]
-trusted_config_paths = ["~/Code"]
+trusted_config_paths = ["~/Code", "~/Projects"]
 
 [settings.python]
 compile = false

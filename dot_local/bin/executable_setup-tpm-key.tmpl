@@ -44,9 +44,15 @@ if [ ! -e /dev/tpmrm0 ]; then
 fi
 
 if [ ! -r /dev/tpmrm0 ] || [ ! -w /dev/tpmrm0 ]; then
+  device_group="$(stat -c %G /dev/tpmrm0 2>/dev/null || true)"
+
   echo "Cannot access /dev/tpmrm0." >&2
-  echo "On Fedora, add your user to the tss group, then log out and back in:" >&2
-  echo "  sudo usermod -aG tss $(id -un)" >&2
+  if [ -n "$device_group" ]; then
+    echo "Add your user to the $device_group group, then log out and back in:" >&2
+    echo "  sudo usermod -aG $device_group $(id -un)" >&2
+  else
+    echo "Add your user to the group that owns /dev/tpmrm0, then log out and back in." >&2
+  fi
   exit 1
 fi
 

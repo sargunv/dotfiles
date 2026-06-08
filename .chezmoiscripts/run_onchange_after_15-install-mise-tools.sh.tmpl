@@ -1,6 +1,8 @@
 #!/bin/sh
 set -eu
 
+export PATH="$HOME/.local/bin:$HOME/bin:$PATH"
+
 if ! command -v mise >/dev/null 2>&1; then
   echo "mise is required to install configured mise tools." >&2
   exit 1
