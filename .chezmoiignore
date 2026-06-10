@@ -12,10 +12,6 @@ README.md
 .chezmoiscripts/linux/05-install-dnf-packages.sh
 {{ end }}
 
-{{ if or (ne .chezmoi.os "linux") (not (or (eq .chezmoi.osRelease.id "arch") (eq .chezmoi.osRelease.id "cachyos"))) }}
-.chezmoiscripts/linux/05-install-pacman-packages.sh
-{{ end }}
-
 {{ if ne .chezmoi.os "linux" }}
 .chezmoiscripts/linux
 .chezmoiscripts/linux/**
