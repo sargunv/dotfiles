@@ -1,6 +1,8 @@
 brew_formulae:
   - atuin
   - bat
+  - colima
+  - docker
   - eget
   - eza
   - fd
