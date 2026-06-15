@@ -30,6 +30,12 @@ command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init zsh)"
 command -v mise >/dev/null 2>&1 && eval "$(mise activate zsh)"
 command -v atuin >/dev/null 2>&1 && eval "$(atuin init zsh --disable-up-arrow)"
 
+if command -v brew >/dev/null 2>&1; then
+  HOMEBREW_COMMAND_NOT_FOUND_HANDLER="$(brew --repository)/Library/Homebrew/command-not-found/handler.sh"
+  [ -f "$HOMEBREW_COMMAND_NOT_FOUND_HANDLER" ] && source "$HOMEBREW_COMMAND_NOT_FOUND_HANDLER"
+  unset HOMEBREW_COMMAND_NOT_FOUND_HANDLER
+fi
+
 [ -n "$GHOSTTY_RESOURCES_DIR" ] && . "$GHOSTTY_RESOURCES_DIR"/shell-integration/zsh/ghostty-integration
 
 if command -v starship >/dev/null 2>&1; then
