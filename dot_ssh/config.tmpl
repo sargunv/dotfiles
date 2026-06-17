@@ -1,7 +1,15 @@
+{{ if eq .chezmoi.os "darwin" -}}
+Include ~/.ssh/config.d/parallels-vms
+
+Host {{ .parallels_subnet }}.*
+  IdentityFile ~/.ssh/id_ed25519
+  IdentitiesOnly yes
+
+{{ end -}}
 Host *
   ForwardAgent yes
-{{ if eq .chezmoi.os "darwin" }}
+{{- if eq .chezmoi.os "darwin" }}
   IdentityFile ~/.ssh/id_ecdsa_sk_rk
-{{ else if eq .chezmoi.os "linux" }}
+{{- else if eq .chezmoi.os "linux" }}
   IdentityFile ~/.ssh/id_ecdsa_tpm.tpm
-{{ end }}
+{{- end }}

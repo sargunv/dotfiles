@@ -1,0 +1,9 @@
+parallels_subnet: "10.211.55"
+
+ssh_hosts:
+  linux-vm:
+    user: parallels
+    host_key: "SHA256:Ek5FRK/119GKjO6xcDOPh9r1whAxzoqHmEva+IFXgIU"
+  windows-vm:
+    user: sargunv
+    host_key: "SHA256:l72Qvvch7tZeR3U/8vaqcFiJx8mF8MptNuau7LW13lE"
