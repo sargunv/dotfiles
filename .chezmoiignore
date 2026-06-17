@@ -3,6 +3,16 @@
 LICENSE
 README.md
 
+# Repo-local dev tooling (not deployed as dotfiles)
+mise.toml
+mise.lock
+hk.pkl
+dprint.json
+.vscode/
+.vscode/**
+.zed/
+.zed/**
+
 {{ if ne .chezmoi.os "darwin" }}
 .chezmoiscripts/darwin
 .chezmoiscripts/darwin/**

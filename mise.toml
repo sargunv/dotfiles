@@ -1,0 +1,24 @@
+# https://mise.jdx.dev
+# Pins repo-local tooling for formatting and pre-commit checks.
+
+[settings]
+experimental = true
+pin = true
+install_before = "3d"
+lockfile = true
+
+[tools]
+"aqua:jdx/hk" = "1.46.0"
+"aqua:apple/pkl" = "0.31.1"
+"aqua:dprint/dprint" = "0.54.0"
+
+[hooks]
+postinstall = ["hk install --mise --quiet"]
+
+[tasks.check]
+description = "Run formatting and lint checks"
+run = "hk check --all"
+
+[tasks.fix]
+description = "Auto-fix formatting issues"
+run = "hk fix --all"
