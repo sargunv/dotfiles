@@ -16,6 +16,8 @@ dprint.json
 {{ if ne .chezmoi.os "darwin" }}
 .chezmoiscripts/darwin
 .chezmoiscripts/darwin/**
+dot_agents/skills/parallels-vms
+dot_agents/skills/parallels-vms/**
 {{ end }}
 
 {{ if or (ne .chezmoi.os "linux") (ne .chezmoi.osRelease.id "fedora") }}
