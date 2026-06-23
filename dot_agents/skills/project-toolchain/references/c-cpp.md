@@ -5,27 +5,45 @@
 ```toml
 # mise.toml
 [tools]
-"conda:clang-format" = "…"
 "conda:clang-tools" = "…"
-"github:cmakefmt/cmakefmt" = "…"
 ```
 
 ## Formatter
 
+Dprint plugins:
+
+- `sargunv/dprint-clang-format`
+- `sargunv/dprint-cmakefmt`
+
+The clang-format plugin formats `c`, `cc`, `cpp`, `cxx`, `h`, `hh`, `hpp`,
+`hxx`, `m`, and `mm`. The cmakefmt plugin formats `CMakeLists.txt`,
+`CMakeLists.txt.in`, and `*.cmake`.
+
 ```jsonc
-"exec": {
-  "commands": [
-    {
-      "command": "clang-format --assume-filename={{file_path}}",
-      "exts": ["c", "cc", "cpp", "cxx", "h", "hh", "hpp", "hxx", "m", "mm"],
-    },
-    {
-      "command": "cmakefmt --line-width {{line_width}} --tab-size {{indent_width}} -",
-      "exts": ["cmake"],
-    },
+"clangFormat": {
+  "BasedOnStyle": "Google",
+  "ColumnLimit": 80,
+  "IndentWidth": 2,
+  "ContinuationIndentWidth": 2,
+  "UseCRLF": false,
+  "UseTab": "Never",
+  "AlignAfterOpenBracket": "BlockIndent",
+  "IncludeBlocks": "Regroup",
+  "IncludeCategories": [
+    { "Regex": "^<[a-zA-Z0-9_]+>$", "Priority": -100 },
+    // Add a bucket here for a heavily used dependency namespace when it should
+    // stay grouped before other C++/system-style includes.
+    // { "Regex": "^<dependency/.*>$", "Priority": -60 },
+    { "Regex": "^<.*>$", "Priority": -50 },
+    { "Regex": ".*", "Priority": 1 },
   ]
 }
 ```
+
+Use the optional dependency bucket for consumers that include a lot from one
+library namespace and benefit from keeping that library grouped separately.
+
+Leave cmakefmt on plugin defaults unless the project needs otherwise.
 
 ## Linter
 

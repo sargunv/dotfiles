@@ -50,20 +50,16 @@ minimumReleaseAge: 4320
 Single-package repos pin versions directly in `devDependencies` instead of a
 catalog.
 
-Do not install `oxlint` or `oxfmt` — [oxfmt](#formatter) is the dprint oxc
-plugin; [oxlint](#linter) comes through vite-plus (`pnpm exec vp check`).
+Use dprint's oxc plugin for formatting and vite-plus for lint checks
+(`pnpm exec vp check`).
 
 Commit `pnpm-lock.yaml`.
 
 ## Formatter
 
-[dprint oxc plugin](https://dprint.dev/plugins/) (oxfmt) in `dprint.jsonc`. Do
-not add prettier, eslint, or biome as parallel formatters.
+Dprint plugin: `oxc`.
 
 ```jsonc
-"plugins": [
-  "https://plugins.dprint.dev/oxc-X.Y.Z.wasm",
-],
 "oxc": {
   "experimentalSortImports": { "newlinesBetween": true },
 }

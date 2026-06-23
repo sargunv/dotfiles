@@ -16,12 +16,9 @@ Commit `go.sum`.
 
 ## Formatter
 
-[dprint gofumpt plugin](https://dprint.dev/plugins/) in `dprint.jsonc`.
+Dprint plugin: `jakebailey/gofumpt`.
 
 ```jsonc
-"plugins": [
-  "https://plugins.dprint.dev/jakebailey/gofumpt-vX.Y.Z.wasm",
-],
 "gofumpt": {
   "langVersion": "go1.XX",
   "modulePath": "github.com/org/project",
@@ -30,7 +27,7 @@ Commit `go.sum`.
 
 ## Linter
 
-Do not enable gofumpt under golangci `formatters` — dprint owns formatting.
+Formatting belongs to dprint; keep golangci focused on lint checks.
 
 ```pkl
 ["gomod-tidy"] = (Builtins.gomod_tidy) {

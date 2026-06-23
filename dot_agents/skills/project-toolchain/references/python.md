@@ -28,17 +28,11 @@ Commit `uv.lock`.
 
 ## Formatter
 
-[dprint ruff WASM plugin](https://dprint.dev/plugins/) in `dprint.jsonc`.
-
-```jsonc
-"plugins": [
-  "https://plugins.dprint.dev/ruff-X.Y.Z.wasm",
-],
-```
+Dprint plugin: `ruff`.
 
 ## Linter
 
-Do not also run `ruff format` in hk when dprint owns formatting.
+Formatting belongs to dprint; use hk for ruff lint checks and ty type checks.
 
 ```pkl
 ["ruff"] {
