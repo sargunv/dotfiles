@@ -163,7 +163,11 @@ function lg() {
 
 if [ -f "$ZDOTDIR/antidote/antidote.zsh" ]; then
   . "$ZDOTDIR/antidote/antidote.zsh"
-  antidote load "$ZDOTDIR/.zsh_plugins.txt"
+  zsh_plugins="$ZDOTDIR/.zsh_plugins"
+  # Work around interrupted antidote bundle writes leaving an empty static cache.
+  [[ -e "${zsh_plugins}.zsh" && ! -s "${zsh_plugins}.zsh" ]] && rm -f "${zsh_plugins}.zsh"
+  antidote load "${zsh_plugins}.txt"
+  unset zsh_plugins
 fi
 
 [ -f "$ZDOTDIR/.zshrc.local" ] && . "$ZDOTDIR/.zshrc.local"
