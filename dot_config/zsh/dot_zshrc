@@ -2,8 +2,100 @@
 
 typeset -U path fpath
 
+zsh_completion_dir="${XDG_DATA_HOME:-$HOME/.local/share}/zsh/site-functions"
+zsh_completion_cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/completions"
+mkdir -p "$zsh_completion_dir" "$zsh_completion_cache_dir"
+fpath=("$zsh_completion_dir" $fpath)
+
+function _zsh_completion_command_path() {
+  local name="$1"
+  local command_path
+
+  command_path="$(command -v "$name")" || return
+  if [[ "$command_path" == "$HOME/.local/share/mise/shims/"* ]]; then
+    command -v mise >/dev/null 2>&1 || return
+    command_path="$(mise which "$name" 2>/dev/null)" || return
+  fi
+
+  print -r -- "${command_path:A}"
+}
+
+function _zsh_completion_is_stale() {
+  local completion_file="$1"
+  local dependency
+  shift
+
+  [[ -n "$ZSH_REFRESH_COMPLETIONS" || ! -s "$completion_file" ]] && return 0
+
+  for dependency in "$@"; do
+    [[ -n "$dependency" && -e "$dependency" && "$dependency" -nt "$completion_file" ]] && return 0
+  done
+
+  return 1
+}
+
+function _zsh_cache_completion() {
+  local name="$1"
+  local completion_file="$zsh_completion_dir/_$name"
+  local generator_name="$2"
+  shift
+
+  local command_path generator_path usage_path
+  command_path="$(_zsh_completion_command_path "$name")" || return
+  generator_path="$(_zsh_completion_command_path "$generator_name")" || return
+
+  local -a dependencies=("$command_path" "$generator_path")
+  if [[ "$generator_name" == (mise|aube|hk|usage) ]]; then
+    usage_path="$(_zsh_completion_command_path usage)" && dependencies+=("$usage_path")
+  fi
+  _zsh_completion_is_stale "$completion_file" "${dependencies[@]}" || return
+
+  local tmp_file="${completion_file}.$$.tmp"
+  "$@" >|"$tmp_file" 2>/dev/null &&
+    mv -f "$tmp_file" "$completion_file" ||
+    rm -f "$tmp_file"
+}
+
+function _zsh_cache_completion_script() {
+  local name="$1"
+  local completion_file="$zsh_completion_cache_dir/${name}.zsh"
+  local generator_name="$2"
+  shift
+
+  local command_path generator_path
+  command_path="$(_zsh_completion_command_path "$name")" || return
+  generator_path="$(_zsh_completion_command_path "$generator_name")" || return
+
+  _zsh_completion_is_stale "$completion_file" "$command_path" "$generator_path" || return
+
+  local tmp_file="${completion_file}.$$.tmp"
+  "$@" >|"$tmp_file" 2>/dev/null &&
+    mv -f "$tmp_file" "$completion_file" ||
+    rm -f "$tmp_file"
+}
+
+_zsh_cache_completion mise mise completion zsh
+_zsh_cache_completion aube aube completion zsh
+_zsh_cache_completion cargo rustup completions zsh cargo
+_zsh_cache_completion chezmoi chezmoi completion zsh
+_zsh_cache_completion codex codex completion zsh
+_zsh_cache_completion dprint dprint completions zsh
+_zsh_cache_completion hk hk completion zsh
+_zsh_cache_completion lazygit lazygit completion zsh
+_zsh_cache_completion opencode opencode completion zsh
+_zsh_cache_completion rustup rustup completions zsh
+_zsh_cache_completion starship starship completions zsh
+_zsh_cache_completion usage usage generate completion zsh usage --usage-cmd "usage --usage"
+_zsh_cache_completion uv uv generate-shell-completion zsh
+_zsh_cache_completion_script pkl pkl shell-completion zsh
+
 autoload -Uz compinit
 compinit
+
+for zsh_completion_script in "$zsh_completion_cache_dir"/*.zsh(N); do
+  source "$zsh_completion_script"
+done
+unset zsh_completion_script
 
 ZSH_AUTOSUGGEST_STRATEGY=(history)
 
