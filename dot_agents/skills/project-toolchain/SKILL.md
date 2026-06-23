@@ -117,7 +117,6 @@ lockfile = true
 
 [tools]
 "aqua:jdx/hk" = "…"
-"aqua:apple/pkl" = "…"
 "aqua:dprint/dprint" = "…"
 
 [tasks.check]
@@ -192,9 +191,8 @@ orchestrator. Reference docs:
 - [exec plugin](https://dprint.dev/plugins/exec/),
 - [plugin hub](https://dprint.dev/plugins/).
 
-Pin hk, pkl, and dprint in `mise.toml`. The `hk.pkl` `amends` URL must match the
-mise hk pin. Pkl is the configuration language for hk, and the tool is required
-for hk to function.
+Pin hk and dprint in `mise.toml`. The `hk.pkl` `amends` URL must match the mise
+hk pin. Hk includes the Pkl runtime for its configuration.
 
 ```pkl
 amends "package://github.com/jdx/hk/releases/download/vX.Y.Z/hk@X.Y.Z#/Config.pkl"
