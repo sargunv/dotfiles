@@ -118,7 +118,7 @@ writes the resolved version into `mise.toml`.
 touch mise.toml
 mise settings set --local experimental true
 mise settings set --local pin true
-mise settings set --local install_before 3d
+mise settings set --local minimum_release_age 3d
 mise settings set --local lockfile true
 mise trust -y
 mise use --pin aqua:jdx/hk@latest aqua:dprint/dprint@latest
@@ -225,8 +225,9 @@ mise run check
 Use explicit backends (`core:node`, `core:rust`, `aqua:jdx/hk`) rather than bare
 (`node`, `rust`, `hk`). Backend priority is core, then aqua, then github; then
 conda, npm, or pipx. Avoid asdf and vfox unless they're the only choice for the
-tool. Mise bootstraps the toolchain; ecosystem tools live inside it (mise → node
-→ corepack → pnpm, and so on).
+tool. Mise bootstraps the toolchain; ecosystem package managers are mise tools
+too (mise → pnpm, mise → uv), and project dependencies live behind their
+lockfiles.
 
 For monorepos with multiple package roots that each have their own `mise.toml`,
 set `experimental_monorepo_root = true` and list roots under
