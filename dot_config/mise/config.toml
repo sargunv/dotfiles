@@ -20,6 +20,7 @@ compile = false
 "aqua:jdx/aube" = "latest"
 "aqua:jdx/usage" = "latest"
 "aqua:astral-sh/uv" = "latest"
+"aqua:cargo-bins/cargo-binstall" = "latest"
 "github:Foxboron/ssh-tpm-agent" = { version = "latest", os = ["linux"] }
 "github:sargunv/starship-multi-config" = "latest"
 "npm:@earendil-works/pi-coding-agent" = "latest"
