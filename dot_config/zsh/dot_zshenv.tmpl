@@ -2,7 +2,16 @@
 
 typeset -U path fpath
 
-path=("$HOME/.local/bin" "$HOME/bin" "$HOME/.local/share/JetBrains/Toolbox/scripts" "$HOME/.local/share/mise/shims" "$HOME/.opencode/bin" $path)
+path=(
+  "$HOME/.local/bin"
+  "$HOME/bin"
+  "$HOME/.local/share/JetBrains/Toolbox/scripts"
+  "$HOME/.local/share/mise/shims"
+  "$HOME/.opencode/bin"
+  "$HOME/.kimi-code/bin"
+  "$HOME/.lmstudio/bin"
+  $path
+)
 
 export PAGER="less -RF --mouse"
 export DELTA_PAGER="$PAGER"
