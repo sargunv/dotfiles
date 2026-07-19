@@ -9,9 +9,18 @@ self_managed_tools:
   - name: codex
     command: codex
     install: "curl -fsSL https://chatgpt.com/codex/install.sh | sh"
+  - name: claude-code
+    command: claude
+    install: "curl -fsSL https://claude.ai/install.sh | bash"
+  - name: oh-my-pi
+    command: omp
+    install: "curl -fsSL https://omp.sh/install | sh"
   - name: cursor-agent
     command: cursor-agent
     install: "curl https://cursor.com/install -fsS | bash"
   - name: opencode
     command: opencode
     install: "curl -fsSL https://opencode.ai/install | bash -s -- --no-modify-path"
+  - name: kimi
+    command: kimi
+    install: "curl -fsSL https://code.kimi.com/kimi-code/install.sh | KIMI_NO_MODIFY_PATH=1 bash"

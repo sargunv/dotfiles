@@ -153,6 +153,7 @@ fi
 alias codexd='codex --dangerously-bypass-approvals-and-sandbox'
 alias opencoded='opencode --auto'
 alias agentd='agent --yolo'
+alias kimid='kimi --yolo'
 
 function lg() {
   export LAZYGIT_NEW_DIR_FILE="$HOME/.lazygit/newdir"
