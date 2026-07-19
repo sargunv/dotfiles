@@ -150,6 +150,7 @@ if command -v eza >/dev/null 2>&1; then
   alias lt='eza --tree --icons auto --git'
 fi
 
+alias clauded='claude --dangerously-skip-permissions'
 alias codexd='codex --dangerously-bypass-approvals-and-sandbox'
 alias opencoded='opencode --auto'
 alias agentd='agent --yolo'
