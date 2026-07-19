@@ -1,1 +1,2 @@
+theme = Builtin Pastel Dark
 shell-integration-features = sudo,ssh-terminfo,ssh-env
