@@ -1,8 +1,9 @@
 ---
 name: parallels-vms
+disable-model-invocation: true
 description: >-
-  Access Parallels VMs on macOS for Linux and Windows work. Use when building,
-  testing, or running commands on linux-vm or windows-vm.
+  Access local Parallels VMs on macOS. Use when the user asks to access the
+  local Linux or Windows VM.
 ---
 
 # Parallels VMs
