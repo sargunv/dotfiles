@@ -1,2 +1,3 @@
 theme = Builtin Pastel Dark
+unfocused-split-opacity = 1
 shell-integration-features = sudo,ssh-terminfo,ssh-env
