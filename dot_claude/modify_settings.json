@@ -1,0 +1,12 @@
+#!/bin/sh
+# Own only the attribution keys in ~/.claude/settings.json. Claude Code writes
+# the rest of this file itself (theme, effort level, hooks), so it is merged
+# rather than replaced.
+set -eu
+
+current="$(cat)"
+[ -n "$current" ] || current='{}'
+
+printf '%s' "$current" | jq --indent 2 '
+  .attribution = {commit: "", pr: "", sessionUrl: false}
+'
