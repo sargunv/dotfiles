@@ -11,5 +11,6 @@ Host *
 {{- if eq .chezmoi.os "darwin" }}
   IdentityFile ~/.ssh/id_ecdsa_sk_rk
 {{- else if eq .chezmoi.os "linux" }}
-  IdentityFile ~/.ssh/id_ecdsa_tpm.tpm
+  IdentityFile ~/.ssh/id_ecdsa_tpm.pub
+  IdentityAgent /run/user/{{ .chezmoi.uid }}/ssh-tpm-agent.sock
 {{- end }}
