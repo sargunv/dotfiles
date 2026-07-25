@@ -1,0 +1,14 @@
+#!/bin/sh
+# Own only the attribution keys in ~/.cursor/cli-config.json. cursor-agent
+# writes the rest of this file itself (auth info, model selection, caches), and
+# has been known to reset settings across auto-updates, so it is merged rather
+# than replaced.
+set -eu
+
+current="$(cat)"
+[ -n "$current" ] || current='{}'
+
+printf '%s' "$current" | jq --indent 2 '
+  .attribution.attributeCommitsToAgent = false
+  | .attribution.attributePRsToAgent = false
+'
