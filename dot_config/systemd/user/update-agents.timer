@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily update for coding agent CLIs
+
+[Timer]
+OnCalendar=daily
+Persistent=true
+RandomizedDelaySec=1h
+AccuracySec=1h
+
+[Install]
+WantedBy=timers.target

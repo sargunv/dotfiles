@@ -31,3 +31,8 @@ dot_config/systemd
 dot_config/systemd/**
 dot_local/bin/executable_setup-tpm-key.tmpl
 {{ end }}
+
+{{ if ne .chezmoi.os "darwin" }}
+Library
+Library/**
+{{ end }}
