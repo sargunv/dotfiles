@@ -13,6 +13,117 @@ path=(
   $path
 )
 
+function _detect_development_sdks {
+  local android_sdk ohos_sdk ohos_root browser
+  local sdk_candidate browser_candidate
+  local -a ohos_roots browser_candidates
+
+  {{ if eq .chezmoi.os "darwin" -}}
+  android_sdk="$HOME/Library/Android/sdk"
+  {{ else if eq .chezmoi.os "linux" -}}
+  android_sdk="$HOME/Android/Sdk"
+  {{ end -}}
+  if [[ -d "$android_sdk" ]]; then
+    export ANDROID_HOME="$android_sdk"
+    # Keep an inherited deprecated variable consistent with ANDROID_HOME.
+    [[ -n "${ANDROID_SDK_ROOT:-}" ]] && export ANDROID_SDK_ROOT="$android_sdk"
+  fi
+  if [[ -n "${ANDROID_HOME:-}" && -d "$ANDROID_HOME/platform-tools" ]]; then
+    path=("$ANDROID_HOME/platform-tools" $path)
+  fi
+
+  {{ if eq .chezmoi.os "darwin" -}}
+  ohos_roots=(
+    "$HOME/Library/OpenHarmony/Sdk"
+    "/Applications/DevEco Studio.app/Contents/sdk/default/OpenHarmony"
+    "/Applications/deveco-studio.app/Contents/sdk/default/OpenHarmony"
+    "$HOME/Applications/DevEco Studio.app/Contents/sdk/default/OpenHarmony"
+    "$HOME/Applications/deveco-studio.app/Contents/sdk/default/OpenHarmony"
+  )
+  {{ else if eq .chezmoi.os "linux" -}}
+  ohos_roots=(
+    "$HOME/OpenHarmony/Sdk"
+    "$HOME/DevEco-Studio/sdk/default/OpenHarmony"
+    "/opt/DevEco-Studio/sdk/default/OpenHarmony"
+    "/opt/deveco-studio/sdk/default/OpenHarmony"
+  )
+  {{ end -}}
+  for ohos_root in $ohos_roots; do
+    if [[ -d "$ohos_root/native" ]]; then
+      ohos_sdk="$ohos_root"
+    elif [[ -d "$ohos_root" ]]; then
+      for sdk_candidate in "$ohos_root"/*(N/n); do
+        [[ -d "$sdk_candidate/native" ]] && ohos_sdk="$sdk_candidate"
+      done
+    fi
+    [[ -n "$ohos_sdk" ]] && break
+  done
+  if [[ -n "$ohos_sdk" ]]; then
+    export OHOS_NDK_HOME="$ohos_sdk"
+    export OHOS_SDK_NATIVE="$ohos_sdk/native"
+  elif [[ -z "${OHOS_NDK_HOME:-}" && -n "${OHOS_SDK_NATIVE:-}" &&
+    "${OHOS_SDK_NATIVE:t}" == "native" ]]; then
+    export OHOS_NDK_HOME="${OHOS_SDK_NATIVE:h}"
+  elif [[ -z "${OHOS_SDK_NATIVE:-}" && -n "${OHOS_NDK_HOME:-}" &&
+    -d "$OHOS_NDK_HOME/native" ]]; then
+    export OHOS_SDK_NATIVE="$OHOS_NDK_HOME/native"
+  fi
+  if [[ -n "${OHOS_NDK_HOME:-}" && -d "$OHOS_NDK_HOME/toolchains" ]]; then
+    path=("$OHOS_NDK_HOME/toolchains" $path)
+  fi
+
+  {{ if eq .chezmoi.os "darwin" -}}
+  browser_candidates=(
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+    "$HOME/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+    "/Applications/Chromium.app/Contents/MacOS/Chromium"
+    "$HOME/Applications/Chromium.app/Contents/MacOS/Chromium"
+  )
+  {{ else if eq .chezmoi.os "linux" -}}
+  browser_candidates=(
+    /usr/bin/google-chrome
+    /usr/bin/google-chrome-stable
+    /usr/bin/chromium
+    /usr/bin/chromium-browser
+    /opt/google/chrome/chrome
+  )
+  {{ end -}}
+  for browser_candidate in $browser_candidates; do
+    if [[ -x "$browser_candidate" ]]; then
+      browser="$browser_candidate"
+      break
+    fi
+  done
+
+  if [[ -z "$browser" ]]; then
+    {{ if eq .chezmoi.os "darwin" -}}
+    for browser_candidate in \
+      "$HOME/Library/Caches/ms-playwright"/chromium-*/chrome-mac*/Chromium.app/Contents/MacOS/Chromium(Nn) \
+      "$HOME/Library/Caches/ms-playwright"/chromium-*/chrome-mac*/Google\ Chrome\ for\ Testing.app/Contents/MacOS/Google\ Chrome\ for\ Testing(Nn); do
+      [[ -x "$browser_candidate" ]] && browser="$browser_candidate"
+    done
+  {{ else if eq .chezmoi.os "linux" -}}
+    for browser_candidate in \
+      "$HOME/.cache/ms-playwright"/chromium-*/chrome-linux*/chrome(Nn); do
+      [[ -x "$browser_candidate" ]] && browser="$browser_candidate"
+    done
+  {{ end -}}
+  fi
+
+  if [[ -n "$browser" ]]; then
+    export CHROME_BIN="$browser" CHROME_PATH="$browser"
+  elif [[ -x "${MLN_FFI_TEST_BROWSER:-}" ]]; then
+    export CHROME_BIN="$MLN_FFI_TEST_BROWSER" CHROME_PATH="$MLN_FFI_TEST_BROWSER"
+  elif [[ -z "${CHROME_BIN:-}" && -x "${CHROME_PATH:-}" ]]; then
+    export CHROME_BIN="$CHROME_PATH"
+  elif [[ -z "${CHROME_PATH:-}" && -x "${CHROME_BIN:-}" ]]; then
+    export CHROME_PATH="$CHROME_BIN"
+  fi
+}
+
+_detect_development_sdks
+unfunction _detect_development_sdks
+
 export PAGER="less -RF --mouse"
 export DELTA_PAGER="$PAGER"
 
