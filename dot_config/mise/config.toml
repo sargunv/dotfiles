@@ -21,11 +21,5 @@ compile = false
 "aqua:jdx/usage" = "latest"
 "aqua:astral-sh/uv" = "latest"
 "aqua:cargo-bins/cargo-binstall" = "latest"
-"aqua:anomalyco/opencode" = "latest"
-"aqua:anthropics/claude-code" = "latest"
-"aqua:earendil-works/pi" = "latest"
-"aqua:openai/codex" = "latest"
 "github:Foxboron/ssh-tpm-agent" = { version = "latest", os = ["linux"] }
-"github:can1357/oh-my-pi" = "latest"
 "github:sargunv/starship-multi-config" = "latest"
-"npm:@qwen-code/qwen-code" = "latest"
