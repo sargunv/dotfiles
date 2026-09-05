@@ -54,6 +54,30 @@ def summary(body=None):
 
 
 class TriageTests(unittest.TestCase):
+    def test_codex_activity_summary_does_not_wake_or_supersede_review(self):
+        data, state = snapshot(), {}
+        data["comments"] = [
+            {
+                "id": 10,
+                "user": CODEX,
+                "updated_at": AFTER,
+                "html_url": "url",
+                "body": "<!-- codex-pull-request-review-summary -->\n\n## Codex Review Summary\n"
+                "| Review | Status | Commit | Review trigger |\n"
+                "| Code Review | Running | `aaaaaaa` | PR opened |",
+            }
+        ]
+        data["reactions"] = [
+            {"user": CODEX, "content": "eyes", "created_at": AFTER}
+        ]
+        result = watch.evaluate(data, state, [], NOW)
+        self.assertEqual(result["event"], "waiting")
+        self.assertEqual(result["items"], [])
+        data["reactions"][0]["content"] = "+1"
+        self.assertEqual(
+            watch.evaluate(data, state, [], AFTER)["event"], "clean"
+        )
+
     def test_later_empty_review_preserves_current_greptile_score(self):
         data, state = snapshot(), {}
         data["comments"] = [summary()]

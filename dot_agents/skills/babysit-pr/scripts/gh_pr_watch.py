@@ -255,6 +255,12 @@ def evaluate(snapshot, state, expected, now):
     for c in snapshot["comments"]:
         bot = bot_for(c.get("user"))
         if bot:
+            # Codex maintains this activity table separately from its findings.
+            # Its status edits neither require triage nor supersede a review.
+            if bot == "codex" and c["body"].startswith(
+                "<!-- codex-pull-request-review-summary -->"
+            ):
+                continue
             item = {k: c[k] for k in ("id", "body", "updated_at", "html_url")}
             add("comment", item, bot)
             evidence[bot].append(
