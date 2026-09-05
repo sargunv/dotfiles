@@ -8,6 +8,15 @@ mise.toml
 mise.lock
 hk.pkl
 dprint.json
+pyproject.toml
+uv.lock
+.gitignore
+.venv/
+.venv/**
+.ruff_cache/
+.ruff_cache/**
+**/__pycache__/
+**/__pycache__/**
 .vscode/
 .vscode/**
 .zed/

@@ -2,6 +2,19 @@
 
 Personal dotfiles managed with chezmoi.
 
+## Development
+
+Repo tooling is pinned with mise. Python linting and type checking use locked uv
+dependencies; formatting runs through dprint.
+
+```sh
+mise install
+mise run check
+mise run test
+```
+
+Use `mise run fix` to apply formatting and lint fixes.
+
 ## Bootstrap
 
 On macOS, install Homebrew first:

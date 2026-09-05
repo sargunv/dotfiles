@@ -1,0 +1,8 @@
+OpenAI Codex
+Copyright 2025 OpenAI
+
+gh_pr_watch.py is adapted from OpenAI's Apache-2.0 PR watcher at:
+https://github.com/openai/codex/blob/ddf04ad26789d040f9ef6a96736f76602e35a6cc/.codex/skills/babysit-pr/scripts/gh_pr_watch.py
+
+Modified for these dotfiles: read-only quiet polling, Greptile and Codex status,
+explicit acknowledgements, edited summaries, and conservative head freshness.

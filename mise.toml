@@ -1,5 +1,5 @@
 # https://mise.jdx.dev
-# Pins repo-local tooling for formatting and pre-commit checks.
+# Pins repo-local tooling for formatting, linting, and tests.
 
 [settings]
 experimental = true
@@ -11,6 +11,8 @@ lockfile = true
 "aqua:jdx/hk" = "1.46.0"
 "aqua:apple/pkl" = "0.31.1"
 "aqua:dprint/dprint" = "0.54.0"
+"core:python" = "3.14.7"
+"aqua:astral-sh/uv" = "0.12.9"
 
 [hooks]
 postinstall = ["hk install --mise --quiet"]
@@ -22,3 +24,13 @@ run = "hk check --all"
 [tasks.fix]
 description = "Auto-fix formatting issues"
 run = "hk fix --all"
+
+[settings.python]
+uv_venv_auto = "create|source"
+
+[deps.uv]
+auto = true
+
+[tasks.test]
+description = "Run Python script regression tests"
+run = "uv run --locked python -B -m unittest discover -s dot_agents/skills/babysit-pr/scripts -v"

@@ -6,6 +6,15 @@ import "package://github.com/jdx/hk/releases/download/v1.46.0/hk@1.46.0#/Builtin
 
 local lintSteps = new Mapping<String, Step> {
   ["dprint"] = Builtins.dprint
+  ["ruff"] {
+    glob = List("**/*.py")
+    check = "uv run --locked ruff check {{files}}"
+    fix = "uv run --locked ruff check --fix {{files}}"
+  }
+  ["ty"] {
+    glob = List("**/*.py")
+    check = "uv run --locked ty check --error-on-warning ."
+  }
 }
 
 hooks {
