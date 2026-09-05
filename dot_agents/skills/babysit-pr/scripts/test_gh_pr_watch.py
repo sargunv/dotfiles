@@ -31,6 +31,7 @@ def snapshot():
             "mergeable_state": "clean",
             "draft": False,
         },
+        "ci_state": "SUCCESS",
         "checks": [
             {"name": "test", "state": "success", "url": "https://example.com"}
         ],
@@ -319,6 +320,12 @@ class TriageTests(unittest.TestCase):
             with self.subTest(check_state=check_state):
                 data = snapshot()
                 data["checks"][0]["state"] = check_state
+                data["ci_state"] = {
+                    "pending": "PENDING",
+                    "failure": "FAILURE",
+                    "cancelled": "FAILURE",
+                    "skipped": "SUCCESS",
+                }[check_state]
                 self.assertEqual(watch.evaluate(data, {})["event"], event)
         for field, value, event in [
             ("mergeable", False, "action_required"),
@@ -340,58 +347,92 @@ class TriageTests(unittest.TestCase):
 
 
 class ApiTests(unittest.TestCase):
-    def test_distinct_suites_keep_failures_and_only_replace_their_own_reruns(
-        self,
-    ):
-        def check(run_id, suite_id, conclusion):
+    def test_ci_rollup_preserves_duplicate_names_across_pages(self):
+        def page(run_id, conclusion, more):
             return {
-                "id": run_id,
-                "check_suite": {"id": suite_id},
-                "name": "test",
-                "status": "completed",
-                "conclusion": conclusion,
-                "html_url": "url",
+                "repository": {
+                    "object": {
+                        "statusCheckRollup": {
+                            "state": "FAILURE",
+                            "contexts": {
+                                "nodes": [
+                                    {
+                                        "id": run_id,
+                                        "name": "test",
+                                        "detailsUrl": "url",
+                                        "status": "COMPLETED",
+                                        "conclusion": conclusion,
+                                    }
+                                ],
+                                "pageInfo": {
+                                    "hasNextPage": more,
+                                    "endCursor": "next",
+                                },
+                            },
+                        }
+                    }
+                }
             }
 
-        checks = [
-            check(1, 10, "failure"),
-            check(2, 20, "success"),
-            check(3, 30, "failure"),
-            check(4, 30, "success"),
-        ]
-        with (
-            patch.object(
-                watch,
-                "gh_json",
-                side_effect=[
-                    snapshot()["pr"],
-                    [{"check_runs": checks}],
-                    snapshot()["pr"],
-                ],
-            ) as call,
-            patch.object(watch, "api_list", return_value=[]),
-            patch.object(watch, "review_threads", return_value=[]),
-        ):
-            data = watch.fetch("o/r", 1)
-        self.assertIsNotNone(data)
-        self.assertEqual(len(data["checks"]), 3)
-        self.assertIn("filter=all", call.call_args_list[1].args[0][-1])
+        with patch.object(
+            watch,
+            "graphql",
+            side_effect=[
+                page("a", "FAILURE", True),
+                page("b", "SUCCESS", False),
+            ],
+        ) as call:
+            ci_state, checks = watch.ci_status("o/r", HEAD)
+        self.assertEqual(call.call_args.kwargs["cursor"], "next")
+        self.assertEqual([c["id"] for c in checks], ["a", "b"])
+        data = dict(snapshot(), ci_state=ci_state, checks=checks)
         result = watch.evaluate(data, {})
         self.assertEqual(result["event"], "action_required")
         self.assertEqual(len(result["failed_checks"]), 1)
+
+    def test_ci_readiness_uses_server_rollup_instead_of_reaggregating_attempts(
+        self,
+    ):
+        for ci_state, event in [
+            ("FAILURE", "action_required"),
+            ("ERROR", "action_required"),
+            ("EXPECTED", "waiting"),
+            ("PENDING", "waiting"),
+            ("SUCCESS", "clean"),
+            (None, "clean"),
+        ]:
+            with self.subTest(ci_state=ci_state):
+                data = snapshot()
+                data["ci_state"] = ci_state
+                data["checks"][0]["state"] = "failure"
+                result = watch.evaluate(data, {})
+                self.assertEqual(result["event"], event)
+                if event == "clean":
+                    self.assertEqual(result["failed_checks"], [])
+
+    def test_null_ci_rollup_means_no_reported_checks(self):
+        with patch.object(
+            watch,
+            "graphql",
+            return_value={
+                "repository": {"object": {"statusCheckRollup": None}}
+            },
+        ):
+            self.assertEqual(watch.ci_status("o/r", HEAD), (None, []))
 
     def test_new_inline_root_without_thread_discards_incomplete_snapshot(self):
         with (
             patch.object(
                 watch,
                 "gh_json",
-                side_effect=[snapshot()["pr"], [{"check_runs": []}]],
+                return_value=snapshot()["pr"],
             ),
             patch.object(
                 watch,
                 "api_list",
-                side_effect=[[], [], [], [{"id": 30, "user": GREPTILE}], []],
+                side_effect=[[], [], [{"id": 30, "user": GREPTILE}], []],
             ),
+            patch.object(watch, "ci_status", return_value=(None, [])),
             patch.object(watch, "review_threads", return_value=[]),
         ):
             self.assertIsNone(watch.fetch("o/r", 1))
@@ -406,9 +447,10 @@ class ApiTests(unittest.TestCase):
             patch.object(
                 watch,
                 "gh_json",
-                side_effect=[snapshot()["pr"], [{"check_runs": []}]],
+                return_value=snapshot()["pr"],
             ),
             patch.object(watch, "api_list", return_value=[]),
+            patch.object(watch, "ci_status", return_value=(None, [])),
             patch.object(watch, "review_threads", return_value=[thread]),
         ):
             self.assertIsNone(watch.fetch("o/r", 1))
@@ -452,9 +494,10 @@ class ApiTests(unittest.TestCase):
             patch.object(
                 watch,
                 "gh_json",
-                side_effect=[before, [{"check_runs": []}], after],
+                side_effect=[before, after],
             ),
             patch.object(watch, "api_list", return_value=[]),
+            patch.object(watch, "ci_status", return_value=(None, [])),
             patch.object(watch, "review_threads", return_value=[]),
         ):
             self.assertIsNone(watch.fetch("o/r", 1))
@@ -462,7 +505,9 @@ class ApiTests(unittest.TestCase):
     def test_watch_is_quiet_until_ci_failure(self):
         pending, failed = snapshot(), snapshot()
         pending["checks"][0]["state"] = "pending"
+        pending["ci_state"] = "PENDING"
         failed["checks"][0]["state"] = "failure"
+        failed["ci_state"] = "FAILURE"
         with tempfile.TemporaryDirectory() as tmp:
             args = [
                 "watch",
@@ -490,7 +535,9 @@ class ApiTests(unittest.TestCase):
     def test_watch_gives_new_ci_a_poll_to_appear(self):
         ready, pending, failed = snapshot(), snapshot(), snapshot()
         pending["checks"][0]["state"] = "pending"
+        pending["ci_state"] = "PENDING"
         failed["checks"][0]["state"] = "failure"
+        failed["ci_state"] = "FAILURE"
         with tempfile.TemporaryDirectory() as tmp:
             args = [
                 "watch",

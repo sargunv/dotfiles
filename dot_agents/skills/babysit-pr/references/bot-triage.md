@@ -17,6 +17,9 @@ every 60 seconds without model involvement and prints JSON when work appears,
 review finishes, or it times out after 30 minutes. Run it as a background
 command and wait for its output; don't build a separate agent polling loop.
 Readiness is confirmed on a second poll to allow newly queued checks to appear.
+CI readiness uses GitHub's combined check/status rollup for the captured head;
+individual check results provide diagnostics, without deduplicating job names or
+reconstructing rerun history locally.
 
 The watcher recognizes Greptile and Codex by their bot accounts. It detects bots
 from activity on this PR. Check repository configuration or recent PRs at setup;

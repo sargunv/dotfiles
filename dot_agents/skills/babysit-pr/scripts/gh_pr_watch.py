@@ -137,6 +137,58 @@ def review_threads(repo, number):
         cursor = page["pageInfo"]["endCursor"]
 
 
+def ci_status(repo, sha):
+    # GitHub owns job identity and rerun selection. Do not deduplicate names or
+    # reconstruct readiness from individual historical check attempts.
+    owner, name = repo.split("/")
+    query = """
+    query($owner: String!, $name: String!, $sha: GitObjectID!, $cursor: String) {
+      repository(owner: $owner, name: $name) {
+        object(oid: $sha) { ... on Commit {
+          statusCheckRollup {
+            state
+            contexts(first: 100, after: $cursor) {
+              nodes {
+                ... on CheckRun { id name detailsUrl status conclusion }
+                ... on StatusContext { id context targetUrl state }
+              }
+              pageInfo { hasNextPage endCursor }
+            }
+          }
+        } }
+      }
+    }
+    """
+    checks, cursor = [], None
+    while True:
+        data = graphql(query, owner=owner, name=name, sha=sha, cursor=cursor)
+        rollup = data["repository"]["object"]["statusCheckRollup"]
+        if rollup is None:
+            return None, []
+        page = rollup["contexts"]
+        for c in page["nodes"]:
+            state = (
+                c.get("state")
+                or (
+                    c["conclusion"] if c["status"] == "COMPLETED" else "PENDING"
+                )
+                or "PENDING"
+            )
+            checks.append(
+                {
+                    "id": c["id"],
+                    "name": c.get("name", c.get("context")),
+                    "url": c.get("detailsUrl", c.get("targetUrl")),
+                    "state": "pending"
+                    if state == "EXPECTED"
+                    else state.lower(),
+                }
+            )
+        if not page["pageInfo"]["hasNextPage"]:
+            return rollup["state"], checks
+        cursor = page["pageInfo"]["endCursor"]
+
+
 def resolve_pr(pr_spec, repo):
     # Like upstream, resolve the base repository from the PR URL (fork-safe).
     args = ["pr", "view"] + ([] if pr_spec == "auto" else [pr_spec])
@@ -151,39 +203,14 @@ def fetch(repo, number):
     base = f"repos/{repo}"
     pr = gh_json(["api", f"{base}/pulls/{number}"])
     sha = pr["head"]["sha"]
-    check_pages = gh_json(
-        [
-            "api",
-            "--paginate",
-            "--slurp",
-            f"{base}/commits/{sha}/check-runs?per_page=100&filter=all",
-        ]
-    )
-    checks = [c for p in check_pages for c in p["check_runs"]]
-    statuses = api_list(f"{base}/commits/{sha}/statuses?per_page=100")
-    # Keep the newest attempt within each suite, preserving distinct workflows.
-    latest = {}
-    for c in sorted(checks, key=lambda c: c["id"]):
-        latest[(c["check_suite"]["id"], c["name"])] = {
-            "name": c["name"],
-            "url": c["html_url"],
-            "state": c["conclusion"]
-            if c["status"] == "completed"
-            else "pending",
-        }
-    legacy = {}
-    for s in sorted(statuses, key=lambda s: s["id"]):
-        legacy[s["context"]] = {
-            "name": s["context"],
-            "url": s["target_url"],
-            "state": s["state"],
-        }
+    ci_state, checks = ci_status(repo, sha)
     # Read thread identities before their comments, so publishing a thread
     # between requests cannot make an already-observed finding disappear.
     threads = review_threads(repo, number)
     snapshot = {
         "pr": pr,
-        "checks": list(latest.values()) + list(legacy.values()),
+        "ci_state": ci_state,
+        "checks": checks,
         "comments": api_list(f"{base}/issues/{number}/comments?per_page=100"),
         "reviews": api_list(f"{base}/pulls/{number}/reviews?per_page=100"),
         "inline": api_list(f"{base}/pulls/{number}/comments?per_page=100"),
@@ -408,19 +435,22 @@ def evaluate(snapshot, state, expected=None):
     state["bots"] = sorted(bots)
 
     checks = snapshot["checks"]
+    ci_failed = snapshot["ci_state"] in {"ERROR", "FAILURE"}
+    ci_pending = snapshot["ci_state"] in {"EXPECTED", "PENDING"}
     failures = [
         c
         for c in checks
-        if c["state"] not in {"success", "neutral", "skipped", "pending"}
+        if ci_failed
+        and c["state"] not in {"success", "neutral", "skipped", "pending"}
     ]
-    pending = [c for c in checks if c["state"] == "pending"]
+    pending = [c for c in checks if ci_pending and c["state"] == "pending"]
     required = [b for b in bots.values() if b["required"]]
     complete = all(b["complete"] for b in required)
     if pr["state"] != "open":
         event = "closed"
-    elif items or failures or pr["mergeable"] is False:
+    elif items or ci_failed or pr["mergeable"] is False:
         event = "action_required"
-    elif pending or pr["mergeable"] is None or not complete:
+    elif ci_pending or pr["mergeable"] is None or not complete:
         event = "waiting"
     elif pr["draft"] or pr["mergeable_state"] not in {
         "clean",
@@ -436,6 +466,7 @@ def evaluate(snapshot, state, expected=None):
         "url": pr["html_url"],
         "head": sha,
         "bots": bots,
+        "ci_state": snapshot["ci_state"],
         "items": items,
         "failed_checks": failures,
         "pending_checks": pending,
