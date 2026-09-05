@@ -54,6 +54,27 @@ def summary(body=None):
 
 
 class TriageTests(unittest.TestCase):
+    def test_codex_clean_completion_comment_recognizes_existing_thumb(self):
+        data = snapshot()
+        data["comments"] = [
+            {
+                "id": 10,
+                "user": CODEX,
+                "updated_at": NOW,
+                "html_url": "url",
+                "body": "Codex Review: Didn't find any major issues. Hooray!\n\n"
+                f"**Reviewed commit:** `{HEAD[:10]}`\n\n<details>About Codex</details>",
+            }
+        ]
+        data["reactions"] = [
+            {"id": 1, "user": CODEX, "content": "+1", "created_at": AFTER}
+        ]
+        result = watch.evaluate(data, {})
+        self.assertEqual(result["event"], "clean")
+        self.assertEqual(result["items"], [])
+        data["pr"]["head"]["sha"] = "b" * 40
+        self.assertEqual(watch.evaluate(data, {})["event"], "waiting")
+
     def test_explicit_bot_selection_overrides_history_without_hiding_findings(
         self,
     ):

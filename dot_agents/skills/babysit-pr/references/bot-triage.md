@@ -79,6 +79,11 @@ After acting, resume the watcher. Investigate `failed_checks` and merge
 conflicts as part of babysitting. On `blocked`, `timeout`, or `error`, inspect
 and report the specific blocker; don't restart indefinitely or assume success.
 
+Codex automatically re-reviews on push. Wait for that review; don't also post
+`@codex review`. Only request a manual review when explicitly asked or when you
+have verified that automatic review is disabled, and never while a review is
+already running.
+
 ## Completion
 
 | Bot      | Running       | Completed                               | Clean target   |
@@ -87,12 +92,13 @@ and report the specific blocker; don't restart indefinitely or assume success.
 | Codex    | Eyes reaction | Review with findings, or thumbs-up      | Thumbs-up      |
 
 Only use results for the current head. Reviews carry a commit SHA; Greptile
-summaries may carry a `Last reviewed commit` marker. PR reactions do **not**
-carry a SHA. The watcher treats pre-existing reactions as unverified unless a
-current review corroborates their timing; otherwise it tracks newly appearing
-reaction IDs against a baseline for the current head, independent of the host
-clock. Overlapping reviews can still make reactions ambiguous. Verify ambiguous
-status or obtain a fresh review instead of calling it clean.
+summaries may carry a `Last reviewed commit` marker, and Codex completion
+comments carry `Reviewed commit`. PR reactions do **not** carry a SHA. The
+watcher treats pre-existing reactions as unverified unless a current review
+corroborates their timing; otherwise it tracks newly appearing reaction IDs
+against a baseline for the current head, independent of the host clock.
+Overlapping reviews can still make reactions ambiguous. Verify ambiguous status
+or obtain a fresh review instead of calling it clean.
 
 `clean` means checks passed, no conflicts or unhandled findings remain, and all
 participating bots meet their clean targets. `handled` means reviews completed

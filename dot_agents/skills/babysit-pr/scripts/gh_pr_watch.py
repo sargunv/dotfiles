@@ -219,7 +219,9 @@ def score(body):
 def reviewed_head(body, sha):
     # Match an explicit review marker, not an incidental SHA in a finding.
     match = re.search(
-        r"last reviewed commit[^\n]{0,100}?\b([0-9a-f]{7,40})\b", body, re.I
+        r"(?:last )?reviewed commit[^\n]{0,100}?\b([0-9a-f]{7,40})\b",
+        body,
+        re.I,
     )
     return bool(match and sha.startswith(match[1].lower()))
 
@@ -263,7 +265,12 @@ def evaluate(snapshot, state, expected=None):
             ):
                 continue
             item = {k: c[k] for k in ("id", "body", "updated_at", "html_url")}
-            add("comment", item, bot)
+            if not (
+                bot == "codex"
+                and c["body"].partition("\n")[0]
+                == "Codex Review: Didn't find any major issues. Hooray!"
+            ):
+                add("comment", item, bot)
             evidence[bot].append(
                 (
                     c["updated_at"],
