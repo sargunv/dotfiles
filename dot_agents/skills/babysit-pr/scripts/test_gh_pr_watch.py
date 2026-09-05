@@ -54,6 +54,25 @@ def summary(body=None):
 
 
 class TriageTests(unittest.TestCase):
+    def test_explicit_bot_selection_overrides_history_without_hiding_findings(
+        self,
+    ):
+        data, state = snapshot(), {}
+        data["comments"] = [summary()]
+        data["reactions"] = [
+            {"id": 1, "user": CODEX, "content": "+1", "created_at": BEFORE}
+        ]
+        result = watch.evaluate(data, state, ["greptile"])
+        self.assertEqual(result["event"], "action_required")
+        state["acknowledged"] = [result["items"][0]["token"]]
+        result = watch.evaluate(data, state)
+        self.assertEqual(result["event"], "clean")
+        self.assertFalse(result["bots"]["codex"]["required"])
+        data["comments"][0]["body"] += "\nAnother finding."
+        self.assertEqual(
+            watch.evaluate(data, state, [])["event"], "action_required"
+        )
+
     def test_codex_activity_summary_does_not_wake_or_supersede_review(self):
         data, state = snapshot(), {}
         data["comments"] = [
@@ -68,15 +87,13 @@ class TriageTests(unittest.TestCase):
             }
         ]
         data["reactions"] = [
-            {"user": CODEX, "content": "eyes", "created_at": AFTER}
+            {"id": 1, "user": CODEX, "content": "eyes", "created_at": AFTER}
         ]
-        result = watch.evaluate(data, state, [], NOW)
+        result = watch.evaluate(data, state)
         self.assertEqual(result["event"], "waiting")
         self.assertEqual(result["items"], [])
-        data["reactions"][0]["content"] = "+1"
-        self.assertEqual(
-            watch.evaluate(data, state, [], AFTER)["event"], "clean"
-        )
+        data["reactions"][0].update(id=2, content="+1")
+        self.assertEqual(watch.evaluate(data, state)["event"], "clean")
 
     def test_later_empty_review_preserves_current_greptile_score(self):
         data, state = snapshot(), {}
@@ -92,9 +109,9 @@ class TriageTests(unittest.TestCase):
                 "html_url": "url",
             }
         ]
-        result = watch.evaluate(data, state, [], NOW)
+        result = watch.evaluate(data, state)
         state["acknowledged"] = [result["items"][0]["token"]]
-        result = watch.evaluate(data, state, [], NOW)
+        result = watch.evaluate(data, state)
         self.assertEqual(result["event"], "clean")
         self.assertEqual(result["bots"]["greptile"]["score"], 5)
 
@@ -102,40 +119,36 @@ class TriageTests(unittest.TestCase):
         data = snapshot()
         data["pr"]["body"] = summary()["body"] + "\nFix this edge case."
         data["reactions"] = [
-            {"user": GREPTILE, "content": "+1", "created_at": AFTER}
+            {"id": 1, "user": GREPTILE, "content": "+1", "created_at": AFTER}
         ]
-        result = watch.evaluate(data, {}, [], NOW)
+        result = watch.evaluate(data, {})
         self.assertEqual(result["event"], "action_required")
         self.assertEqual(result["items"][0]["kind"], "description")
         self.assertIn("Fix this edge case.", result["items"][0]["body"])
 
     def test_no_bots_and_explicit_expected_bot(self):
-        self.assertEqual(
-            watch.evaluate(snapshot(), {}, [], NOW)["event"], "clean"
-        )
+        self.assertEqual(watch.evaluate(snapshot(), {})["event"], "clean")
         state = {}
         self.assertEqual(
-            watch.evaluate(snapshot(), state, ["codex"], NOW)["event"],
+            watch.evaluate(snapshot(), state, ["codex"])["event"],
             "waiting",
         )
         # An expected bot stays expected on subsequent invocations.
-        self.assertEqual(
-            watch.evaluate(snapshot(), state, [], AFTER)["event"], "waiting"
-        )
+        self.assertEqual(watch.evaluate(snapshot(), state)["event"], "waiting")
 
     def test_summary_only_findings_persist_and_edits_reappear(self):
         data, state = snapshot(), {}
         data["comments"] = [summary()]
-        result = watch.evaluate(data, state, [], NOW)
+        result = watch.evaluate(data, state)
         token = result["items"][0]["token"]
         self.assertEqual(result["event"], "action_required")
         self.assertEqual(
-            watch.evaluate(data, state, [], NOW)["items"][0]["token"], token
+            watch.evaluate(data, state)["items"][0]["token"], token
         )
         state["acknowledged"] = [token]
-        self.assertEqual(watch.evaluate(data, state, [], NOW)["event"], "clean")
+        self.assertEqual(watch.evaluate(data, state)["event"], "clean")
         data["comments"][0]["body"] += "\nA newly added edge case."
-        result = watch.evaluate(data, state, [], NOW)
+        result = watch.evaluate(data, state)
         self.assertEqual(result["event"], "action_required")
         self.assertNotEqual(result["items"][0]["token"], token)
 
@@ -146,12 +159,12 @@ class TriageTests(unittest.TestCase):
             "5/5", "3/5"
         )
         data["reactions"] = [
-            {"user": GREPTILE, "content": "+1", "created_at": AFTER}
+            {"id": 1, "user": GREPTILE, "content": "+1", "created_at": AFTER}
         ]
         state["acknowledged"] = [
-            watch.evaluate(data, state, [], NOW)["items"][0]["token"]
+            watch.evaluate(data, state)["items"][0]["token"]
         ]
-        result = watch.evaluate(data, state, [], NOW)
+        result = watch.evaluate(data, state)
         self.assertEqual(result["event"], "handled")
         self.assertTrue(result["bots"]["greptile"]["complete"])
         self.assertFalse(result["bots"]["greptile"]["clean"])
@@ -169,43 +182,42 @@ class TriageTests(unittest.TestCase):
                 "html_url": "url",
             }
         ]
-        result = watch.evaluate(data, state, [], NOW)
+        result = watch.evaluate(data, state)
         state["acknowledged"] = [result["items"][0]["token"]]
-        self.assertEqual(
-            watch.evaluate(data, state, [], NOW)["event"], "handled"
-        )
+        self.assertEqual(watch.evaluate(data, state)["event"], "handled")
         data["reactions"] = [
-            {"user": CODEX, "content": "+1", "created_at": AFTER}
+            {"id": 1, "user": CODEX, "content": "+1", "created_at": AFTER}
         ]
-        self.assertEqual(watch.evaluate(data, state, [], NOW)["event"], "clean")
+        self.assertEqual(watch.evaluate(data, state)["event"], "clean")
 
     def test_old_thumb_not_current_approval_and_push_resets_freshness(self):
         data, state = snapshot(), {}
         data["reactions"] = [
-            {"user": CODEX, "content": "+1", "created_at": BEFORE}
+            {
+                "id": 1,
+                "user": CODEX,
+                "content": "+1",
+                "created_at": "2999-01-01T00:00:00Z",
+            }
         ]
-        self.assertEqual(
-            watch.evaluate(data, state, [], NOW)["event"], "waiting"
-        )
-        data["reactions"][0]["created_at"] = AFTER
-        self.assertEqual(
-            watch.evaluate(data, state, [], AFTER)["event"], "clean"
-        )
+        self.assertEqual(watch.evaluate(data, state)["event"], "waiting")
+        data["reactions"][0]["id"] = 2
+        data["reactions"][0]["created_at"] = "2000-01-01T00:00:00Z"
+        self.assertEqual(watch.evaluate(data, state)["event"], "clean")
         data["pr"]["head"]["sha"] = "b" * 40
-        self.assertEqual(
-            watch.evaluate(data, state, [], AFTER)["event"], "waiting"
-        )
+        self.assertEqual(watch.evaluate(data, state)["event"], "waiting")
 
     def test_eyes_prevent_clean_even_with_thumb(self):
         data = snapshot()
         data["reactions"] = [
-            {"user": CODEX, "content": c, "created_at": AFTER}
+            {"id": 1, "user": CODEX, "content": c, "created_at": AFTER}
             for c in ("eyes", "+1")
         ]
-        self.assertEqual(watch.evaluate(data, {}, [], NOW)["event"], "waiting")
+        self.assertEqual(watch.evaluate(data, {})["event"], "waiting")
 
     def test_late_review_of_old_head_does_not_validate_new_thumb(self):
         data, state = snapshot(), {}
+        watch.evaluate(data, state)
         data["reviews"] = [
             {
                 "id": 20,
@@ -218,14 +230,14 @@ class TriageTests(unittest.TestCase):
             }
         ]
         data["reactions"] = [
-            {"user": CODEX, "content": "+1", "created_at": AFTER}
+            {"id": 1, "user": CODEX, "content": "+1", "created_at": AFTER}
         ]
-        result = watch.evaluate(data, state, [], NOW)
+        result = watch.evaluate(data, state)
         self.assertFalse(result["bots"]["codex"]["clean"])
 
     def test_later_findings_supersede_earlier_thumb_on_same_head(self):
         data, state = snapshot(), {}
-        watch.evaluate(data, state, [], BEFORE)
+        watch.evaluate(data, state)
         data["reviews"] = [
             {
                 "id": 20,
@@ -238,9 +250,9 @@ class TriageTests(unittest.TestCase):
             }
         ]
         data["reactions"] = [
-            {"user": CODEX, "content": "+1", "created_at": NOW}
+            {"id": 1, "user": CODEX, "content": "+1", "created_at": NOW}
         ]
-        result = watch.evaluate(data, state, [], AFTER)
+        result = watch.evaluate(data, state)
         self.assertTrue(result["bots"]["codex"]["complete"])
         self.assertFalse(result["bots"]["codex"]["clean"])
 
@@ -266,15 +278,15 @@ class TriageTests(unittest.TestCase):
                 "comments": {"nodes": [{"databaseId": 30}]},
             }
         ]
-        result = watch.evaluate(data, state, [], NOW)
+        result = watch.evaluate(data, state)
         self.assertEqual(len(result["items"][0]["comments"]), 111)
         self.assertEqual(state["offered"], [])
         state["acknowledged"] = [result["items"][0]["token"]]
         self.assertEqual(
-            watch.evaluate(data, state, [], NOW)["event"], "action_required"
+            watch.evaluate(data, state)["event"], "action_required"
         )
         data["threads"][0]["isResolved"] = True
-        self.assertEqual(watch.evaluate(data, state, [], NOW)["items"], [])
+        self.assertEqual(watch.evaluate(data, state)["items"], [])
 
     def test_ci_conflicts_and_blockers(self):
         for check_state, event in [
@@ -286,9 +298,7 @@ class TriageTests(unittest.TestCase):
             with self.subTest(check_state=check_state):
                 data = snapshot()
                 data["checks"][0]["state"] = check_state
-                self.assertEqual(
-                    watch.evaluate(data, {}, [], NOW)["event"], event
-                )
+                self.assertEqual(watch.evaluate(data, {})["event"], event)
         for field, value, event in [
             ("mergeable", False, "action_required"),
             ("mergeable", None, "waiting"),
@@ -298,7 +308,7 @@ class TriageTests(unittest.TestCase):
         ]:
             data = snapshot()
             data["pr"][field] = value
-            self.assertEqual(watch.evaluate(data, {}, [], NOW)["event"], event)
+            self.assertEqual(watch.evaluate(data, {})["event"], event)
 
     def test_score_and_commit_marker_do_not_match_incidental_numbers(self):
         self.assertIsNone(watch.score("Example 5/5 was fine"))
@@ -309,6 +319,46 @@ class TriageTests(unittest.TestCase):
 
 
 class ApiTests(unittest.TestCase):
+    def test_distinct_suites_keep_failures_and_only_replace_their_own_reruns(
+        self,
+    ):
+        def check(run_id, suite_id, conclusion):
+            return {
+                "id": run_id,
+                "check_suite": {"id": suite_id},
+                "name": "test",
+                "status": "completed",
+                "conclusion": conclusion,
+                "html_url": "url",
+            }
+
+        checks = [
+            check(1, 10, "failure"),
+            check(2, 20, "success"),
+            check(3, 30, "failure"),
+            check(4, 30, "success"),
+        ]
+        with (
+            patch.object(
+                watch,
+                "gh_json",
+                side_effect=[
+                    snapshot()["pr"],
+                    [{"check_runs": checks}],
+                    snapshot()["pr"],
+                ],
+            ) as call,
+            patch.object(watch, "api_list", return_value=[]),
+            patch.object(watch, "review_threads", return_value=[]),
+        ):
+            data = watch.fetch("o/r", 1)
+        self.assertIsNotNone(data)
+        self.assertEqual(len(data["checks"]), 3)
+        self.assertIn("filter=all", call.call_args_list[1].args[0][-1])
+        result = watch.evaluate(data, {})
+        self.assertEqual(result["event"], "action_required")
+        self.assertEqual(len(result["failed_checks"]), 1)
+
     def test_new_inline_root_without_thread_discards_incomplete_snapshot(self):
         with (
             patch.object(

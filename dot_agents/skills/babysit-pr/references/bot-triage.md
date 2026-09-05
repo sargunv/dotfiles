@@ -20,10 +20,12 @@ Readiness is confirmed on a second poll to allow newly queued checks to appear.
 
 The watcher recognizes Greptile and Codex by their bot accounts. It detects bots
 from activity on this PR. Check repository configuration or recent PRs at setup;
-add `--bots greptile codex` (or just the installed bot) when a bot is expected
-but hasn't posted yet. Don't require bots the repository doesn't use. For other
-bot accounts, apply the same policy and inspect their documented status
-separately.
+use `--bots greptile codex` (or just the installed bot) to select exactly which
+bots must finish, including bots that haven't posted yet. This selection
+persists in the state file and overrides historical participation by removed
+bots. Their existing findings still receive triage. Use `--bots` with no names
+when neither bot is used. For other bot accounts, apply the same policy and
+inspect their documented status separately.
 
 Output includes full bot summaries, review bodies, and unresolved threads with
 all replies, including outdated threads. Read summaries too: findings may exist
@@ -87,10 +89,10 @@ and report the specific blocker; don't restart indefinitely or assume success.
 Only use results for the current head. Reviews carry a commit SHA; Greptile
 summaries may carry a `Last reviewed commit` marker. PR reactions do **not**
 carry a SHA. The watcher treats pre-existing reactions as unverified unless a
-current review corroborates their timing; otherwise it observes new reactions
-during the current head's watch. Overlapping reviews can still make reactions
-ambiguous. Verify ambiguous status or obtain a fresh review instead of calling
-it clean.
+current review corroborates their timing; otherwise it tracks newly appearing
+reaction IDs against a baseline for the current head, independent of the host
+clock. Overlapping reviews can still make reactions ambiguous. Verify ambiguous
+status or obtain a fresh review instead of calling it clean.
 
 `clean` means checks passed, no conflicts or unhandled findings remain, and all
 participating bots meet their clean targets. `handled` means reviews completed

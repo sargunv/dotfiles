@@ -17,7 +17,6 @@ import sys
 import tempfile
 import time
 from contextlib import suppress
-from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -157,15 +156,15 @@ def fetch(repo, number):
             "api",
             "--paginate",
             "--slurp",
-            f"{base}/commits/{sha}/check-runs?per_page=100",
+            f"{base}/commits/{sha}/check-runs?per_page=100&filter=all",
         ]
     )
     checks = [c for p in check_pages for c in p["check_runs"]]
     statuses = api_list(f"{base}/commits/{sha}/statuses?per_page=100")
-    # Keep the newest attempt per check/app or legacy status context.
+    # Keep the newest attempt within each suite, preserving distinct workflows.
     latest = {}
     for c in sorted(checks, key=lambda c: c["id"]):
-        latest[(c["app"]["id"], c["name"])] = {
+        latest[(c["check_suite"]["id"], c["name"])] = {
             "name": c["name"],
             "url": c["html_url"],
             "state": c["conclusion"]
@@ -225,15 +224,17 @@ def reviewed_head(body, sha):
     return bool(match and sha.startswith(match[1].lower()))
 
 
-def evaluate(snapshot, state, expected, now):
+def evaluate(snapshot, state, expected=None):
     pr = snapshot["pr"]
     sha = pr["head"]["sha"]
-    if state.get("head") != sha:
-        state.update(head=sha, observed_since=now)
+    new_head = state.get("head") != sha or "baseline_reactions" not in state
+    if expected is not None:
+        state["required_bots"] = expected
+    selected = state.get("required_bots")
     acknowledged = set(state.get("acknowledged", []))
     items, evidence = (
         [],
-        {bot: [] for bot in set(expected) | set(state.get("bots", []))},
+        {bot: [] for bot in set(selected or []) | set(state.get("bots", []))},
     )
 
     def add(kind, item, bot, **extra):
@@ -264,7 +265,12 @@ def evaluate(snapshot, state, expected, now):
             item = {k: c[k] for k in ("id", "body", "updated_at", "html_url")}
             add("comment", item, bot)
             evidence[bot].append(
-                (c["updated_at"], reviewed_head(c["body"], sha), c["body"])
+                (
+                    c["updated_at"],
+                    reviewed_head(c["body"], sha),
+                    c["body"],
+                    fingerprint("comment", item),
+                )
             )
     for r in snapshot["reviews"]:
         bot = bot_for(r.get("user"))
@@ -276,15 +282,26 @@ def evaluate(snapshot, state, expected, now):
             if r["body"].strip():
                 add("review", item, bot)
             evidence[bot].append(
-                (r["submitted_at"], r["commit_id"] == sha, r["body"])
+                (
+                    r["submitted_at"],
+                    r["commit_id"] == sha,
+                    r["body"],
+                    fingerprint("review", item),
+                )
             )
 
     # Some Greptile installations put their summary in the PR description.
     body = pr.get("body") or ""
     if "greptile" in evidence and score(body) is not None:
-        add("description", {"id": pr["number"], "body": body}, "greptile")
+        item = {"id": pr["number"], "body": body}
+        add("description", item, "greptile")
         evidence["greptile"].append(
-            (pr["updated_at"], reviewed_head(body, sha), body)
+            (
+                pr["updated_at"],
+                reviewed_head(body, sha),
+                body,
+                fingerprint("description", item),
+            )
         )
 
     inline = {c["id"]: c for c in snapshot["inline"]}
@@ -332,6 +349,14 @@ def evaluate(snapshot, state, expected, now):
         bot = bot_for(r.get("user"))
         if bot:
             reactions.setdefault(bot, []).append(r)
+    if new_head:
+        state.update(
+            head=sha,
+            baseline_reactions=[r["id"] for r in snapshot["reactions"]],
+            baseline_reviews=[
+                r[3] for reviews in evidence.values() for r in reviews
+            ],
+        )
     bots = {}
     for bot, reviews in evidence.items():
         signals = reactions.get(bot, [])
@@ -340,14 +365,16 @@ def evaluate(snapshot, state, expected, now):
         fresh = [
             r
             for r in signals
-            if r["created_at"] > state["observed_since"]
+            if r["id"] not in state["baseline_reactions"]
             or (current and r["created_at"] >= current[0])
         ]
         running = any(r["content"] == "eyes" for r in signals)
         # PR reactions are not SHA-bound. Require observation during this head
         # or a corroborating current review; other thumbs stay unverified.
         stale_review_in_watch = bool(
-            latest and not current and latest[0] >= state["observed_since"]
+            latest
+            and not current
+            and latest[3] not in state["baseline_reviews"]
         )
         thumbs = not stale_review_in_watch and any(
             r["content"] == "+1"
@@ -364,6 +391,7 @@ def evaluate(snapshot, state, expected, now):
         complete = bool(current or thumbs) and not running
         clean = complete and (rating == 5 if bot == "greptile" else thumbs)
         bots[bot] = {
+            "required": selected is None or bot in selected,
             "complete": complete,
             "clean": clean,
             "score": rating,
@@ -379,7 +407,8 @@ def evaluate(snapshot, state, expected, now):
         if c["state"] not in {"success", "neutral", "skipped", "pending"}
     ]
     pending = [c for c in checks if c["state"] == "pending"]
-    complete = all(b["complete"] for b in bots.values())
+    required = [b for b in bots.values() if b["required"]]
+    complete = all(b["complete"] for b in required)
     if pr["state"] != "open":
         event = "closed"
     elif items or failures or pr["mergeable"] is False:
@@ -393,7 +422,7 @@ def evaluate(snapshot, state, expected, now):
     }:
         event = "blocked"
     else:
-        event = "clean" if all(b["clean"] for b in bots.values()) else "handled"
+        event = "clean" if all(b["clean"] for b in required) else "handled"
     state["offered"] = [i["token"] for i in items if i["kind"] != "thread"]
     return {
         "event": event,
@@ -420,8 +449,8 @@ def main():
         "--bots",
         nargs="*",
         choices=("greptile", "codex"),
-        default=[],
-        help="Require these bots even before their first activity",
+        default=None,
+        help="Require only these bots; default: auto-detect from PR activity",
     )
     parser.add_argument(
         "--ack",
@@ -470,8 +499,7 @@ def main():
                 "reason": "snapshot_changed_during_fetch",
             }
         else:
-            now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-            result = evaluate(snapshot, state, args.bots, now)
+            result = evaluate(snapshot, state, args.bots)
             save_state(args.state_file, state)
         # Give newly queued CI/bots a poll to appear before declaring readiness.
         candidate = (result.get("head"), result["event"])
