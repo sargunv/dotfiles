@@ -1,0 +1,27 @@
+{
+  "id": 5557640882,
+  "html_url": "https://github.com/maplibre/maplibre-compose/pull/1304#issuecomment-5557640882",
+  "body": "<!-- codex-pull-request-review-summary -->\n\n## Codex Review Summary\n\nThis comment shows the latest Codex review activity on this pull request.\n\n| Review | Status | Commit | Review trigger |\n| --- | --- | --- | --- |\n| 📝 **Code Review** | ✅ **Completed** <relative-time datetime=\"2026-09-06T07:07:22.864080Z\">2026-09-06T07:07:22.864080Z</relative-time> | `6dc289d` | PR opened |\n\n\n\n<details> <summary>ℹ️ About Codex in GitHub</summary>\n<br/>\n\n[Your team has set up Codex to review pull requests in this repo](https://chatgpt.com/codex/cloud/settings/general). Reviews are triggered when you\n- Open a pull request for review\n- Mark a draft as ready\n- Comment \"@codex review\" or \"@codex security review\".\n\nCodex reacts with 👀 while any review is running, comments if it has suggestions, and reacts with 👍 once all reviews finish with no findings.\n\n</details>",
+  "updated_at": "2026-09-06T07:07:24Z",
+  "user": {
+    "login": "chatgpt-codex-connector[bot]",
+    "id": 199175422,
+    "node_id": "BOT_kgDOC98s_g",
+    "avatar_url": "https://avatars.githubusercontent.com/in/1144995?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/chatgpt-codex-connector%5Bbot%5D",
+    "html_url": "https://github.com/apps/chatgpt-codex-connector",
+    "followers_url": "https://api.github.com/users/chatgpt-codex-connector%5Bbot%5D/followers",
+    "following_url": "https://api.github.com/users/chatgpt-codex-connector%5Bbot%5D/following{/other_user}",
+    "gists_url": "https://api.github.com/users/chatgpt-codex-connector%5Bbot%5D/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/chatgpt-codex-connector%5Bbot%5D/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/chatgpt-codex-connector%5Bbot%5D/subscriptions",
+    "organizations_url": "https://api.github.com/users/chatgpt-codex-connector%5Bbot%5D/orgs",
+    "repos_url": "https://api.github.com/users/chatgpt-codex-connector%5Bbot%5D/repos",
+    "events_url": "https://api.github.com/users/chatgpt-codex-connector%5Bbot%5D/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/chatgpt-codex-connector%5Bbot%5D/received_events",
+    "type": "Bot",
+    "user_view_type": "public",
+    "site_admin": false
+  }
+}

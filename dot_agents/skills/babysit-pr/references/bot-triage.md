@@ -1,140 +1,125 @@
 # Human and bot review triage
 
-## Watch
+## Collect activity
 
-Use `scripts/gh_pr_watch.py` from this skill with Python 3.10+ and authenticated
-`gh`. It only reads GitHub; acknowledgements change local state. Run it in the
-repository, using one state file per PR for the whole session:
-
-```sh
-python3 "$SKILL_DIR/scripts/gh_pr_watch.py" --pr auto \
-  --state-file /tmp/babysit-OWNER-REPO-PR.json --watch
-```
-
-Set `SKILL_DIR` to this skill's directory. A PR number with `--repo OWNER/REPO`
-or a GitHub PR URL also works. Omit `--watch` for one snapshot. The loop polls
-every 60 seconds without model involvement and prints JSON when work appears,
-review finishes, or it times out after 30 minutes. Run it as a background
-command and wait for its output; don't build a separate agent polling loop.
-Readiness is confirmed on a second poll to allow newly queued checks to appear.
-CI readiness uses GitHub's combined check/status rollup for the captured head;
-individual check results provide diagnostics, without deduplicating job names or
-reconstructing rerun history locally.
-
-The watcher recognizes Greptile and Codex by their bot accounts. It detects bots
-from activity on this PR. Check repository configuration or recent PRs at setup;
-use `--bots greptile codex` (or just the installed bot) to select exactly which
-bots must finish, including bots that haven't posted yet. This selection
-persists in the state file and overrides historical participation by removed
-bots. Their existing findings still receive triage. Use `--bots` with no names
-when neither bot is used. This selects readiness requirements, never which
-comments are visible. Other bot accounts are surfaced as bots; inspect their
-review status separately because the watcher only tracks Greptile/Codex
-freshness.
-
-Output includes PR comments, published review bodies/states, and inline threads
-with all replies and author/location metadata. Read bodies even in approvals:
-findings may exist only there. Human items include dismissed reviews and
-resolved or outdated threads, so later edits and replies remain visible.
-
-`author_type` is `human`, `bot`, or `mixed`; both `human` and `mixed` follow the
-human policy in [SKILL.md](../SKILL.md). Unknown/deleted authors receive human
-handling. The `bot` field only identifies a recognized bot in the item.
-
-After triaging every finding and reporting human outcomes to the user,
-acknowledge items with `can_acknowledge: true` using their exact `token`:
+Run `scripts/gh_pr_watch.py` with Python 3.10+ and authenticated `gh`. Set
+`SKILL_DIR` to this skill's directory. Use one new state file per PR and
+watching session; a PR number with `--repo OWNER/REPO`, a GitHub PR URL, or
+`--pr auto` in the repository works:
 
 ```sh
 python3 "$SKILL_DIR/scripts/gh_pr_watch.py" --pr auto \
-  --state-file /tmp/babysit-OWNER-REPO-PR.json --ack TOKEN [TOKEN ...]
+  --state-file /tmp/babysit-OWNER-REPO-PR-v2.json
 ```
 
-Acknowledgement is local triage, not GitHub resolution or human approval. Human
-and mixed threads can remain open; bot-only threads require GitHub resolution.
-`acknowledged_human_items` retains acknowledged content for reporting, and
-`open_human_threads` lists currently open human/mixed thread IDs.
-
-Do not acknowledge substantive human requests awaiting the user's decision,
-including ambiguous, disputed, or out-of-scope requests. Informational comments
-and approvals need no code change but still need to be read and reported.
-
-Edits, new replies from any author, and review/thread state changes produce new
-tokens and resurface items. Reuse the state file after pushes: unchanged human
-acknowledgements persist, while bot review freshness resets for the new head.
-
-## Bot findings
-
-Apply this policy only to bot items and bot-only threads:
-
-- Verify the claim against the code and the task's intent. Fix meaningful
-  problems; reject incorrect, low-value, or out-of-scope suggestions. A cleanup
-  PR may intentionally remove guidance or tests; restoring them isn't
-  automatically an improvement.
-- Treat findings as symptoms. Prefer a simpler design over accumulating guards,
-  fallbacks, or try/catch blocks. Repeated findings in the same area are a
-  signal to step back and reconsider the whole PR from first principles.
-- For accepted findings, implement the fix, run relevant validation, commit and
-  push, then resolve the thread. Stage only intended files.
-- For rejected findings, reply with one line explaining why, then resolve the
-  thread. For summary-only findings, reply on the PR and acknowledge the summary
-  once every finding in it is handled. Don't silently dismiss real problems to
-  obtain a clean status.
-
-Re-fetch the full thread before replying or resolving; any human contribution
-makes it subject to the human policy.
-
-Reply to a bot-only inline thread using its root comment's numeric `id`:
+Read the snapshot, handle actionable work, then wait for changes:
 
 ```sh
-gh api --method POST repos/OWNER/REPO/pulls/PR/comments/COMMENT_ID/replies \
-  -f body='One-line reason.'
+python3 "$SKILL_DIR/scripts/gh_pr_watch.py" --pr auto \
+  --state-file /tmp/babysit-OWNER-REPO-PR-v2.json --watch
 ```
 
-Resolve using the thread's GraphQL `id`:
+The watcher only reads GitHub and writes its own local state file. It returns
+one JSON object. Without `--watch`, it returns immediately. With `--watch`, the
+first run returns immediately; subsequent runs poll every 60 seconds until any
+collected section changes or 30 minutes elapse. `--poll-seconds` and
+`--timeout-seconds` override those intervals. Run the wait in the background and
+wait for output instead of building another agent polling loop.
 
-```sh
-gh api graphql -f query='mutation($id: ID!) {
-  resolveReviewThread(input: {threadId: $id}) { thread { isResolved } }
-}' -f id=THREAD_ID
-```
+Output contains:
 
-After acting, resume the watcher. Investigate `failed_checks` and merge
-conflicts as part of babysitting. On `blocked`, `timeout`, or `error`, inspect
-and report the specific blocker; don't restart indefinitely or assume success.
+- `event`: `snapshot` on first observation, `changed`, `unchanged` for a single
+  unchanged poll, or `timeout`. None means approved, handled, or ready.
+- `changed`: section names differing from the last returned snapshot;
+  `head_changed` flags a different head since that snapshot.
+- `snapshot.pr`: the full REST PR object, including head/base SHAs, draft/state,
+  requested reviewers, labels, and mergeability fields.
+- `snapshot.ci`: GitHub's `statusCheckRollup.state` for the captured head and
+  all paginated contexts, preserving check identities, statuses, conclusions,
+  URLs, and workflow/app metadata. Null means no reported rollup, not passing
+  checks.
+- `snapshot.comments` and `snapshot.reviews`: full REST issue comments and
+  review records, including bodies in approvals and dismissed reviews, authors,
+  review states, timestamps, URLs, and review commit IDs.
+- `snapshot.threads`: all paginated review threads, including resolved/outdated
+  state, with full REST inline comments in `comments`, including every reply and
+  its author, body, location, and commit metadata.
+- `snapshot.reactions`: all PR issue reactions as evidence, without interpreting
+  their meaning or associating them with a commit.
 
-Codex automatically re-reviews on push. Wait for that review; don't also post
-`@codex review`. Only request a manual review when explicitly asked or when you
-have verified that automatic review is disabled, and never while a review is
-already running.
+Every successful output includes the full snapshot, including unchanged items.
+No prose or author is filtered. Edits, replies, deletions, review/thread state
+changes, CI changes, and head changes can wake the watcher. The state file
+stores only delivery fingerprints and PR/head identity. Keep outstanding
+findings and user decisions in your session notes: seeing an item once does not
+handle it. There is no `--ack`, `--bots`, bot completion state, or readiness
+event. Old state files are rejected; use a new path instead of overwriting
+another session's state.
 
-## Completion
+GitHub reads are not transactional. Head changes and mismatched thread roots
+cause an `inconsistent` result with a reason and no snapshot, or a retry in
+watch mode. A timeout after an inconsistent fetch has a reason instead of a
+snapshot; otherwise it includes the latest unchanged snapshot. API errors exit
+nonzero with an `error` JSON object on stderr. Incomplete fetches never replace
+the baseline. Re-fetch before acting; a quiet interval does not prove no
+activity is in flight, and edits between polls cannot be recovered as historical
+versions.
 
-| Bot      | Running       | Completed                               | Clean target   |
-| -------- | ------------- | --------------------------------------- | -------------- |
-| Greptile | Eyes reaction | Review or thumbs-up, even with findings | 5/5 confidence |
-| Codex    | Eyes reaction | Review with findings, or thumbs-up      | Thumbs-up      |
+## Triage findings
 
-Only use results for the current head. Reviews carry a commit SHA; Greptile
-summaries may carry a `Last reviewed commit` marker, and Codex completion
-comments carry `Reviewed commit`. PR reactions do **not** carry a SHA. The
-watcher treats pre-existing reactions as unverified unless a current review
-corroborates their timing; otherwise it tracks newly appearing reaction IDs
-against a baseline for the current head, independent of the host clock.
-Overlapping reviews can still make reactions ambiguous. Verify ambiguous status
-or obtain a fresh review instead of calling it clean.
+Read arbitrary review prose, including HTML tables and Markdown links, without
+assuming a particular bot's format. Reviews can contain findings even when their
+state says approved or dismissed. Read resolved and outdated threads too: edits
+and later replies can introduce new requests.
 
-`clean` and `handled` both require passing checks, no conflicts, completed
-required bot reviews, and all items triaged. `handled` means a bot's clean
-target is unmet or acknowledged human threads remain open; `clean` means neither
-condition remains. Report open human threads and any score/reaction discrepancy
-and stop, rather than polling forever or changing sound code to appease a bot.
+Apply human handling from [SKILL.md](../SKILL.md) unless GitHub identifies an
+author as a bot. Unknown/deleted identities receive human handling. Any human
+contribution makes the whole thread subject to human handling. Report ambiguous,
+disputed, or out-of-scope substantive human requests for the user's decision.
 
-Neither result merges the PR or establishes human approval. GitHub merge
-requirements still apply: report `blocked` requirements such as human approval
-or conversation resolution without resolving human threads to clear them.
+For bot findings, verify the claim against the code and task intent. Fix
+meaningful problems; reject incorrect, low-value, or out-of-scope suggestions.
+Prefer addressing a shared cause over adding workarounds for repeated symptoms.
+Stage only intended files, validate, commit and push accepted fixes.
+
+Replying or resolving on GitHub requires authorization from the user/session.
+When authorized, explain rejected bot findings concisely and resolve bot-only
+threads after triage. Re-fetch the full thread immediately before either action;
+a human contribution invokes the stricter policy. Local triage and GitHub thread
+resolution are separate facts. For summary-only findings, track each outcome
+without treating a summary's score or wording as a demand for code changes.
+
+## Assess completion
+
+Use GitHub's head rollup as the authoritative CI status. Preserve a failure
+while a replacement workflow runs, even if a cancelled older job shares its
+name. Inspect individual contexts and linked workflow runs for diagnosis; do not
+deduplicate job names to manufacture success. Check merge conflicts and actual
+repository requirements separately, including required checks, approvals, draft
+status, and conversation resolution. Report unknown or blocked requirements
+explicitly; never resolve human threads to clear a merge gate.
+
+Inspect review evidence for what was reviewed and whether work is currently
+running. Review commit IDs, full linked commits in summaries, and activity
+tables can establish scope. A reaction alone has no head SHA. Do not relabel an
+old approval as approval of the latest head, or infer completion from silence.
+
+Bots, including Codex, decide when to review or re-review. Do not assume every
+push triggers a review, require fresh bot approval after every commit, or infer
+that automatic review is disabled when no new review appears. A bot choosing not
+to re-review is not itself a blocker. Follow actual repository requirements and
+the user's instructions. Do not request a manual review unless authorized, and
+respect a declined request without asking again because another push occurred.
+
+Finish when actionable findings are triaged, relevant validation and CI are
+satisfactory, and merge requirements are understood. Report what each observed
+review covered, any active review, unresolved human threads, and remaining
+uncertainty or decisions. If checks/reviews are still running, continue watching
+within the task's scope. On timeouts or errors, inspect and report the specific
+condition instead of restarting indefinitely. Scores, thumbs-up reactions, and
+absence of a new review are evidence to interpret, not universal completion
+gates.
 
 The watcher is adapted from
-[OpenAI's PR watcher](https://github.com/openai/codex/blob/ddf04ad26789d040f9ef6a96736f76602e35a6cc/.codex/skills/babysit-pr/scripts/gh_pr_watch.py),
-with summary handling informed by
-[Greptile's greploop](https://github.com/greptileai/skills/blob/main/greploop/SKILL.md).
+[OpenAI's PR watcher](https://github.com/openai/codex/blob/ddf04ad26789d040f9ef6a96736f76602e35a6cc/.codex/skills/babysit-pr/scripts/gh_pr_watch.py).
 Its Apache-2.0 license and attribution are alongside the script.

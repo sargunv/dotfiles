@@ -5,36 +5,27 @@ description: Get a PR ready to merge. Use when asked to babysit, watch, or follo
 
 # Babysit PR
 
-The PR you are doing this for is:
+Use the PR specified by the user, or the current branch's PR if none is
+specified. Watch CI and review activity, fix accepted findings, validate, then
+commit and push only intended changes. Repeat while there is actionable work or
+active checks/reviews to follow. Do not merge unless asked.
 
-- If you are on a branch with a remote PR on it already, that one
-- If the user includes a specific PR in their request, babysit that one
+Use [references/bot-triage.md](references/bot-triage.md) for the read-only
+watcher, review handling, and completion evidence. The watcher collects GitHub
+facts and arbitrary review content; it does not decide whether findings are
+handled or the PR is ready.
 
-The end state here is:
+Read and report human comments, review bodies, and full inline threads. Fix
+human findings when the intended change is clear and unambiguous; ask the user
+about ambiguous substantive requests. Never reply to human comments or resolve
+human threads automatically, even after fixing them. Any thread with a human
+contribution follows this policy. Unknown or deleted authors receive human
+handling.
 
-- The PR doesn't have merge conflicts with the target branch
-- The CI checks are green
-- The AI code review bots' findings have been addressed (by either implementing
-  them or rejecting them because they're not worth addressing). Aim for clean
-  reviews; report any remaining score or approval discrepancy after triage.
-- Human comments, review bodies, and inline threads have been read and reported.
-  Fix human findings only when the intended change is clear and unambiguous. Ask
-  the user about ambiguous substantive requests. Never reply to human comments
-  or mark human threads resolved on GitHub, even after fixing them. Any thread
-  containing a human contribution follows this stricter policy.
+Finish with a concise summary of what the PR does, your fixes and validation,
+current CI and merge requirements, and remaining findings or user decisions with
+links. Distinguish observed review activity from assumptions: bots decide when
+to review, and a new commit does not universally require fresh bot approval.
 
-Steps to take:
-
-1. Watch the PR for CI and code review. For polling all review activity and
-   handling human and bot findings under their separate policies, follow
-   [references/bot-triage.md](references/bot-triage.md).
-2. Fix accepted findings locally, validate, then commit and push.
-3. Wait for the checks to run again, if there are more issues, repeat step 2,
-   otherwise move on to the next step
-4. Give the user a concise summary of the changes you made to fix the PR and a
-   concise list of things the PR actually does. Identify human findings you
-   addressed and those needing the user's decision, with links.
-
-NOTE: if the user asks for an extra review from you, use a subagent to do that
-review and treat it like one of the AI code reviewer bots. Take its findings and
-follow the steps above.
+If the user asks for an extra review from you, use a subagent and triage its
+findings like bot findings.

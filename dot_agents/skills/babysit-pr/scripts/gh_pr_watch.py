@@ -2,8 +2,8 @@
 """Read-only PR watcher. Requires Python 3.10+ and authenticated GitHub CLI.
 
 Copyright 2025 OpenAI. Licensed under Apache-2.0; see LICENSE.
-Modified for these dotfiles: quiet polling, shared bot triage, explicit
-acknowledgements, edited summaries, and conservative review freshness.
+Modified for these dotfiles: complete activity collection and quiet change
+detection. Review interpretation and readiness belong to the consuming agent.
 Source: https://github.com/openai/codex/blob/ddf04ad26789d040f9ef6a96736f76602e35a6cc/.codex/skills/babysit-pr/scripts/gh_pr_watch.py
 """
 
@@ -11,7 +11,6 @@ import argparse
 import hashlib
 import json
 import os
-import re
 import subprocess
 import sys
 import tempfile
@@ -23,6 +22,10 @@ from urllib.parse import urlparse
 
 class GhCommandError(RuntimeError):
     pass
+
+
+class SnapshotChanged(RuntimeError):
+    """Cross-request inconsistency; retry without replacing the baseline."""
 
 
 def _format_gh_error(cmd, err):
@@ -82,29 +85,6 @@ def save_state(path, state):
         raise
 
 
-BOT_LOGINS = {
-    "greptile-apps": "greptile",
-    "greptile-apps-staging": "greptile",
-    "chatgpt-codex-connector": "codex",
-}
-
-
-def bot_for(user):
-    return BOT_LOGINS.get((user or {}).get("login", "").removesuffix("[bot]"))
-
-
-def author_type(user):
-    user = user or {}
-    # Unknown/deleted identities receive the stricter human policy.
-    return (
-        "bot"
-        if bot_for(user)
-        or user.get("type") == "Bot"
-        or user.get("login", "").endswith("[bot]")
-        else "human"
-    )
-
-
 def api_list(endpoint):
     pages = gh_json(["api", "--paginate", "--slurp", endpoint])
     return [item for page in pages for item in page]
@@ -128,7 +108,8 @@ def review_threads(repo, number):
       repository(owner: $owner, name: $name) {
         pullRequest(number: $number) {
           reviewThreads(first: 100, after: $cursor) {
-            nodes { id isResolved isOutdated
+            nodes { id isResolved isOutdated path line startLine diffSide
+              resolvedBy { login __typename }
               comments(first: 1) { nodes { databaseId } }
             }
             pageInfo { hasNextPage endCursor }
@@ -161,8 +142,17 @@ def ci_status(repo, sha):
             state
             contexts(first: 100, after: $cursor) {
               nodes {
-                ... on CheckRun { id name detailsUrl status conclusion }
-                ... on StatusContext { id context targetUrl state }
+                __typename
+                ... on CheckRun {
+                  id name detailsUrl status conclusion startedAt completedAt
+                  checkSuite {
+                    id app { slug name }
+                    workflowRun { databaseId url }
+                  }
+                }
+                ... on StatusContext {
+                  id context targetUrl state description createdAt
+                }
               }
               pageInfo { hasNextPage endCursor }
             }
@@ -171,33 +161,21 @@ def ci_status(repo, sha):
       }
     }
     """
-    checks, cursor = [], None
+    checks, cursor, initial_state = [], None, None
     while True:
         data = graphql(query, owner=owner, name=name, sha=sha, cursor=cursor)
         rollup = data["repository"]["object"]["statusCheckRollup"]
+        state = rollup["state"] if rollup else None
+        if cursor is None:
+            initial_state = state
+        elif state != initial_state:
+            raise SnapshotChanged("CI rollup changed during pagination")
         if rollup is None:
-            return None, []
+            return {"state": None, "contexts": []}
         page = rollup["contexts"]
-        for c in page["nodes"]:
-            state = (
-                c.get("state")
-                or (
-                    c["conclusion"] if c["status"] == "COMPLETED" else "PENDING"
-                )
-                or "PENDING"
-            )
-            checks.append(
-                {
-                    "id": c["id"],
-                    "name": c.get("name", c.get("context")),
-                    "url": c.get("detailsUrl", c.get("targetUrl")),
-                    "state": "pending"
-                    if state == "EXPECTED"
-                    else state.lower(),
-                }
-            )
+        checks.extend(page["nodes"])
         if not page["pageInfo"]["hasNextPage"]:
-            return rollup["state"], checks
+            return {"state": state, "contexts": checks}
         cursor = page["pageInfo"]["endCursor"]
 
 
@@ -215,316 +193,65 @@ def fetch(repo, number):
     base = f"repos/{repo}"
     pr = gh_json(["api", f"{base}/pulls/{number}"])
     sha = pr["head"]["sha"]
-    ci_state, checks = ci_status(repo, sha)
-    # Read thread identities before their comments, so publishing a thread
-    # between requests cannot make an already-observed finding disappear.
+    ci = ci_status(repo, sha)
+    # REST supplies full comment bodies and location metadata without the
+    # nested GraphQL connection's per-thread pagination limit.
     threads = review_threads(repo, number)
-    snapshot = {
-        "pr": pr,
-        "ci_state": ci_state,
-        "checks": checks,
-        "comments": api_list(f"{base}/issues/{number}/comments?per_page=100"),
-        "reviews": api_list(f"{base}/pulls/{number}/reviews?per_page=100"),
-        "inline": api_list(f"{base}/pulls/{number}/comments?per_page=100"),
-        "threads": threads,
-        "reactions": api_list(f"{base}/issues/{number}/reactions?per_page=100"),
-    }
-    roots = {c["id"] for c in snapshot["inline"] if not c.get("in_reply_to_id")}
-    thread_roots = {
-        thread["comments"]["nodes"][0]["databaseId"] for thread in threads
-    }
-    if roots != thread_roots:
-        return None
-    # Do not evaluate a mixture of two different heads collected during a push.
+    comments = api_list(f"{base}/issues/{number}/comments?per_page=100")
+    reviews = api_list(f"{base}/pulls/{number}/reviews?per_page=100")
+    inline = api_list(f"{base}/pulls/{number}/comments?per_page=100")
+    reactions = api_list(f"{base}/issues/{number}/reactions?per_page=100")
+    groups = {}
+    for comment in inline:
+        root = comment.get("in_reply_to_id") or comment["id"]
+        groups.setdefault(root, []).append(comment)
+    roots = {c["id"] for c in inline if not c.get("in_reply_to_id")}
+    thread_roots = set()
+    for thread in threads:
+        nodes = thread["comments"]["nodes"]
+        if not nodes:
+            raise SnapshotChanged("Thread root missing during collection")
+        root = nodes[0]["databaseId"]
+        thread_roots.add(root)
+        thread["comments"] = groups.get(root, [])
+    if roots != thread_roots or set(groups) != roots:
+        raise SnapshotChanged("Inline comments and thread roots disagree")
     after = gh_json(["api", f"{base}/pulls/{number}"])
     if after["head"]["sha"] != sha:
-        return None
-    snapshot["pr"] = after
-    return snapshot
-
-
-def fingerprint(kind, item):
-    content = json.dumps(item, sort_keys=True).encode()
-    return f"{kind}:{item['id']}:{hashlib.sha256(content).hexdigest()[:16]}"
-
-
-def score(body):
-    match = re.search(
-        r"confidence(?:\s+score)?[^\d\n]{0,30}([0-5])\s*/\s*5", body, re.I
-    )
-    return int(match[1]) if match else None
-
-
-def reviewed_head(body, sha):
-    # Match an explicit review marker, not an incidental SHA in a finding.
-    match = re.search(
-        r"(?:last )?reviewed commit[^\n]{0,100}?\b([0-9a-f]{7,40})\b",
-        body,
-        re.I,
-    )
-    return bool(match and sha.startswith(match[1].lower()))
-
-
-def evaluate(snapshot, state, expected=None):
-    pr = snapshot["pr"]
-    sha = pr["head"]["sha"]
-    new_head = state.get("head") != sha or "baseline_reactions" not in state
-    if expected is not None:
-        state["required_bots"] = expected
-    selected = state.get("required_bots")
-    acknowledged = set(state.get("acknowledged", []))
-    items, evidence = (
-        [],
-        {bot: [] for bot in set(selected or []) | set(state.get("bots", []))},
-    )
-
-    acknowledged_human_items, open_human_threads = [], []
-
-    def add(kind, item, bot, authors):
-        token = fingerprint(kind, item)
-        human = authors != "bot"
-        can_acknowledge = kind != "thread" or human
-        entry = dict(
-            kind=kind,
-            token=token,
-            bot=bot,
-            author_type=authors,
-            can_acknowledge=can_acknowledge,
-            **item,
-        )
-        if kind == "thread" and human and not item["resolved"]:
-            open_human_threads.append(item["id"])
-        # Bot-only threads still require GitHub resolution. Human items use
-        # content-specific local acknowledgements, never GitHub mutations.
-        if not can_acknowledge or token not in acknowledged:
-            items.append(entry)
-        elif human:
-            acknowledged_human_items.append(entry)
-
-    for c in (
-        snapshot["comments"]
-        + snapshot["reviews"]
-        + snapshot["inline"]
-        + snapshot["reactions"]
-    ):
-        bot = bot_for(c.get("user"))
-        if bot:
-            evidence.setdefault(bot, [])
-    for c in snapshot["comments"]:
-        bot = bot_for(c.get("user"))
-        # Codex maintains this activity table separately from its findings.
-        # Its status edits neither require triage nor supersede a review.
-        if bot == "codex" and c["body"].startswith(
-            "<!-- codex-pull-request-review-summary -->"
-        ):
-            continue
-        item = {
-            k: c.get(k)
-            for k in ("id", "body", "updated_at", "html_url", "user")
-        }
-        if not (
-            bot == "codex"
-            and c["body"].partition("\n")[0]
-            == "Codex Review: Didn't find any major issues. Hooray!"
-        ):
-            add("comment", item, bot, author_type(c.get("user")))
-        if bot:
-            evidence[bot].append(
-                (
-                    c["updated_at"],
-                    reviewed_head(c["body"], sha),
-                    c["body"],
-                    fingerprint("comment", item),
-                )
-            )
-    for r in snapshot["reviews"]:
-        bot = bot_for(r.get("user"))
-        authors = author_type(r.get("user"))
-        if r["state"] == "PENDING" or (
-            authors == "bot" and r["state"] == "DISMISSED"
-        ):
-            continue
-        item = {
-            k: r.get(k)
-            for k in (
-                "id",
-                "body",
-                "submitted_at",
-                "html_url",
-                "commit_id",
-                "user",
-                "state",
-            )
-        }
-        if r["body"].strip() or authors == "human":
-            add("review", item, bot, authors)
-        if bot:
-            evidence[bot].append(
-                (
-                    r["submitted_at"],
-                    r["commit_id"] == sha,
-                    r["body"],
-                    fingerprint("review", item),
-                )
-            )
-
-    # Some Greptile installations put their summary in the PR description.
-    body = pr.get("body") or ""
-    if "greptile" in evidence and score(body) is not None:
-        item = {"id": pr["number"], "body": body}
-        add("description", item, "greptile", "bot")
-        evidence["greptile"].append(
-            (
-                pr["updated_at"],
-                reviewed_head(body, sha),
-                body,
-                fingerprint("description", item),
-            )
-        )
-
-    inline = {c["id"]: c for c in snapshot["inline"]}
-    for thread in snapshot["threads"]:
-        root = thread["comments"]["nodes"][0]["databaseId"]
-        comments = [
-            c
-            for c in inline.values()
-            if c["id"] == root or c.get("in_reply_to_id") == root
-        ]
-        bots = [
-            bot_for(c.get("user")) for c in comments if bot_for(c.get("user"))
-        ]
-        types = {author_type(c.get("user")) for c in comments}
-        authors = "mixed" if len(types) > 1 else next(iter(types), "human")
-        if authors != "bot" or not thread["isResolved"]:
-            add(
-                "thread",
-                {
-                    "id": thread["id"],
-                    "resolved": thread["isResolved"],
-                    "outdated": thread["isOutdated"],
-                    "comments": [
-                        {
-                            k: c.get(k)
-                            for k in (
-                                "id",
-                                "body",
-                                "user",
-                                "path",
-                                "line",
-                                "original_line",
-                                "commit_id",
-                                "updated_at",
-                                "html_url",
-                            )
-                        }
-                        for c in comments
-                    ],
-                },
-                bots[0] if bots else None,
-                authors,
-            )
-
-    reactions = {}
-    for r in snapshot["reactions"]:
-        bot = bot_for(r.get("user"))
-        if bot:
-            reactions.setdefault(bot, []).append(r)
-    if new_head:
-        state.update(
-            head=sha,
-            baseline_reactions=[r["id"] for r in snapshot["reactions"]],
-            baseline_reviews=[
-                r[3] for reviews in evidence.values() for r in reviews
-            ],
-        )
-    bots = {}
-    for bot, reviews in evidence.items():
-        signals = reactions.get(bot, [])
-        latest = max(reviews, default=None, key=lambda r: r[0])
-        current = latest if latest and latest[1] else None
-        fresh = [
-            r
-            for r in signals
-            if r["id"] not in state["baseline_reactions"]
-            or (current and r["created_at"] >= current[0])
-        ]
-        running = any(r["content"] == "eyes" for r in signals)
-        # PR reactions are not SHA-bound. Require observation during this head
-        # or a corroborating current review; other thumbs stay unverified.
-        stale_review_in_watch = bool(
-            latest
-            and not current
-            and latest[3] not in state["baseline_reviews"]
-        )
-        thumbs = not stale_review_in_watch and any(
-            r["content"] == "+1"
-            and (latest is None or r["created_at"] >= latest[0])
-            for r in fresh
-        )
-        scored = [r for r in reviews if r[1] and score(r[2]) is not None]
-        latest_score = max(scored, default=None, key=lambda r: r[0])
-        rating = (
-            score(latest_score[2])
-            if latest_score and bot == "greptile"
-            else None
-        )
-        complete = bool(current or thumbs) and not running
-        clean = complete and (rating == 5 if bot == "greptile" else thumbs)
-        bots[bot] = {
-            "required": selected is None or bot in selected,
-            "complete": complete,
-            "clean": clean,
-            "score": rating,
-            "running": running,
-            "reactions": [r["content"] for r in signals],
-        }
-    state["bots"] = sorted(bots)
-
-    checks = snapshot["checks"]
-    ci_failed = snapshot["ci_state"] in {"ERROR", "FAILURE"}
-    ci_pending = snapshot["ci_state"] in {"EXPECTED", "PENDING"}
-    failures = [
-        c
-        for c in checks
-        if ci_failed
-        and c["state"] not in {"success", "neutral", "skipped", "pending"}
-    ]
-    pending = [c for c in checks if ci_pending and c["state"] == "pending"]
-    required = [b for b in bots.values() if b["required"]]
-    complete = all(b["complete"] for b in required)
-    if pr["state"] != "open":
-        event = "closed"
-    elif items or ci_failed or pr["mergeable"] is False:
-        event = "action_required"
-    elif ci_pending or pr["mergeable"] is None or not complete:
-        event = "waiting"
-    elif pr["draft"] or pr["mergeable_state"] not in {
-        "clean",
-        "unstable",
-        "has_hooks",
-    }:
-        event = "blocked"
-    else:
-        event = (
-            "clean"
-            if all(b["clean"] for b in required) and not open_human_threads
-            else "handled"
-        )
-    state["offered"] = [i["token"] for i in items if i["can_acknowledge"]]
+        raise SnapshotChanged("PR head changed during collection")
     return {
-        "event": event,
-        "url": pr["html_url"],
-        "head": sha,
-        "bots": bots,
-        "ci_state": snapshot["ci_state"],
-        "items": items,
-        "acknowledged_human_items": acknowledged_human_items,
-        "open_human_threads": open_human_threads,
-        "failed_checks": failures,
-        "pending_checks": pending,
-        "mergeable": pr["mergeable"],
-        "mergeable_state": pr["mergeable_state"],
-        "draft": pr["draft"],
+        "pr": after,
+        "ci": ci,
+        "comments": comments,
+        "reviews": reviews,
+        "threads": threads,
+        "reactions": reactions,
+    }
+
+
+def fingerprints(snapshot):
+    return {
+        key: hashlib.sha256(
+            json.dumps(value, sort_keys=True).encode()
+        ).hexdigest()
+        for key, value in snapshot.items()
+    }
+
+
+def observe(snapshot, state):
+    hashes = fingerprints(snapshot)
+    previous = state.get("hashes", {})
+    changed = [key for key in hashes if hashes[key] != previous.get(key)]
+    return {
+        "event": "snapshot"
+        if not previous
+        else "changed"
+        if changed
+        else "unchanged",
+        "changed": changed,
+        "head_changed": bool(previous)
+        and state["head"] != snapshot["pr"]["head"]["sha"],
+        "snapshot": snapshot,
     }
 
 
@@ -536,22 +263,9 @@ def main():
     parser.add_argument("--repo", help="OWNER/REPO")
     parser.add_argument("--state-file", required=True, type=Path)
     parser.add_argument(
-        "--bots",
-        nargs="*",
-        choices=("greptile", "codex"),
-        default=None,
-        help="Require only these bots; default: auto-detect from PR activity",
-    )
-    parser.add_argument(
-        "--ack",
-        nargs="+",
-        metavar="TOKEN",
-        help="Locally acknowledge triaged comments, reviews, or human threads from the last output",
-    )
-    parser.add_argument(
         "--watch",
         action="store_true",
-        help="Poll quietly until work or a terminal state",
+        help="Poll quietly until the snapshot changes; first run returns immediately",
     )
     parser.add_argument("--poll-seconds", type=int, default=60)
     parser.add_argument("--timeout-seconds", type=int, default=1800)
@@ -563,53 +277,41 @@ def main():
         if args.state_file.exists()
         else {}
     )
+    if state and state.get("version") != 2:
+        raise ValueError("Incompatible watcher state; use a new state file")
     repo, number = resolve_pr(args.pr, args.repo)
     key = f"{repo}#{number}"
     if state.get("pr", key) != key:
         raise ValueError("Use a separate state file for each PR")
-    state["pr"] = key
-    if args.ack:
-        if not set(args.ack) <= set(state.get("offered", [])):
-            raise ValueError(
-                "Only tokens from the last snapshot can be acknowledged"
-            )
-        state["acknowledged"] = sorted(
-            set(state.get("acknowledged", [])) | set(args.ack)
-        )
-        save_state(args.state_file, state)
-        print(json.dumps({"event": "acknowledged", "tokens": args.ack}))
-        return
     deadline = time.monotonic() + args.timeout_seconds
-    ready = None
     while True:
-        snapshot = fetch(repo, number)
-        if snapshot is None:
-            result = {
-                "event": "waiting",
-                "reason": "snapshot_changed_during_fetch",
-            }
+        snapshot = None
+        try:
+            snapshot = fetch(repo, number)
+        except SnapshotChanged as error:
+            result = {"event": "inconsistent", "reason": str(error)}
         else:
-            result = evaluate(snapshot, state, args.bots)
-            save_state(args.state_file, state)
-        # Give newly queued CI/bots a poll to appear before declaring readiness.
-        candidate = (result.get("head"), result["event"])
-        if (
-            args.watch
-            and result["event"] in {"clean", "handled"}
-            and candidate != ready
-        ):
-            ready = candidate
-            result = dict(
-                result, event="waiting", reason="confirming_readiness"
-            )
-        elif result["event"] == "waiting":
-            ready = None
-        if result["event"] != "waiting" or not args.watch:
-            print(json.dumps(result))
-            return
+            result = observe(snapshot, state)
         remaining = deadline - time.monotonic()
-        if remaining <= 0:
-            result["event"] = "timeout"
+        if (
+            not args.watch
+            or result["event"] in {"snapshot", "changed"}
+            or remaining <= 0
+        ):
+            if args.watch and result["event"] in {"unchanged", "inconsistent"}:
+                result["event"] = "timeout"
+            # Only complete snapshots become a baseline. State records delivery,
+            # never triage, approval, or readiness.
+            if snapshot is not None:
+                save_state(
+                    args.state_file,
+                    {
+                        "version": 2,
+                        "pr": key,
+                        "head": snapshot["pr"]["head"]["sha"],
+                        "hashes": fingerprints(snapshot),
+                    },
+                )
             print(json.dumps(result))
             return
         time.sleep(min(args.poll_seconds, remaining))

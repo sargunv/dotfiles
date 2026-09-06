@@ -1,0 +1,27 @@
+{
+  "id": 5557636561,
+  "html_url": "https://github.com/maplibre/maplibre-compose/pull/1304#issuecomment-5557636561",
+  "body": "<h3>Greptile Summary</h3>\n\nThis PR streamlines the test suite while strengthening retained behavioral coverage and fixture synchronization.\n- Consolidates overlapping serialization, rendering, query, lifecycle, and engine tests.\n- Replaces timing-based waits and silent platform returns with explicit synchronization and reported skips.\n- Makes map fixtures own launched coroutine work and synchronizes native style binding before declaring a load complete.\n- Adds stronger argument forwarding, pixel, query, cancellation, and repaint assertions.\n\n<h3>Confidence Score: 5/5</h3>\n\nThe PR appears safe to merge; no actionable regressions or repository-rule violations remain.\n\nThe changes since the previous review strengthen the overlapping-feature readiness condition without changing production behavior, and the full test-only changes preserve explicit lifecycle, synchronization, rendering, and cleanup contracts.\n\n<details><summary><h3>Important Files Changed</h3></summary>\n\n\n\n\n| Filename | Overview |\n|----------|----------|\n| lib/maplibre-compose/src/liveMapTest/kotlin/org/maplibre/compose/testing/MapFixture.kt | Extends the shared test contract with coroutine-scoped execution and explicit platform skip handling. |\n| lib/maplibre-compose/src/jsTest/kotlin/org/maplibre/compose/testing/GlJsMapFixture.kt | Moves asynchronous fixture work into structured concurrency and rejects unsupported browser capabilities explicitly. |\n| lib/maplibre-compose/src/maplibreNativeTest/kotlin/org/maplibre/compose/testing/MlnFfiMapFixture.kt | Synchronizes the loaded native style binding before marking the style ready. |\n| lib/maplibre-compose/src/liveMapTest/kotlin/org/maplibre/compose/map/MapQueryTest.kt | Replaces fixed frame pumping with positive rendered-feature readiness checks, including both overlapping sources. |\n| lib/maplibre-compose/src/maplibreNativeTest/kotlin/org/maplibre/compose/offline/MlnFfiOfflineRuntimeTest.kt | Retains explicit task-wake and shutdown-wake lifecycle coverage with deterministic synchronization. |\n| lib/maplibre-compose/src/maplibreNativeTest/kotlin/org/maplibre/compose/map/MlnFfiMapRepaintTest.kt | Strengthens repaint coverage with observable pixel-level rendering checks. |\n\n</details>\n\n\n<details><summary><h3>Flowchart</h3></summary>\n\n```mermaid\n%%{init: {'theme': 'neutral'}}%%\nflowchart TD\n    A[Test starts] --> B[Create platform map fixture]\n    B --> C[Load style]\n    C --> D[Synchronize style binding]\n    D --> E[Await map readiness]\n    E --> F[Pump until observable condition]\n    F --> G[Assert behavioral contract]\n    G --> H[Close fixture and owned coroutine work]\n```\n</details>\n\n\n<!-- greptile_other_comments_section -->\n\n<sub>Reviews (3): Last reviewed commit: [\"test: wait for both sources before check...\"](https://github.com/maplibre/maplibre-compose/commit/3415b90d9372af69f51510a74af38dd83aeec775) | [Re-trigger Greptile](https://app.greptile.com/api/retrigger?id=60906165)</sub>",
+  "updated_at": "2026-09-06T07:25:56Z",
+  "user": {
+    "login": "greptile-apps[bot]",
+    "id": 165735046,
+    "node_id": "BOT_kgDOCeDqhg",
+    "avatar_url": "https://avatars.githubusercontent.com/in/867647?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/greptile-apps%5Bbot%5D",
+    "html_url": "https://github.com/apps/greptile-apps",
+    "followers_url": "https://api.github.com/users/greptile-apps%5Bbot%5D/followers",
+    "following_url": "https://api.github.com/users/greptile-apps%5Bbot%5D/following{/other_user}",
+    "gists_url": "https://api.github.com/users/greptile-apps%5Bbot%5D/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/greptile-apps%5Bbot%5D/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/greptile-apps%5Bbot%5D/subscriptions",
+    "organizations_url": "https://api.github.com/users/greptile-apps%5Bbot%5D/orgs",
+    "repos_url": "https://api.github.com/users/greptile-apps%5Bbot%5D/repos",
+    "events_url": "https://api.github.com/users/greptile-apps%5Bbot%5D/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/greptile-apps%5Bbot%5D/received_events",
+    "type": "Bot",
+    "user_view_type": "public",
+    "site_admin": false
+  }
+}
