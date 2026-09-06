@@ -1,4 +1,4 @@
-# Bot triage
+# Human and bot review triage
 
 ## Watch
 
@@ -27,27 +27,44 @@ use `--bots greptile codex` (or just the installed bot) to select exactly which
 bots must finish, including bots that haven't posted yet. This selection
 persists in the state file and overrides historical participation by removed
 bots. Their existing findings still receive triage. Use `--bots` with no names
-when neither bot is used. For other bot accounts, apply the same policy and
-inspect their documented status separately.
+when neither bot is used. This selects readiness requirements, never which
+comments are visible. Other bot accounts are surfaced as bots; inspect their
+review status separately because the watcher only tracks Greptile/Codex
+freshness.
 
-Output includes full bot summaries, review bodies, and unresolved threads with
-all replies, including outdated threads. Read summaries too: findings may exist
-only there. Nothing is marked handled just because the watcher emitted it. After
-handling a summary or review, acknowledge its exact `token`:
+Output includes PR comments, published review bodies/states, and inline threads
+with all replies and author/location metadata. Read bodies even in approvals:
+findings may exist only there. Human items include dismissed reviews and
+resolved or outdated threads, so later edits and replies remain visible.
+
+`author_type` is `human`, `bot`, or `mixed`; both `human` and `mixed` follow the
+human policy in [SKILL.md](../SKILL.md). Unknown/deleted authors receive human
+handling. The `bot` field only identifies a recognized bot in the item.
+
+After triaging every finding and reporting human outcomes to the user,
+acknowledge items with `can_acknowledge: true` using their exact `token`:
 
 ```sh
 python3 "$SKILL_DIR/scripts/gh_pr_watch.py" --pr auto \
   --state-file /tmp/babysit-OWNER-REPO-PR.json --ack TOKEN [TOKEN ...]
 ```
 
-Edits change the token and bring the item back. Threads disappear only when
-resolved on GitHub; they cannot be acknowledged locally. Reuse the state file
-after fixes and pushes. The watcher resets review freshness when the head
-changes.
+Acknowledgement is local triage, not GitHub resolution or human approval. Human
+and mixed threads can remain open; bot-only threads require GitHub resolution.
+`acknowledged_human_items` retains acknowledged content for reporting, and
+`open_human_threads` lists currently open human/mixed thread IDs.
 
-## Handle findings
+Do not acknowledge substantive human requests awaiting the user's decision,
+including ambiguous, disputed, or out-of-scope requests. Informational comments
+and approvals need no code change but still need to be read and reported.
 
-Use one policy for every reviewer:
+Edits, new replies from any author, and review/thread state changes produce new
+tokens and resurface items. Reuse the state file after pushes: unchanged human
+acknowledgements persist, while bot review freshness resets for the new head.
+
+## Bot findings
+
+Apply this policy only to bot items and bot-only threads:
 
 - Verify the claim against the code and the task's intent. Fix meaningful
   problems; reject incorrect, low-value, or out-of-scope suggestions. A cleanup
@@ -63,7 +80,10 @@ Use one policy for every reviewer:
   once every finding in it is handled. Don't silently dismiss real problems to
   obtain a clean status.
 
-Reply to an inline thread using its root comment's numeric `id`:
+Re-fetch the full thread before replying or resolving; any human contribution
+makes it subject to the human policy.
+
+Reply to a bot-only inline thread using its root comment's numeric `id`:
 
 ```sh
 gh api --method POST repos/OWNER/REPO/pulls/PR/comments/COMMENT_ID/replies \
@@ -103,12 +123,15 @@ against a baseline for the current head, independent of the host clock.
 Overlapping reviews can still make reactions ambiguous. Verify ambiguous status
 or obtain a fresh review instead of calling it clean.
 
-`clean` means checks passed, no conflicts or unhandled findings remain, and all
-participating bots meet their clean targets. `handled` means reviews completed
-and every finding was handled, but a bot's clean target is unmet. Valid
-rejections can leave this result: report the score/reaction discrepancy and stop
-rather than changing sound code to appease a bot. Neither result merges the PR.
-Report any separate merge requirements GitHub still enforces.
+`clean` and `handled` both require passing checks, no conflicts, completed
+required bot reviews, and all items triaged. `handled` means a bot's clean
+target is unmet or acknowledged human threads remain open; `clean` means neither
+condition remains. Report open human threads and any score/reaction discrepancy
+and stop, rather than polling forever or changing sound code to appease a bot.
+
+Neither result merges the PR or establishes human approval. GitHub merge
+requirements still apply: report `blocked` requirements such as human approval
+or conversation resolution without resolving human threads to clear them.
 
 The watcher is adapted from
 [OpenAI's PR watcher](https://github.com/openai/codex/blob/ddf04ad26789d040f9ef6a96736f76602e35a6cc/.codex/skills/babysit-pr/scripts/gh_pr_watch.py),

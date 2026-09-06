@@ -93,6 +93,18 @@ def bot_for(user):
     return BOT_LOGINS.get((user or {}).get("login", "").removesuffix("[bot]"))
 
 
+def author_type(user):
+    user = user or {}
+    # Unknown/deleted identities receive the stricter human policy.
+    return (
+        "bot"
+        if bot_for(user)
+        or user.get("type") == "Bot"
+        or user.get("login", "").endswith("[bot]")
+        else "human"
+    )
+
+
 def api_list(endpoint):
     pages = gh_json(["api", "--paginate", "--slurp", endpoint])
     return [item for page in pages for item in page]
@@ -266,12 +278,28 @@ def evaluate(snapshot, state, expected=None):
         {bot: [] for bot in set(selected or []) | set(state.get("bots", []))},
     )
 
-    def add(kind, item, bot, **extra):
+    acknowledged_human_items, open_human_threads = [], []
+
+    def add(kind, item, bot, authors):
         token = fingerprint(kind, item)
-        entry = dict(kind=kind, token=token, bot=bot, **item, **extra)
-        # Threads must actually be resolved; seeing them does not acknowledge them.
-        if kind == "thread" or token not in acknowledged:
+        human = authors != "bot"
+        can_acknowledge = kind != "thread" or human
+        entry = dict(
+            kind=kind,
+            token=token,
+            bot=bot,
+            author_type=authors,
+            can_acknowledge=can_acknowledge,
+            **item,
+        )
+        if kind == "thread" and human and not item["resolved"]:
+            open_human_threads.append(item["id"])
+        # Bot-only threads still require GitHub resolution. Human items use
+        # content-specific local acknowledgements, never GitHub mutations.
+        if not can_acknowledge or token not in acknowledged:
             items.append(entry)
+        elif human:
+            acknowledged_human_items.append(entry)
 
     for c in (
         snapshot["comments"]
@@ -284,20 +312,23 @@ def evaluate(snapshot, state, expected=None):
             evidence.setdefault(bot, [])
     for c in snapshot["comments"]:
         bot = bot_for(c.get("user"))
+        # Codex maintains this activity table separately from its findings.
+        # Its status edits neither require triage nor supersede a review.
+        if bot == "codex" and c["body"].startswith(
+            "<!-- codex-pull-request-review-summary -->"
+        ):
+            continue
+        item = {
+            k: c.get(k)
+            for k in ("id", "body", "updated_at", "html_url", "user")
+        }
+        if not (
+            bot == "codex"
+            and c["body"].partition("\n")[0]
+            == "Codex Review: Didn't find any major issues. Hooray!"
+        ):
+            add("comment", item, bot, author_type(c.get("user")))
         if bot:
-            # Codex maintains this activity table separately from its findings.
-            # Its status edits neither require triage nor supersede a review.
-            if bot == "codex" and c["body"].startswith(
-                "<!-- codex-pull-request-review-summary -->"
-            ):
-                continue
-            item = {k: c[k] for k in ("id", "body", "updated_at", "html_url")}
-            if not (
-                bot == "codex"
-                and c["body"].partition("\n")[0]
-                == "Codex Review: Didn't find any major issues. Hooray!"
-            ):
-                add("comment", item, bot)
             evidence[bot].append(
                 (
                     c["updated_at"],
@@ -308,13 +339,26 @@ def evaluate(snapshot, state, expected=None):
             )
     for r in snapshot["reviews"]:
         bot = bot_for(r.get("user"))
-        if bot and r["state"] not in {"PENDING", "DISMISSED"}:
-            item = {
-                k: r[k]
-                for k in ("id", "body", "submitted_at", "html_url", "commit_id")
-            }
-            if r["body"].strip():
-                add("review", item, bot)
+        authors = author_type(r.get("user"))
+        if r["state"] == "PENDING" or (
+            authors == "bot" and r["state"] == "DISMISSED"
+        ):
+            continue
+        item = {
+            k: r.get(k)
+            for k in (
+                "id",
+                "body",
+                "submitted_at",
+                "html_url",
+                "commit_id",
+                "user",
+                "state",
+            )
+        }
+        if r["body"].strip() or authors == "human":
+            add("review", item, bot, authors)
+        if bot:
             evidence[bot].append(
                 (
                     r["submitted_at"],
@@ -328,7 +372,7 @@ def evaluate(snapshot, state, expected=None):
     body = pr.get("body") or ""
     if "greptile" in evidence and score(body) is not None:
         item = {"id": pr["number"], "body": body}
-        add("description", item, "greptile")
+        add("description", item, "greptile", "bot")
         evidence["greptile"].append(
             (
                 pr["updated_at"],
@@ -340,8 +384,6 @@ def evaluate(snapshot, state, expected=None):
 
     inline = {c["id"]: c for c in snapshot["inline"]}
     for thread in snapshot["threads"]:
-        if thread["isResolved"]:
-            continue
         root = thread["comments"]["nodes"][0]["databaseId"]
         comments = [
             c
@@ -351,11 +393,14 @@ def evaluate(snapshot, state, expected=None):
         bots = [
             bot_for(c.get("user")) for c in comments if bot_for(c.get("user"))
         ]
-        if bots:
+        types = {author_type(c.get("user")) for c in comments}
+        authors = "mixed" if len(types) > 1 else next(iter(types), "human")
+        if authors != "bot" or not thread["isResolved"]:
             add(
                 "thread",
                 {
                     "id": thread["id"],
+                    "resolved": thread["isResolved"],
                     "outdated": thread["isOutdated"],
                     "comments": [
                         {
@@ -375,7 +420,8 @@ def evaluate(snapshot, state, expected=None):
                         for c in comments
                     ],
                 },
-                bots[0],
+                bots[0] if bots else None,
+                authors,
             )
 
     reactions = {}
@@ -459,8 +505,12 @@ def evaluate(snapshot, state, expected=None):
     }:
         event = "blocked"
     else:
-        event = "clean" if all(b["clean"] for b in required) else "handled"
-    state["offered"] = [i["token"] for i in items if i["kind"] != "thread"]
+        event = (
+            "clean"
+            if all(b["clean"] for b in required) and not open_human_threads
+            else "handled"
+        )
+    state["offered"] = [i["token"] for i in items if i["can_acknowledge"]]
     return {
         "event": event,
         "url": pr["html_url"],
@@ -468,6 +518,8 @@ def evaluate(snapshot, state, expected=None):
         "bots": bots,
         "ci_state": snapshot["ci_state"],
         "items": items,
+        "acknowledged_human_items": acknowledged_human_items,
+        "open_human_threads": open_human_threads,
         "failed_checks": failures,
         "pending_checks": pending,
         "mergeable": pr["mergeable"],
@@ -494,7 +546,7 @@ def main():
         "--ack",
         nargs="+",
         metavar="TOKEN",
-        help="Acknowledge handled summary/review tokens from the last output",
+        help="Locally acknowledge triaged comments, reviews, or human threads from the last output",
     )
     parser.add_argument(
         "--watch",

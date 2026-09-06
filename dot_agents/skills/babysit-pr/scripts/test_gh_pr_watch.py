@@ -16,6 +16,7 @@ NOW = "2026-09-05T11:00:00Z"
 AFTER = "2026-09-05T12:00:00Z"
 CODEX = {"login": "chatgpt-codex-connector[bot]"}
 GREPTILE = {"login": "greptile-apps[bot]"}
+HUMAN = {"login": "reviewer", "type": "User"}
 
 
 def snapshot():
@@ -278,7 +279,7 @@ class TriageTests(unittest.TestCase):
         self.assertTrue(result["bots"]["codex"]["complete"])
         self.assertFalse(result["bots"]["codex"]["clean"])
 
-    def test_outdated_threads_keep_all_replies_until_resolved(self):
+    def test_outdated_bot_threads_keep_all_replies_until_resolved(self):
         data, state = snapshot(), {}
         data["inline"] = [
             {"id": 30, "user": CODEX, "body": "Check this", "commit_id": "old"}
@@ -286,7 +287,7 @@ class TriageTests(unittest.TestCase):
         data["inline"] += [
             {
                 "id": 31 + n,
-                "user": {"login": "human"},
+                "user": GREPTILE,
                 "body": str(n),
                 "in_reply_to_id": 30,
             }
@@ -344,6 +345,286 @@ class TriageTests(unittest.TestCase):
         self.assertTrue(watch.reviewed_head(summary()["body"], HEAD))
         self.assertFalse(watch.reviewed_head(f"Fix {HEAD}", HEAD))
         self.assertFalse(watch.reviewed_head(summary()["body"], "b" * 40))
+
+
+class HumanTriageTests(unittest.TestCase):
+    def thread_snapshot(self, users=(HUMAN,), resolved=False):
+        data = snapshot()
+        data["inline"] = [
+            {
+                "id": 30 + n,
+                "user": user,
+                "body": f"Finding or reply {n}",
+                "updated_at": NOW,
+                "html_url": f"https://github.com/o/r/pull/1#discussion_r{30 + n}",
+                "path": "src/main.py",
+                "line": 42,
+                "commit_id": HEAD,
+                **({"in_reply_to_id": 30} if n else {}),
+            }
+            for n, user in enumerate(users)
+        ]
+        data["threads"] = [
+            {
+                "id": "THREAD",
+                "isResolved": resolved,
+                "isOutdated": True,
+                "comments": {"nodes": [{"databaseId": 30}]},
+            }
+        ]
+        return data
+
+    def test_human_comments_and_review_bodies_ignore_bot_selection(self):
+        for expected in (None, [], ["codex"]):
+            with self.subTest(expected=expected):
+                data, state = snapshot(), {}
+                data["comments"] = [
+                    dict(summary("Please simplify this"), user=HUMAN)
+                ]
+                data["reviews"] = [
+                    dict(
+                        summary(
+                            "Approved, but please remove the extra dependency"
+                        ),
+                        id=20,
+                        user=HUMAN,
+                        state="APPROVED",
+                        submitted_at=BEFORE,
+                        commit_id="old",
+                    )
+                ]
+                result = watch.evaluate(data, state, expected)
+                self.assertEqual(result["event"], "action_required")
+                self.assertEqual(
+                    [i["kind"] for i in result["items"]], ["comment", "review"]
+                )
+                for item in result["items"]:
+                    self.assertEqual(item["author_type"], "human")
+                    self.assertEqual(item["user"], HUMAN)
+                    self.assertIsNone(item["bot"])
+                    self.assertTrue(item["body"])
+                self.assertEqual(result["items"][1]["state"], "APPROVED")
+                state["acknowledged"] = state["offered"][:]
+                result = watch.evaluate(data, state)
+                self.assertEqual(result["items"], [])
+                self.assertEqual(len(result["acknowledged_human_items"]), 2)
+                self.assertEqual(
+                    result["event"], "waiting" if expected else "clean"
+                )
+                for source in ("comments", "reviews"):
+                    changed = copy.deepcopy(data)
+                    changed[source][0]["body"] += " An additional request."
+                    result = watch.evaluate(changed, state)
+                    self.assertEqual(result["event"], "action_required")
+                    self.assertEqual(len(result["items"]), 1)
+
+    def test_human_review_state_changes_and_dismissed_bodies_are_visible(self):
+        data, state = snapshot(), {}
+        data["reviews"] = [
+            dict(
+                summary(),
+                id=20,
+                user=HUMAN,
+                state="APPROVED",
+                body="",
+                submitted_at=NOW,
+                commit_id=HEAD,
+            )
+        ]
+        first = watch.evaluate(data, state)["items"][0]
+        state["acknowledged"] = [first["token"]]
+        for review_state in ("CHANGES_REQUESTED", "DISMISSED"):
+            data["reviews"][0]["state"] = review_state
+            item = watch.evaluate(data, state)["items"][0]
+            self.assertEqual(item["state"], review_state)
+            self.assertNotEqual(item["token"], first["token"])
+        data["reviews"][0]["state"] = "PENDING"
+        self.assertEqual(watch.evaluate(data, state)["items"], [])
+
+    def test_human_and_mixed_threads_can_stay_open_after_local_triage(self):
+        for users in ((HUMAN,), (CODEX, HUMAN), (HUMAN, CODEX)):
+            with self.subTest(users=users):
+                data, state = self.thread_snapshot(users), {}
+                original = copy.deepcopy(data)
+                result = watch.evaluate(data, state, [])
+                item = result["items"][0]
+                self.assertEqual(
+                    item["author_type"], "human" if len(users) == 1 else "mixed"
+                )
+                self.assertEqual(
+                    [c["user"] for c in item["comments"]], list(users)
+                )
+                self.assertEqual(item["comments"][0]["path"], "src/main.py")
+                self.assertTrue(item["outdated"])
+                self.assertFalse(item["resolved"])
+                self.assertEqual(state["offered"], [item["token"]])
+                self.assertEqual(
+                    watch.evaluate(data, state)["event"], "action_required"
+                )
+                state["acknowledged"] = state["offered"][:]
+                result = watch.evaluate(data, state)
+                self.assertEqual(result["event"], "handled")
+                self.assertEqual(result["items"], [])
+                self.assertEqual(result["open_human_threads"], ["THREAD"])
+                self.assertEqual(result["acknowledged_human_items"], [item])
+                self.assertEqual(data, original)
+                data["pr"]["head"]["sha"] = "b" * 40
+                self.assertEqual(watch.evaluate(data, state)["items"], [])
+
+    def test_thread_edits_and_new_replies_invalidate_acknowledgement(self):
+        data, state = self.thread_snapshot((CODEX, HUMAN)), {}
+        token = watch.evaluate(data, state, [])["items"][0]["token"]
+        state["acknowledged"] = [token]
+        for index in (0, 1):
+            for field, value in (
+                ("body", "Edited request"),
+                ("updated_at", AFTER),
+            ):
+                with self.subTest(index=index, field=field):
+                    changed = copy.deepcopy(data)
+                    changed["inline"][index][field] = value
+                    result = watch.evaluate(changed, state)
+                    self.assertEqual(result["event"], "action_required")
+                    self.assertNotEqual(result["items"][0]["token"], token)
+                    self.assertEqual(result["acknowledged_human_items"], [])
+        for user in (HUMAN, CODEX):
+            changed = copy.deepcopy(data)
+            changed["inline"].append(
+                dict(changed["inline"][1], id=99, user=user)
+            )
+            result = watch.evaluate(changed, state)
+            self.assertEqual(result["event"], "action_required")
+            self.assertEqual(len(result["items"][0]["comments"]), 3)
+
+    def test_human_reply_changes_bot_thread_to_human_handling(self):
+        data, state = self.thread_snapshot((CODEX,)), {}
+        first = watch.evaluate(data, state, [])["items"][0]
+        self.assertFalse(first["can_acknowledge"])
+        self.assertEqual(state["offered"], [])
+        data["inline"].append(
+            dict(data["inline"][0], id=31, user=HUMAN, in_reply_to_id=30)
+        )
+        item = watch.evaluate(data, state)["items"][0]
+        self.assertEqual(item["author_type"], "mixed")
+        self.assertNotEqual(item["token"], first["token"])
+        self.assertEqual(state["offered"], [item["token"]])
+
+    def test_resolved_human_threads_and_later_replies_remain_visible(self):
+        data, state = (
+            self.thread_snapshot((CODEX,) + (HUMAN,) * 110, resolved=True),
+            {},
+        )
+        item = watch.evaluate(data, state, [])["items"][0]
+        self.assertTrue(item["resolved"])
+        self.assertEqual(len(item["comments"]), 111)
+        state["acknowledged"] = [item["token"]]
+        self.assertEqual(watch.evaluate(data, state)["event"], "clean")
+        data["inline"][-1]["body"] = "New substantive request"
+        self.assertEqual(
+            watch.evaluate(data, state)["event"], "action_required"
+        )
+        data["threads"][0]["isResolved"] = False
+        result = watch.evaluate(data, state)
+        self.assertEqual(result["open_human_threads"], ["THREAD"])
+        self.assertNotEqual(result["items"][0]["token"], item["token"])
+
+    def test_unrecognized_authors_are_surfaced_with_conservative_policy(self):
+        for user, authors in (
+            (None, "human"),
+            ({"login": "other[bot]"}, "bot"),
+            ({"login": "app", "type": "Bot"}, "bot"),
+        ):
+            with self.subTest(user=user):
+                data = self.thread_snapshot((user,))
+                data["comments"] = [dict(summary(), user=user)]
+                result = watch.evaluate(data, {})
+                self.assertEqual(len(result["items"]), 2)
+                self.assertEqual(result["bots"], {})
+                for item in result["items"]:
+                    self.assertEqual(item["author_type"], authors)
+
+    def test_acknowledged_humans_do_not_bypass_ci_or_bot_freshness(self):
+        data, state = self.thread_snapshot(), {}
+        state["acknowledged"] = [
+            watch.evaluate(data, state, ["codex"])["items"][0]["token"]
+        ]
+        self.assertEqual(watch.evaluate(data, state)["event"], "waiting")
+        data["reactions"] = [
+            {"id": 1, "user": CODEX, "content": "+1", "created_at": AFTER}
+        ]
+        self.assertEqual(watch.evaluate(data, state)["event"], "handled")
+        data["pr"]["head"]["sha"] = "b" * 40
+        self.assertEqual(watch.evaluate(data, state)["event"], "waiting")
+        for ci_state, event in (
+            ("FAILURE", "action_required"),
+            ("PENDING", "waiting"),
+        ):
+            data["ci_state"] = ci_state
+            self.assertEqual(watch.evaluate(data, state, [])["event"], event)
+        data["ci_state"] = "SUCCESS"
+        data["pr"]["mergeable_state"] = "blocked"
+        self.assertEqual(watch.evaluate(data, state)["event"], "blocked")
+
+    def test_cli_local_ack_and_watch_recheck_open_human_threads(self):
+        for new_reply in (False, True):
+            with (
+                self.subTest(new_reply=new_reply),
+                tempfile.TemporaryDirectory() as tmp,
+            ):
+                data, state = self.thread_snapshot(), {}
+                token = watch.evaluate(data, state)["items"][0]["token"]
+                path = Path(tmp) / "state.json"
+                watch.save_state(path, state)
+                args = ["watch", "--state-file", str(path)]
+                later = copy.deepcopy(data)
+                if new_reply:
+                    later["inline"].append(
+                        dict(later["inline"][0], id=31, in_reply_to_id=30)
+                    )
+                with (
+                    patch("sys.stdout", io.StringIO()) as output,
+                    patch.object(watch, "resolve_pr", return_value=("o/r", 1)),
+                    patch.object(
+                        watch,
+                        "gh_text",
+                        side_effect=AssertionError("Unexpected GitHub call"),
+                    ),
+                    patch.object(
+                        watch, "fetch", side_effect=[data, later]
+                    ) as fetch,
+                    patch.object(watch.time, "sleep") as sleep,
+                ):
+                    with patch("sys.argv", args + ["--ack", token]):
+                        watch.main()
+                    fetch.assert_not_called()
+                    self.assertEqual(
+                        json.loads(output.getvalue())["event"], "acknowledged"
+                    )
+                    output.seek(0)
+                    output.truncate()
+                    with patch("sys.argv", args + ["--watch"]):
+                        watch.main()
+                    self.assertEqual(sleep.call_count, 1)
+                    self.assertEqual(len(output.getvalue().splitlines()), 1)
+                    result = json.loads(output.getvalue())
+                    self.assertEqual(
+                        result["event"],
+                        "action_required" if new_reply else "handled",
+                    )
+                    self.assertEqual(result["open_human_threads"], ["THREAD"])
+                    if new_reply:
+                        self.assertNotEqual(result["items"][0]["token"], token)
+                        with (
+                            patch("sys.argv", args + ["--ack", token]),
+                            self.assertRaises(ValueError),
+                        ):
+                            watch.main()
+                    else:
+                        self.assertEqual(result["items"], [])
+                        self.assertEqual(
+                            result["acknowledged_human_items"][0]["token"],
+                            token,
+                        )
 
 
 class ApiTests(unittest.TestCase):
