@@ -1,5 +1,6 @@
 git_signing_email: sargunv@users.noreply.github.com
 ssh_public_keys:
+  Sarguns-MacBook-Pro-commit-signing: "sk-ecdsa-sha2-nistp256@openssh.com AAAAInNrLWVjZHNhLXNoYTItbmlzdHAyNTZAb3BlbnNzaC5jb20AAAAIbmlzdHAyNTYAAABBBJ33PAf+Xxk8Lbosz1QyUxVmwt0aQSP3TkemXzteLvIhXKktOpQTWPc5G1QsKFtipd+n0XmypKVPohy5rcamzXgAAAAEc3NoOg== ssh:"
   Sarguns-MacBook-Pro: "sk-ecdsa-sha2-nistp256@openssh.com AAAAInNrLWVjZHNhLXNoYTItbmlzdHAyNTZAb3BlbnNzaC5jb20AAAAIbmlzdHAyNTYAAABBBMxUe8glyFvPKz1f127yghh5dEt+urSg3w6WnoUHU8/SuGKCHqhGHR9kB2dufSwXHrkm9q7FeK1/yDB51Kz9SJMAAAAEc3NoOg== ssh:"
   framework-desktop: "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBCwvJI7dMlfnt1rLTZqtuaCIimJd6XehlZtYxtQbvsHvaIkAT32QdBLnN69ahE0L56SzBoqyXjcVZH/5mb5OJU0= sargunv@framework-desktop"
   optiplex: "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBMbPbSV4/amGaPLqQV8UCxUgtAx9WGMkfTRoSznXIbmGlTzxQgDYThLPWXc5d4NMX3pfujyAZHyKIb88At8s0Rs= sargunv@optiplex"

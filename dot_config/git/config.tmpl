@@ -71,7 +71,11 @@ gpgSign = true
 [user]
 email = {{ .github_username }}@users.noreply.github.com
 name = {{ .full_name }}
+{{ if eq .chezmoi.os "darwin" -}}
+signingKey = ~/.ssh/commit_signing_key.pub
+{{ else -}}
 signingKey = ~/.ssh/signing_key.pub
+{{ end -}}
 
 [include]
 path = ~/.config/git/config.local
