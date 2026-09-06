@@ -20,7 +20,8 @@ human findings when the intended change is clear and unambiguous; ask the user
 about ambiguous substantive requests. Never reply to human comments or resolve
 human threads automatically, even after fixing them. Any thread with a human
 contribution follows this policy. Unknown or deleted authors receive human
-handling.
+handling. For bot-only threads, explain rejected findings concisely and resolve
+after triage.
 
 Finish with a concise summary of what the PR does, your fixes and validation,
 current CI and merge requirements, and remaining findings or user decisions with

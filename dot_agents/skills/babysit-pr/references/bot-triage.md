@@ -82,12 +82,11 @@ meaningful problems; reject incorrect, low-value, or out-of-scope suggestions.
 Prefer addressing a shared cause over adding workarounds for repeated symptoms.
 Stage only intended files, validate, commit and push accepted fixes.
 
-Replying or resolving on GitHub requires authorization from the user/session.
-When authorized, explain rejected bot findings concisely and resolve bot-only
-threads after triage. Re-fetch the full thread immediately before either action;
-a human contribution invokes the stricter policy. Local triage and GitHub thread
-resolution are separate facts. For summary-only findings, track each outcome
-without treating a summary's score or wording as a demand for code changes.
+Explain rejected bot findings concisely and resolve bot-only threads after
+triage. Re-fetch the full thread immediately before either action; a human
+contribution invokes the stricter policy. For summary-only findings, track each
+outcome without treating a summary's score or wording as a demand for code
+changes.
 
 ## Assess completion
 
