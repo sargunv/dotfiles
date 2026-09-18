@@ -16,6 +16,7 @@ compile = false
 "core:node" = "lts"
 "core:python" = "latest"
 "core:rust" = "latest"
+"vfox:mise-plugins/vfox-android-sdk" = "22"
 
 "aqua:jdx/aube" = "latest"
 "aqua:jdx/usage" = "latest"

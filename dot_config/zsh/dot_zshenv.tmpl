@@ -18,12 +18,20 @@ function _detect_development_sdks {
   local sdk_candidate browser_candidate
   local -a ohos_roots browser_candidates
 
-  {{ if eq .chezmoi.os "darwin" -}}
-  android_sdk="$HOME/Library/Android/sdk"
-  {{ else if eq .chezmoi.os "linux" -}}
-  android_sdk="$HOME/Android/Sdk"
-  {{ end -}}
-  if [[ -d "$android_sdk" ]]; then
+  # Prefer the mise-managed SDK (the mise android-sdk plugin exports the same
+  # path in activated shells); fall back to the platform's conventional location.
+  android_sdk=""
+  if command -v mise >/dev/null 2>&1; then
+    android_sdk="$(mise where android-sdk 2>/dev/null)"
+  fi
+  if [[ -z "$android_sdk" ]]; then
+  {{- if eq .chezmoi.os "darwin" }}
+    android_sdk="$HOME/Library/Android/sdk"
+  {{- else if eq .chezmoi.os "linux" }}
+    android_sdk="$HOME/Android/Sdk"
+  {{- end }}
+  fi
+  if [[ -n "$android_sdk" && -d "$android_sdk" ]]; then
     export ANDROID_HOME="$android_sdk"
     # Keep an inherited deprecated variable consistent with ANDROID_HOME.
     [[ -n "${ANDROID_SDK_ROOT:-}" ]] && export ANDROID_SDK_ROOT="$android_sdk"
