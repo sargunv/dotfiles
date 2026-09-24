@@ -159,6 +159,7 @@ alias kimid='kimi --yolo'
 alias mused='muse --yolo'
 alias grokd='grok --permission-mode bypassPermissions'
 alias qwend='qwen --yolo'
+alias mimod="MIMOCODE_PERMISSION='{\"*\":\"allow\"}' mimo"
 
 function lg() {
   export LAZYGIT_NEW_DIR_FILE="$HOME/.lazygit/newdir"

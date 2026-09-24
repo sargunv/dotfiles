@@ -2,8 +2,8 @@
 set -eu
 
 # Explicit PATH for launchd/systemd which don't inherit interactive shell PATH.
-# Includes: chezmoi-managed bins, mise shims, opencode, kimi, homebrew, system.
-export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$HOME/.opencode/bin:$HOME/.kimi-code/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
+# Includes: chezmoi-managed bins, mise shims, opencode, kimi, mimo, homebrew, system.
+export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$HOME/.opencode/bin:$HOME/.kimi-code/bin:$HOME/.mimocode/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
 
 LOG_DIR="${XDG_STATE_HOME:-$HOME/.local/state}"
 LOG_FILE="$LOG_DIR/update-agents.log"
@@ -25,6 +25,7 @@ mkdir -p "$LOG_DIR"
   echo "Updating pi (curl installer)..."; curl -fsSL https://pi.dev/install.sh | sh 2>&1 || echo "pi install failed: $?" >&2
   echo "Updating oh-my-pi (curl installer)..."; curl -fsSL https://omp.sh/install | sh -s -- --binary 2>&1 || echo "oh-my-pi install failed: $?" >&2
   echo "Updating qwen (curl installer)..."; curl -fsSL https://qwen-code-assets.oss-cn-hangzhou.aliyuncs.com/installation/install-qwen-standalone.sh | bash -s -- --version latest --no-modify-path 2>&1 || echo "qwen install failed: $?" >&2
+  echo "Updating mimo (curl installer)..."; curl -fsSL https://mimo.xiaomi.com/install | bash -s -- --no-modify-path 2>&1 || echo "mimo install failed: $?" >&2
   if command -v kimi >/dev/null 2>&1; then
     echo "Updating kimi (manual)..."
     # kimi's updater requires a TTY (without it, it mis-detects as windows and exits);

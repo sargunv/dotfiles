@@ -7,7 +7,7 @@ After=network-online.target
 [Service]
 Type=oneshot
 # Explicit PATH — systemd --user has minimal PATH and doesn't source zshrc/mise.
-Environment=PATH=%h/.local/bin:%h/.local/share/mise/shims:%h/.kimi-code/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin
+Environment=PATH=%h/.local/bin:%h/.local/share/mise/shims:%h/.kimi-code/bin:%h/.mimocode/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin
 ExecStart=%h/.local/bin/update-agents.sh
 StandardOutput=append:%h/.local/state/update-agents.log
 StandardError=append:%h/.local/state/update-agents.log
