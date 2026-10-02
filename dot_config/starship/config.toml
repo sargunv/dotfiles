@@ -6,6 +6,7 @@ truncate_to_repo = false
 
 [git_status]
 ignore_submodules = true
+use_git_executable = true
 
 [git_metrics]
 disabled = false
