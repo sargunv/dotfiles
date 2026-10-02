@@ -16,7 +16,6 @@ compile = false
 "core:node" = "lts"
 "core:python" = "latest"
 "core:rust" = "latest"
-"vfox:mise-plugins/vfox-android-sdk" = "22"
 
 "aqua:jdx/aube" = "latest"
 "aqua:jdx/usage" = "latest"
@@ -24,3 +23,4 @@ compile = false
 "aqua:cargo-bins/cargo-binstall" = "latest"
 "github:Foxboron/ssh-tpm-agent" = { version = "latest", os = ["linux"] }
 "github:sargunv/starship-multi-config" = "latest"
+android-sdk = "22"
