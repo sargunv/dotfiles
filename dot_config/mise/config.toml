@@ -1,4 +1,6 @@
 [settings]
+experimental = true
+install_layout = "identity"
 trusted_config_paths = [
   "~/.local/share/chezmoi",
   "~/Code",
