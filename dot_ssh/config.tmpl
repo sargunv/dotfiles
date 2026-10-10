@@ -1,12 +1,6 @@
 {{ if eq .chezmoi.os "darwin" -}}
 Include ~/.colima/ssh_config
 
-Include ~/.ssh/config.d/parallels-vms
-
-Host {{ .parallels_subnet }}.*
-  IdentityFile ~/.ssh/id_ed25519
-  IdentitiesOnly yes
-
 {{ end -}}
 Host *
   ForwardAgent yes
