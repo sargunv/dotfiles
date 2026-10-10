@@ -1,6 +1,5 @@
 openvsx_extensions:
   - bradlc.vscode-tailwindcss
-  - continue.continue
   - dprint.dprint
   - github.vscode-github-actions
   - github.vscode-pull-request-github

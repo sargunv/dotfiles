@@ -20,10 +20,7 @@ brew_formulae:
 brew_casks:
   # Terminal and development
   - ghostty
-  - cursor
   - jetbrains-toolbox
-  - superset
-  - t3-code
   - vscodium
   - zed
 
@@ -39,31 +36,17 @@ brew_casks:
   - rectangle
   - setapp
 
-  # Browsers
-  - orion
-  - vivaldi
-
-  # Communication
-  - beeper
-  - slack
-
   # Security and sync
   - proton-drive
   - proton-pass
-  - proton-meet
   - protonvpn
 
   # Device utilities
   - raspberry-pi-imager
   - sdformatter
 
-  # Gaming
-  - prismlauncher
-  - steam
-
 brew_mas:
   Drag to Scroll: 6748603900
   Folder Quick Look: 6753110395
-  Infuse: 1136220934
   Murasaki: 430300762
   Passepartout: 1433648537

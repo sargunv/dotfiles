@@ -6,9 +6,3 @@ if command -v codium >/dev/null 2>&1; then
   codium --install-extension {{ . | quote }}
 {{ end -}}
 fi
-
-if command -v cursor >/dev/null 2>&1; then
-{{ range .openvsx_extensions -}}
-  cursor --install-extension {{ . | quote }}
-{{ end -}}
-fi
