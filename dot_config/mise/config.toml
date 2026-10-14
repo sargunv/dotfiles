@@ -11,6 +11,9 @@ trusted_config_paths = [
 [settings.python]
 compile = false
 
+[settings.shims]
+exclude = ["bash"]
+
 [tools]
 "core:go" = "latest"
 "core:java" = "temurin-25"
