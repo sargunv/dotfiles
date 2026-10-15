@@ -1,0 +1,30 @@
+import { streamSimple } from "@oh-my-pi/pi-ai";
+import { buildModel } from "@oh-my-pi/pi-catalog/build";
+import { registerGateway } from {{ joinPath .chezmoi.homeDir ".local/lib/coding-agents/litellm.mjs" | toJson }};
+
+export default async function (pi) {
+  const stream = (model, context, options) => streamSimple(buildModel(model), context, options);
+  const gateway = {
+    registerProvider(name, config) {
+      // OMP otherwise merges registered models with its unfiltered native catalog.
+      pi.registerProvider(name, {
+        ...config,
+        fetchDynamicModels: async () => config.models,
+      });
+    },
+  };
+  await registerGateway(gateway, {
+    origin: {{ .ai.origin | toJson }},
+    keyFile: {{ joinPath .chezmoi.homeDir .ai.keyFile | toJson }},
+    goPrefix: {{ .ai.goPrefix | toJson }},
+    cacheDir: {{ joinPath .chezmoi.homeDir ".cache/coding-agents/litellm" | toJson }},
+  }, { openai: stream, "opencode-go": stream });
+  pi.on("session_start", async (_event, ctx) => {
+    // Native-provider cache rows can predate the adapter; replace them before use.
+    await ctx.modelRegistry.refreshRuntimeProviders("online");
+    if (ctx.model && ["openai", "opencode-go"].includes(ctx.model.provider)) {
+      const model = ctx.modelRegistry.find(ctx.model.provider, ctx.model.id);
+      if (model) await pi.setModel(model);
+    }
+  });
+}

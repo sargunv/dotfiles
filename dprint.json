@@ -5,7 +5,8 @@
   "useTabs": false,
   "newLineKind": "lf",
   "excludes": [
-    ".git/**"
+    ".git/**",
+    "dot_omp/agent/modify_*.yml"
   ],
   "markdown": {
     "textWrap": "always"

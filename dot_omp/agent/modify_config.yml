@@ -1,0 +1,8 @@
+# chezmoi:modify-template
+{{/* Merge startup routing; OMP owns other preferences and model roles. */}}
+{{- $config := .chezmoi.stdin | default "{}" | fromYaml -}}
+{{- $config = $config | setValueAtPath "modelRoles.default" (printf "openai/%s" .ai.openai.defaultModel) -}}
+{{- $config = $config | setValueAtPath "modelRoles.smol" .ai.opencode.smallModel -}}
+{{- $config = $config | setValueAtPath "modelRoles.tiny" "@smol" -}}
+{{- $config = $config | setValueAtPath "enabledModels" (list "openai/*" "opencode-go/*") -}}
+{{ $config | toYaml }}
