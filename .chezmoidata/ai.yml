@@ -6,3 +6,8 @@ ai:
   opencode:
     smallModel: opencode-go/mimo-v2.6-flash
   goPrefix: opencode-go/
+  grok:
+    # Grok Build's own default (xAI aliases it grok-build-latest).
+    defaultModel: grok-4.5
+    # LiteLLM team allowed only grok-subscription; its model list is Grok Build's.
+    catalogTeamId: 6f09437b-ad63-4f49-b697-896fcd1357ce

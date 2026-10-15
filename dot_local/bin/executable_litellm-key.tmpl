@@ -1,0 +1,3 @@
+#!/bin/sh
+# Prints the LiteLLM gateway key for tools that take a credential command.
+exec cat {{ joinPath .chezmoi.homeDir .ai.keyFile | quote }}
