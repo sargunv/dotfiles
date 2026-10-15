@@ -1,0 +1,11 @@
+# chezmoi:modify-template
+{{/* Merge the provider; Codex owns the other settings. */}}
+{{- $config := .chezmoi.stdin | fromToml -}}
+{{- $config = $config | setValueAtPath "model_provider" "litellm" -}}
+{{- $auth := dict "command" "/bin/cat" "args" (list (joinPath .chezmoi.homeDir .ai.keyFile)) -}}
+{{- $provider := dict "name" "LiteLLM" "base_url" (printf "%s/v1" .ai.origin) "wire_api" "responses" "supports_websockets" false "auth" $auth -}}
+{{- $config = $config | setValueAtPath "model_providers.litellm" $provider -}}
+{{- if not (hasKey $config "model") -}}
+{{- $config = $config | setValueAtPath "model" .ai.openai.defaultModel -}}
+{{- end -}}
+{{ $config | toToml }}

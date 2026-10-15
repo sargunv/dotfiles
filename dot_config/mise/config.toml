@@ -5,7 +5,8 @@ trusted_config_paths = [
   "~/.local/share/chezmoi",
   "~/Code",
   "~/Projects",
-  "~/.codex/worktrees"
+  "~/.codex/worktrees",
+  "~/.t3/worktrees"
 ]
 
 [settings.python]

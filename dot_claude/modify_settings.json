@@ -1,12 +1,9 @@
-#!/bin/sh
-# Own only the attribution keys in ~/.claude/settings.json. Claude Code writes
-# the rest of this file itself (theme, effort level, hooks), so it is merged
-# rather than replaced.
-set -eu
-
-current="$(cat)"
-[ -n "$current" ] || current='{}'
-
-printf '%s' "$current" | jq --indent 2 '
-  .attribution = {commit: "", pr: "", sessionUrl: false}
-'
+# chezmoi:modify-template
+{{/* Merge gateway settings; Claude Code owns the other settings. */}}
+{{- $settings := .chezmoi.stdin | default "{}" | fromJson -}}
+{{- $settings = $settings | setValueAtPath "attribution" (dict "commit" "" "pr" "" "sessionUrl" false) -}}
+{{- $settings = $settings | setValueAtPath "apiKeyHelper" (printf "cat %s" (joinPath .chezmoi.homeDir .ai.keyFile | quote)) -}}
+{{- $settings = $settings | setValueAtPath "env.ANTHROPIC_BASE_URL" .ai.origin -}}
+{{- $settings = $settings | setValueAtPath "promptCacheTtl" "1h" -}}
+{{- $settings = $settings | setValueAtPath "subagentPromptCacheTtl" "5m" -}}
+{{ $settings | toPrettyJson }}
