@@ -1,6 +1,8 @@
 # chezmoi:modify-template
-{{/* Merge gateway settings; Claude Code owns the other settings. */}}
+{{/* Merge gateway and permission settings; Claude Code owns the other settings. */}}
 {{- $settings := .chezmoi.stdin | default "{}" | fromJson -}}
+{{- $settings = $settings | setValueAtPath "permissions.defaultMode" "bypassPermissions" -}}
+{{- $settings = $settings | setValueAtPath "sandbox.enabled" false -}}
 {{- $settings = $settings | setValueAtPath "attribution" (dict "commit" "" "pr" "" "sessionUrl" false) -}}
 {{- $settings = $settings | setValueAtPath "apiKeyHelper" (printf "cat %s" (joinPath .chezmoi.homeDir .ai.keyFile | quote)) -}}
 {{- $settings = $settings | setValueAtPath "env.ANTHROPIC_BASE_URL" .ai.origin -}}

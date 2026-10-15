@@ -1,6 +1,7 @@
 # chezmoi:modify-template
-{{/* Merge image previews; OpenCode owns the other CLI preferences. */}}
+{{/* Merge image previews and approvals; OpenCode owns the other CLI preferences. */}}
 {{- $settings := .chezmoi.stdin | default "{}" | fromJson -}}
 {{- $settings = $settings | setValueAtPath "prompt.image_preview" true -}}
 {{- $settings = $settings | setValueAtPath "session.image_preview" true -}}
+{{- $settings = $settings | setValueAtPath "session.permissions" "autoaccept" -}}
 {{ $settings | toPrettyJson }}

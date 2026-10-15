@@ -1,6 +1,8 @@
 # chezmoi:modify-template
-{{/* Merge the provider; Codex owns the other settings. */}}
+{{/* Merge the provider and permissions; Codex owns the other settings. */}}
 {{- $config := .chezmoi.stdin | fromToml -}}
+{{- $config = $config | setValueAtPath "approval_policy" "never" -}}
+{{- $config = $config | setValueAtPath "sandbox_mode" "danger-full-access" -}}
 {{- $config = $config | setValueAtPath "model_provider" "litellm" -}}
 {{- $auth := dict "command" "/bin/cat" "args" (list (joinPath .chezmoi.homeDir .ai.keyFile)) -}}
 {{- $provider := dict "name" "LiteLLM" "base_url" (printf "%s/v1" .ai.origin) "wire_api" "responses" "supports_websockets" false "auth" $auth -}}
