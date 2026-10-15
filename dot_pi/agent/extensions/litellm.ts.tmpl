@@ -1,0 +1,11 @@
+import { streamSimple } from "@earendil-works/pi-ai";
+import { registerGateway } from {{ joinPath .chezmoi.homeDir ".local/lib/coding-agents/litellm.mjs" | toJson }};
+
+export default async function (pi) {
+  await registerGateway(pi, {
+    origin: {{ .ai.origin | toJson }},
+    keyFile: {{ joinPath .chezmoi.homeDir .ai.keyFile | toJson }},
+    goPrefix: {{ .ai.goPrefix | toJson }},
+    cacheDir: {{ joinPath .chezmoi.homeDir ".cache/coding-agents/litellm" | toJson }},
+  }, { openai: streamSimple, "opencode-go": streamSimple });
+}

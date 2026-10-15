@@ -2,6 +2,8 @@
 .github/**
 LICENSE
 README.md
+tests/
+tests/**
 
 # Repo-local dev tooling (not deployed as dotfiles)
 mise.toml

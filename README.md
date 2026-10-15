@@ -13,6 +13,20 @@ install -m 600 /dev/null ~/.config/litellm/api-key
 $EDITOR ~/.config/litellm/api-key
 ```
 
+Pi uses gateway-backed OpenAI and OpenCode Go catalogs through a shared adapter
+in `~/.local/lib/coding-agents/litellm.mjs`. It loads model metadata from
+models.dev and filters Go models against LiteLLM's routes, excluding models
+covered by dedicated subscriptions. Go requests add the gateway route prefix and
+session header. Pi defaults to the shared OpenAI model. A previously filtered
+catalog is cached for offline startup; credentials are read from the key file at
+request time.
+
+Test catalog filtering and request routing with Node.js:
+
+```sh
+node --test tests/litellm.test.mjs
+```
+
 ## Git signing
 
 On macOS, commits and tags use `~/.ssh/commit_signing_key.pub`, backed by a

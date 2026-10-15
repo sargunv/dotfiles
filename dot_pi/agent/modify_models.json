@@ -1,0 +1,7 @@
+# chezmoi:modify-template
+{{/* Remove the initial generic gateway; the extension owns both catalogs. */}}
+{{- $config := .chezmoi.stdin | default "{}" | fromJson -}}
+{{- if hasKey $config "providers" -}}
+{{- $_ := unset $config.providers "litellm" -}}
+{{- end -}}
+{{ $config | toPrettyJson }}
