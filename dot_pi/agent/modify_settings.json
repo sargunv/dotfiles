@@ -3,5 +3,5 @@
 {{- $config := .chezmoi.stdin | default "{}" | fromJson -}}
 {{- $config = $config | setValueAtPath "defaultProvider" "openai" -}}
 {{- $config = $config | setValueAtPath "defaultModel" .ai.openai.defaultModel -}}
-{{- $config = $config | setValueAtPath "enabledModels" (list "openai/*" "opencode-go/*") -}}
+{{- $config = $config | setValueAtPath "enabledModels" (list "openai/*" "opencode-go/*" "xai/*") -}}
 {{ $config | toPrettyJson }}

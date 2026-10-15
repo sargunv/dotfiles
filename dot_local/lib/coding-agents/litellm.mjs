@@ -1,9 +1,9 @@
-// Shared by the Pi and oh-my-pi LiteLLM extensions. Like the OpenCode plugin,
-// they keep each harness's own OpenAI and OpenCode Go models and only offer
-// the ones LiteLLM routes. LiteLLM serves Go models under a route prefix.
+// Shared by the OpenCode, Pi and oh-my-pi LiteLLM integrations. They keep each
+// harness's own OpenAI, OpenCode Go and xAI models and only offer the ones
+// LiteLLM routes. LiteLLM serves Go models under a route prefix.
 import { readFileSync } from "node:fs";
 
-export const providers = ["openai", "opencode-go"];
+export const providers = ["openai", "opencode-go", "xai"];
 // Protocols LiteLLM serves these providers' chat models over. It has no
 // Google route, and can't serve OpenAI's Decisions or image APIs from the
 // ChatGPT subscription.

@@ -23,5 +23,7 @@ mkdir -p "$LOG_DIR"
   echo "Updating opencode (curl installer)..."; curl -fsSL https://opencode.ai/v2/install | bash -s -- --no-modify-path 2>&1 || echo "opencode install failed: $?" >&2
   echo "Updating pi (curl installer)..."; curl -fsSL https://pi.dev/install.sh | sh 2>&1 || echo "pi install failed: $?" >&2
   echo "Updating omp (curl installer)..."; curl -fsSL https://omp.sh/install | sh -s -- --binary 2>&1 || echo "omp install failed: $?" >&2
+  # An unrecognized SHELL stops Grok's installer from editing ~/.zshrc or ~/.bashrc.
+  echo "Updating grok (curl installer)..."; curl -fsSL https://x.ai/cli/install.sh | SHELL=/bin/sh bash 2>&1 || echo "grok install failed: $?" >&2
   echo "--- $(date -u +"%Y-%m-%dT%H:%M:%SZ") update-agents done ---"
 } >>"$LOG_FILE" 2>&1
