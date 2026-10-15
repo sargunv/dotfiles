@@ -6,7 +6,7 @@
   "newLineKind": "lf",
   "excludes": [
     ".git/**",
-    "dot_omp/agent/modify_*.yml"
+    "dot_omp/private_agent/modify_*.yml"
   ],
   "markdown": {
     "textWrap": "always"
