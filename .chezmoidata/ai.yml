@@ -2,10 +2,13 @@ ai:
   origin: https://litellm.home.sargunv.dev
   keyFile: .config/litellm/api-key
   openai:
+    # Newest Sol: OpenCode's startup model, and Pi and oh-my-pi's where none is saved.
     defaultModel: gpt-6.1-sol
   opencode:
     smallModel: opencode-go/mimo-v2.6-flash
   goPrefix: opencode-go/
   grok:
+    # Newest Grok; seeds Grok Build's model where none is saved.
+    defaultModel: grok-4.7
     # LiteLLM team allowed only grok-subscription; its model list is Grok Build's.
     catalogTeamId: 6f09437b-ad63-4f49-b697-896fcd1357ce

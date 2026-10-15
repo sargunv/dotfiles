@@ -15,4 +15,8 @@
 {{- $config = $config | setValueAtPath "auth.auth_provider_label" "LiteLLM" -}}
 {{- /* Like the other agents: no tool approval prompts (its sandbox is off by default). */ -}}
 {{- $config = $config | setValueAtPath "ui.permission_mode" "always-approve" -}}
+{{- /* A starting model; Grok saves the model picked with /model here. */ -}}
+{{- if not (dig "models" "default" "" $config) -}}
+{{- $config = $config | setValueAtPath "models.default" (printf "grok/%s" .ai.grok.defaultModel) -}}
+{{- end -}}
 {{ $config | toToml }}
