@@ -4,8 +4,8 @@ Personal dotfiles managed with chezmoi.
 
 ## AI gateway
 
-Claude Code, Codex, OpenCode, and Pi use the LiteLLM gateway. Save its key on
-each machine; chezmoi does not manage it:
+Claude Code, Codex, OpenCode, Pi, and oh-my-pi use the LiteLLM gateway. Save its
+key on each machine; chezmoi does not manage it:
 
 ```sh
 install -d -m 700 ~/.config/litellm
@@ -25,9 +25,6 @@ use the TPM setup. Hardware keys and their local references are provisioned on
 each machine; they are not stored in this repository.
 
 ## Development
-
-Repo tooling is pinned with mise. Python linting and type checking use locked uv
-dependencies; formatting runs through dprint.
 
 ```sh
 mise install

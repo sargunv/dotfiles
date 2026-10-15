@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { test } from "node:test";
 import {
   loadRouteFilter,
+  ompGatewayModels,
   piGatewayProvider,
   piUnprefixResponseModel,
   routeFilter,
@@ -169,4 +170,47 @@ test("Pi Go chat requests pass vendor thinking controls through LiteLLM's extra_
       thinking,
     });
   });
+});
+
+test("OMP models keep bundled metadata, and Go models take their gateway ids", () => {
+  const kimi = {
+    id: "kimi-k3",
+    name: "Kimi K3",
+    api: "openai-completions",
+    baseUrl: "https://opencode.ai/inference/go/v1",
+    reasoning: true,
+    thinking: { efforts: ["high", "max"] },
+    input: ["text", "image"],
+    cost: { input: 1, output: 2, cacheRead: 0, cacheWrite: 0 },
+    contextWindow: 1000000,
+    maxTokens: 131072,
+    supportsTools: true,
+    compatConfig: { supportsToolChoice: false },
+    identity: { class: "kimi" },
+  };
+  const go = [
+    kimi,
+    { ...kimi, id: "unrouted" },
+    { ...kimi, id: "collapsed", thinking: { effortRouting: { off: "collapsed", high: "collapsed-thinking" } } },
+    { ...kimi, id: "image-model", kind: "image" },
+    { ...kimi, id: "gemini", api: "google-generative-ai" },
+  ];
+  assert.deepEqual(ompGatewayModels("opencode-go", go, goPrefix, (_, id) => id !== "unrouted"), [{
+    id: "opencode-go/kimi-k3",
+    name: "Kimi K3",
+    api: "openai-completions",
+    reasoning: true,
+    thinking: { efforts: ["high", "max"] },
+    input: ["text", "image"],
+    cost: { input: 1, output: 2, cacheRead: 0, cacheWrite: 0 },
+    contextWindow: 1000000,
+    maxTokens: 131072,
+    supportsTools: true,
+    compat: { supportsToolChoice: false },
+  }]);
+  const openai = [
+    { ...kimi, id: "gpt-6-sol", api: "openai-responses" },
+    { ...kimi, id: "gpt-6-sol-pro", api: "openai-responses", requestModelId: "gpt-6-sol" },
+  ];
+  assert.deepEqual(ompGatewayModels("openai", openai, goPrefix, () => true).map((model) => model.id), ["gpt-6-sol"]);
 });

@@ -1,0 +1,26 @@
+import { getBundledModels } from "@oh-my-pi/pi-catalog";
+import { loadRouteFilter, ompGatewayModels, providers } from {{ joinPath .chezmoi.homeDir ".local/lib/coding-agents/litellm.mjs" | toJson }};
+
+const gateway = {
+  origin: {{ .ai.origin | toJson }},
+  keyFile: {{ joinPath .chezmoi.homeDir .ai.keyFile | toJson }},
+  goPrefix: {{ .ai.goPrefix | toJson }},
+};
+
+export default async function (pi) {
+  const visible = await loadRouteFilter(gateway);
+  // Bundled catalogs; update-agents keeps OMP, and so them, current.
+  for (const provider of providers) {
+    const models = ompGatewayModels(provider, getBundledModels(provider), gateway.goPrefix, visible);
+    // Matches models.yml, which also covers models resolved before this runs.
+    pi.registerProvider(provider, {
+      // OMP's Anthropic client strips the /v1 before appending /v1/messages.
+      baseUrl: `${gateway.origin}/v1`,
+      apiKey: `!cat ${JSON.stringify(gateway.keyFile)}`,
+      models,
+      // An authoritative roster replaces OMP's live OpenCode Go discovery,
+      // which would list every gateway route as a Go model.
+      fetchDynamicModels: async () => models,
+    });
+  }
+}
