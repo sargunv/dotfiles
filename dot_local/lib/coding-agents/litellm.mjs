@@ -4,6 +4,10 @@
 import { readFileSync } from "node:fs";
 
 export const providers = ["openai", "opencode-go"];
+// Protocols LiteLLM serves these providers' chat models over. It has no
+// Google route, and can't serve OpenAI's Decisions or image APIs from the
+// ChatGPT subscription.
+export const gatewayApis = ["openai-completions", "openai-responses", "anthropic-messages"];
 
 const escapeRegExp = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const routePattern = (route) => new RegExp(`^${route.split("*").map(escapeRegExp).join(".*")}$`);
@@ -57,8 +61,9 @@ export async function loadRouteFilter({ origin, keyFile, goPrefix }) {
  * the Go model id sent upstream change, so sessions keep Pi's model identity.
  */
 export function piGatewayProvider(base, { origin, keyFile, goPrefix }, visible) {
+  // Chat models only; see gatewayApis.
   const models = base.getModels()
-    .filter((model) => visible(base.id, model.id))
+    .filter((model) => gatewayApis.includes(model.api) && visible(base.id, model.id))
     // Pi's Anthropic client appends /v1/messages itself.
     .map((model) => ({ ...model, baseUrl: model.api === "anthropic-messages" ? origin : `${origin}/v1` }));
   const upstream = (model, options) =>

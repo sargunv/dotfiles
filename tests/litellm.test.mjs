@@ -72,6 +72,7 @@ test("Pi providers keep model metadata and change only endpoint and auth", async
       { id: "qwen", api: "anthropic-messages", baseUrl: "https://opencode.ai/zen/go", compat: { supportsTemperature: false } },
       { id: "grok", api: "openai-responses", baseUrl: "https://opencode.ai/zen/go/v1" },
       { id: "unrouted", api: "openai-completions", baseUrl: "https://opencode.ai/zen/go/v1" },
+      { id: "gemini", api: "google-generative-ai", baseUrl: "https://opencode.ai/zen/go/v1" },
     ]);
     const provider = piGatewayProvider(base, gateway, (_, id) => id !== "unrouted");
     assert.equal(provider.id, "opencode-go");
