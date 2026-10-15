@@ -20,8 +20,7 @@
   "plugins": [
     "https://plugins.dprint.dev/markdown-0.21.1.wasm",
     "https://plugins.dprint.dev/g-plane/pretty_yaml-v0.6.0.wasm",
-    // dprint publishes no ruff wasm build past 0.11.0, so this formatter trails
-    // the pinned ruff in pyproject.toml. Bump when dprint catches up.
+    // the dprint plugin version dot _not_ track the ruff version
     "https://plugins.dprint.dev/ruff-0.11.0.wasm"
   ]
 }
