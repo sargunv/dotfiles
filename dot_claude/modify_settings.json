@@ -1,5 +1,5 @@
 # chezmoi:modify-template
-{{/* Merge gateway and permission settings; Claude Code owns the other settings. */}}
+{{/* Merge gateway, permission and starting model settings; Claude Code owns the other settings. */}}
 {{- $settings := .chezmoi.stdin | default "{}" | fromJson -}}
 {{- $settings = $settings | setValueAtPath "permissions.defaultMode" "bypassPermissions" -}}
 {{- $settings = $settings | setValueAtPath "sandbox.enabled" false -}}
@@ -8,4 +8,8 @@
 {{- $settings = $settings | setValueAtPath "env.ANTHROPIC_BASE_URL" .ai.origin -}}
 {{- $settings = $settings | setValueAtPath "promptCacheTtl" "1h" -}}
 {{- $settings = $settings | setValueAtPath "subagentPromptCacheTtl" "5m" -}}
+{{- /* Claude Code's alias for its newest Opus; a model picked in /model replaces it. */ -}}
+{{- if not (hasKey $settings "model") -}}
+{{- $settings = $settings | setValueAtPath "model" "opus" -}}
+{{- end -}}
 {{ $settings | toPrettyJson }}
