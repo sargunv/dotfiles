@@ -1,0 +1,17 @@
+# chezmoi:modify-template
+{{/* Route Grok Build through the gateway; Grok owns its other settings. */}}
+{{- $config := .chezmoi.stdin | default "" | fromToml -}}
+{{- $gateway := printf "%s/v1" .ai.origin -}}
+{{- /* A gateway team allowed only the Grok subscription lists just its models. */ -}}
+{{- $config = $config | setValueAtPath "endpoints.models_base_url" $gateway -}}
+{{- $config = $config | setValueAtPath "endpoints.models_list_url" (printf "%s/models?team_id=%s" $gateway .ai.grok.catalogTeamId) -}}
+{{- /* Grok sends its auth token to these xAI services too; keep the key at the gateway. */ -}}
+{{- range $endpoint := list "cli_chat_proxy_base_url" "xai_api_base_url" "feedback_base_url" "trace_upload_url" -}}
+{{- $config = $config | setValueAtPath (printf "endpoints.%s" $endpoint) $gateway -}}
+{{- end -}}
+{{- $config = $config | setValueAtPath "features.feedback" false -}}
+{{- $config = $config | setValueAtPath "features.telemetry" "off" -}}
+{{- $config = $config | setValueAtPath "auth.auth_provider_command" (joinPath .chezmoi.homeDir ".local/bin/litellm-key") -}}
+{{- $config = $config | setValueAtPath "auth.auth_provider_label" "LiteLLM" -}}
+{{- $config = $config | setValueAtPath "models.default" (printf "grok/%s" .ai.grok.defaultModel) -}}
+{{ $config | toToml }}

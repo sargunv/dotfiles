@@ -4,8 +4,8 @@ Personal dotfiles managed with chezmoi.
 
 ## AI gateway
 
-Claude Code, Codex, OpenCode, Pi, and oh-my-pi use the LiteLLM gateway. Save its
-key on each machine; chezmoi does not manage it:
+Coding agents use the LiteLLM gateway. Save its key on each machine; chezmoi
+does not manage it:
 
 ```sh
 install -d -m 700 ~/.config/litellm
