@@ -2,6 +2,17 @@
 
 Personal dotfiles managed with chezmoi.
 
+## AI gateway
+
+Claude Code, Codex, and OpenCode go through the LiteLLM gateway. Its key isn't
+managed by chezmoi, so save it on each machine:
+
+```sh
+install -d -m 700 ~/.config/litellm
+install -m 600 /dev/null ~/.config/litellm/api-key
+$EDITOR ~/.config/litellm/api-key
+```
+
 ## Git signing
 
 On macOS, commits and tags use `~/.ssh/commit_signing_key.pub`, backed by a

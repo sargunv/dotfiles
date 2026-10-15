@@ -1,0 +1,51 @@
+import { readFile } from "node:fs/promises";
+import { homedir } from "node:os";
+import { join } from "node:path";
+
+const origin = {{ .ai.origin | toJson }};
+const goPrefix = {{ .ai.goPrefix | toJson }};
+
+const escapeRegExp = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const routePattern = (route) => new RegExp(`^${route.split("*").map(escapeRegExp).join(".*")}$`);
+
+// LiteLLM routes outside the Go prefix are dedicated subscriptions, as exact
+// names or wildcard patterns like `kimi-*`.
+const dedicatedRoutes = async () => {
+  const key = await readFile(join(homedir(), {{ .ai.keyFile | toJson }}), "utf8");
+  const response = await fetch(`${origin}/v1/models?return_wildcard_routes=true`, {
+    headers: { Authorization: `Bearer ${key.trim()}` },
+  });
+  if (!response.ok) throw new Error(`${response.status} ${await response.text()}`);
+  const { data } = await response.json();
+  return data
+    .map((model) => model.id)
+    .filter((id) => !id.startsWith(goPrefix))
+    .map(routePattern);
+};
+
+export const LiteLLM = async () => ({
+  // An existing ChatGPT login installs a fetch override that bypasses baseURL.
+  // Config options take precedence over that override when providers load.
+  config: async (config) => {
+    config.provider.openai.options.fetch = globalThis.fetch;
+  },
+  // Keep Go's catalog current, minus models LiteLLM serves from a dedicated
+  // subscription, and route the rest via LiteLLM's Go prefix.
+  provider: {
+    id: "opencode-go",
+    models: async (provider) => {
+      const dedicated = await dedicatedRoutes().catch((error) => {
+        console.warn(`LiteLLM: showing all Go models; couldn't list routes: ${error}`);
+        return [];
+      });
+      return Object.fromEntries(
+        Object.entries(provider.models)
+          .filter(([id]) => !dedicated.some((route) => route.test(id)))
+          .map(([id, model]) => [id, {
+            ...model,
+            api: { ...model.api, id: goPrefix + model.api.id },
+          }]),
+      );
+    },
+  },
+});

@@ -1,0 +1,20 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "enabled_providers": ["openai", "opencode-go"],
+  "model": {{ printf "openai/%s" .ai.openai.defaultModel | toJson }},
+  "small_model": {{ .ai.opencode.smallModel | toJson }},
+  "provider": {
+    "openai": {
+      "options": {
+        "baseURL": {{ printf "%s/v1" .ai.origin | toJson }},
+        "apiKey": {{ printf "{file:~/%s}" .ai.keyFile | toJson }}
+      }
+    },
+    "opencode-go": {
+      "options": {
+        "baseURL": {{ printf "%s/v1" .ai.origin | toJson }},
+        "apiKey": {{ printf "{file:~/%s}" .ai.keyFile | toJson }}
+      }
+    }
+  }
+}

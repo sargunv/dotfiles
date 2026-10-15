@@ -1,0 +1,8 @@
+ai:
+  origin: https://litellm.home.sargunv.dev
+  keyFile: .config/litellm/api-key
+  openai:
+    defaultModel: gpt-6.1-sol
+  opencode:
+    smallModel: opencode-go/mimo-v2.6-flash
+  goPrefix: opencode-go/
