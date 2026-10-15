@@ -22,29 +22,32 @@ const gatewayRoutes = async () => {
   return (id) => go.some((route) => route.test(id)) && !dedicated.some((route) => route.test(id));
 };
 
-export const LiteLLM = async () => ({
-  // An existing ChatGPT login installs a fetch override that bypasses baseURL.
-  // Config options take precedence over that override when providers load.
-  config: async (config) => {
-    config.provider.openai.options.fetch = globalThis.fetch;
+export default {
+  id: "litellm",
+  async setup(ctx) {
+    // Saved native-provider credentials otherwise override settings.apiKey.
+    await ctx.provider.transform((editor) => {
+      for (const id of ["openai", "opencode-go"]) {
+        editor.update(id, (provider) => {
+          provider.integrationID = "litellm";
+        });
+      }
+    });
+    // Transforms are synchronous and replayable; fetch routes before registering.
+    const visible = await gatewayRoutes().catch((error) => {
+      console.warn(`LiteLLM: showing all Go models; couldn't list routes: ${error}`);
+      return () => true;
+    });
+    await ctx.model.transform((editor) => {
+      for (const model of editor.list("opencode-go")) {
+        if (!visible(model.id)) {
+          editor.remove(model.providerID, model.id);
+          continue;
+        }
+        editor.update(model.providerID, model.id, (draft) => {
+          draft.modelID = goPrefix + model.modelID;
+        });
+      }
+    });
   },
-  // Keep Go models LiteLLM serves, minus those a dedicated subscription
-  // serves, and route them via LiteLLM's Go prefix.
-  provider: {
-    id: "opencode-go",
-    models: async (provider) => {
-      const visible = await gatewayRoutes().catch((error) => {
-        console.warn(`LiteLLM: showing all Go models; couldn't list routes: ${error}`);
-        return () => true;
-      });
-      return Object.fromEntries(
-        Object.entries(provider.models)
-          .filter(([id]) => visible(id))
-          .map(([id, model]) => [id, {
-            ...model,
-            api: { ...model.api, id: goPrefix + model.api.id },
-          }]),
-      );
-    },
-  },
-});
+};

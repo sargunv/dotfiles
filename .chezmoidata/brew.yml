@@ -40,6 +40,7 @@ brew_casks:
   - proton-drive
   - proton-pass
   - protonvpn
+  - tailscale-app
 
   # Device utilities
   - raspberry-pi-imager
