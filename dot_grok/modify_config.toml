@@ -1,5 +1,5 @@
 # chezmoi:modify-template
-{{/* Route Grok Build through the gateway; Grok owns its other settings. */}}
+{{/* Merge gateway routing and approvals; Grok owns its other settings. */}}
 {{- $config := .chezmoi.stdin | default "" | fromToml -}}
 {{- $gateway := printf "%s/v1" .ai.origin -}}
 {{- /* A gateway team allowed only the Grok subscription lists just its models. */ -}}
@@ -13,5 +13,10 @@
 {{- $config = $config | setValueAtPath "features.telemetry" "off" -}}
 {{- $config = $config | setValueAtPath "auth.auth_provider_command" (joinPath .chezmoi.homeDir ".local/bin/litellm-key") -}}
 {{- $config = $config | setValueAtPath "auth.auth_provider_label" "LiteLLM" -}}
+{{- /* Only a starting default: Grok saves the model you pick here. */ -}}
+{{- if not (dig "models" "default" "" $config) -}}
 {{- $config = $config | setValueAtPath "models.default" (printf "grok/%s" .ai.grok.defaultModel) -}}
+{{- end -}}
+{{- /* Like the other agents: no tool approval prompts (its sandbox is off by default). */ -}}
+{{- $config = $config | setValueAtPath "ui.permission_mode" "always-approve" -}}
 {{ $config | toToml }}
