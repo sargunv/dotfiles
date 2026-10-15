@@ -2,7 +2,9 @@
 {{/* Merge startup routing; OMP owns other preferences and model roles. */}}
 {{- $config := .chezmoi.stdin | default "{}" | fromYaml -}}
 {{- $config = $config | setValueAtPath "modelRoles.default" (printf "openai/%s" .ai.openai.defaultModel) -}}
-{{- $config = $config | setValueAtPath "modelRoles.smol" .ai.opencode.smallModel -}}
+{{- /* OMP's Go model ids carry the gateway prefix. */ -}}
+{{- $smol := printf "opencode-go/%s%s" .ai.goPrefix (.ai.opencode.smallModel | trimPrefix "opencode-go/") -}}
+{{- $config = $config | setValueAtPath "modelRoles.smol" $smol -}}
 {{- $config = $config | setValueAtPath "modelRoles.tiny" "@smol" -}}
 {{- $config = $config | setValueAtPath "enabledModels" (list "openai/*" "opencode-go/*") -}}
 {{ $config | toYaml }}

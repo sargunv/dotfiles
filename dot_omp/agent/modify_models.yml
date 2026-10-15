@@ -1,7 +1,11 @@
 # chezmoi:modify-template
-{{/* Remove the initial generic gateway; the extension owns both catalogs. */}}
+{{/* Route OMP's own OpenAI and OpenCode Go providers through the gateway.
+     OMP reads this before resolving any model; extension providers register
+     later (can1357/oh-my-pi#12427), so they only choose the models listed. */}}
 {{- $config := .chezmoi.stdin | default "{}" | fromYaml -}}
-{{- if hasKey $config "providers" -}}
-{{- $_ := unset $config.providers "litellm" -}}
+{{- $apiKey := printf "!cat %s" (joinPath .chezmoi.homeDir .ai.keyFile | quote) -}}
+{{- range $provider := list "openai" "opencode-go" -}}
+{{- $config = $config | setValueAtPath (printf "providers.%s.baseUrl" $provider) (printf "%s/v1" $.ai.origin) -}}
+{{- $config = $config | setValueAtPath (printf "providers.%s.apiKey" $provider) $apiKey -}}
 {{- end -}}
 {{ $config | toYaml }}

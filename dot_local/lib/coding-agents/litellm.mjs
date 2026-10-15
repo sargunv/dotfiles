@@ -110,3 +110,31 @@ export function piUnprefixResponseModel(message, goPrefix) {
   const unprefixed = responseModel.slice(goPrefix.length);
   return unprefixed === message.model ? rest : { ...rest, responseModel: unprefixed };
 }
+
+/**
+ * Projects oh-my-pi's bundled models for one provider onto the gateway. OMP
+ * has no request hook that also covers side requests like titles, so Go
+ * models take their gateway id as their own; OMP classifies models by the id
+ * after the last slash, so its compatibility rules still apply.
+ */
+export function ompGatewayModels(provider, models, goPrefix, visible) {
+  return models
+    // Chat models only. Variants that request a different upstream id (OpenAI
+    // "-pro" tiers, collapsed effort families) can't be registered that way.
+    .filter((model) => (model.kind ?? "chat") === "chat")
+    .filter((model) => model.requestModelId === undefined && model.thinking?.effortRouting === undefined)
+    .filter((model) => visible(provider, model.id))
+    .map((model) => ({
+      id: provider === "opencode-go" ? goPrefix + model.id : model.id,
+      name: model.name,
+      api: model.api,
+      reasoning: model.reasoning,
+      thinking: model.thinking,
+      input: model.input,
+      cost: model.cost,
+      contextWindow: model.contextWindow,
+      maxTokens: model.maxTokens,
+      supportsTools: model.supportsTools,
+      compat: model.compatConfig,
+    }));
+}
