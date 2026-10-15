@@ -193,6 +193,7 @@ test("OMP models keep bundled metadata, and Go models take their gateway ids", (
     { ...kimi, id: "unrouted" },
     { ...kimi, id: "collapsed", thinking: { effortRouting: { off: "collapsed", high: "collapsed-thinking" } } },
     { ...kimi, id: "image-model", kind: "image" },
+    { ...kimi, id: "gemini", api: "google-generative-ai" },
   ];
   assert.deepEqual(ompGatewayModels("opencode-go", go, goPrefix, (_, id) => id !== "unrouted"), [{
     id: "opencode-go/kimi-k3",

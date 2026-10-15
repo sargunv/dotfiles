@@ -119,9 +119,10 @@ export function piUnprefixResponseModel(message, goPrefix) {
  */
 export function ompGatewayModels(provider, models, goPrefix, visible) {
   return models
-    // Chat models only. Variants that request a different upstream id (OpenAI
-    // "-pro" tiers, collapsed effort families) can't be registered that way.
-    .filter((model) => (model.kind ?? "chat") === "chat")
+    // Chat models only, see gatewayApis. Variants that request a different
+    // upstream id (OpenAI "-pro" tiers, collapsed effort families) can't be
+    // registered that way.
+    .filter((model) => (model.kind ?? "chat") === "chat" && gatewayApis.includes(model.api))
     .filter((model) => model.requestModelId === undefined && model.thinking?.effortRouting === undefined)
     .filter((model) => visible(provider, model.id))
     .map((model) => ({
