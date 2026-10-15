@@ -35,3 +35,11 @@ if [ "$#" -eq 0 ]; then
 fi
 
 run_as_root dnf install -y "$@"
+
+# Fedora ships fd as "fdfind" to avoid a name collision, while Homebrew's fd
+# package on macOS provides "fd". Symlink it into ~/.local/bin (first on the
+# PATH this repo configures) so the same commands work on both systems.
+if ! command -v fd >/dev/null 2>&1 && command -v fdfind >/dev/null 2>&1; then
+  mkdir -p "$HOME/.local/bin"
+  ln -sf "$(command -v fdfind)" "$HOME/.local/bin/fd"
+fi
