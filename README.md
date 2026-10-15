@@ -4,8 +4,8 @@ Personal dotfiles managed with chezmoi.
 
 ## AI gateway
 
-Claude Code, Codex, and OpenCode go through the LiteLLM gateway. Its key isn't
-managed by chezmoi, so save it on each machine:
+Claude Code, Codex, OpenCode, and Pi use the LiteLLM gateway. Save its key on
+each machine; chezmoi does not manage it:
 
 ```sh
 install -d -m 700 ~/.config/litellm
@@ -33,6 +33,7 @@ dependencies; formatting runs through dprint.
 mise install
 mise run check
 mise run test
+node --test tests/litellm.test.mjs
 ```
 
 Use `mise run fix` to apply formatting and lint fixes.

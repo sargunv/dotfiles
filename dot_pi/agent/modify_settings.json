@@ -1,0 +1,7 @@
+# chezmoi:modify-template
+{{/* Merge startup routing; Pi owns other preferences. */}}
+{{- $config := .chezmoi.stdin | default "{}" | fromJson -}}
+{{- $config = $config | setValueAtPath "defaultProvider" "openai" -}}
+{{- $config = $config | setValueAtPath "defaultModel" .ai.openai.defaultModel -}}
+{{- $config = $config | setValueAtPath "enabledModels" (list "openai/*" "opencode-go/*") -}}
+{{ $config | toPrettyJson }}
