@@ -45,6 +45,10 @@ On macOS, install Homebrew first:
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
+On Debian and Ubuntu, the first apply installs the apt packages with `sudo`.
+Make zsh the login shell afterwards with `chsh -s "$(command -v zsh)"`. SSH
+hosts that belong to one machine go in `~/.ssh/config.local`.
+
 Install chezmoi, then apply:
 
 ```sh

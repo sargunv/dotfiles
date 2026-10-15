@@ -1,0 +1,19 @@
+apt_packages:
+  - atuin
+  - bat # Installs as batcat.
+  # TODO: Add eget if a good Debian package source appears.
+  # https://github.com/zyedidia/eget
+  - eza
+  - fd-find # Installs as fdfind. Homebrew: fd
+  - fzf
+  # gh comes from mise; apt's is too old for `gh auth status --json`.
+  - git-delta
+  - git-lfs
+  - jq
+  - lazygit
+  - neovim
+  - ripgrep
+  - starship
+  - tmux
+  - zoxide
+  - zsh

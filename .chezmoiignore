@@ -31,6 +31,10 @@ uv.lock
 .chezmoiscripts/linux/05-install-dnf-packages.sh
 {{ end }}
 
+{{ if or (ne .chezmoi.os "linux") (not (has .chezmoi.osRelease.id (list "debian" "ubuntu"))) }}
+.chezmoiscripts/linux/05-install-apt-packages.sh
+{{ end }}
+
 {{ if ne .chezmoi.os "linux" }}
 .chezmoiscripts/linux
 .chezmoiscripts/linux/**

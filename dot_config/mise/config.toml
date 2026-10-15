@@ -26,6 +26,7 @@ exclude = ["bash"]
 "aqua:jdx/usage" = "latest"
 "aqua:astral-sh/uv" = "latest"
 "aqua:cargo-bins/cargo-binstall" = "latest"
+"aqua:cli/cli" = { version = "latest", os = ["linux"] }
 "github:Foxboron/ssh-tpm-agent" = { version = "latest", os = ["linux"] }
 "github:sargunv/starship-multi-config" = "latest"
 android-sdk = "22"
