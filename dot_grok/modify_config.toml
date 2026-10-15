@@ -13,10 +13,6 @@
 {{- $config = $config | setValueAtPath "features.telemetry" "off" -}}
 {{- $config = $config | setValueAtPath "auth.auth_provider_command" (joinPath .chezmoi.homeDir ".local/bin/litellm-key") -}}
 {{- $config = $config | setValueAtPath "auth.auth_provider_label" "LiteLLM" -}}
-{{- /* Only a starting default: Grok saves the model you pick here. */ -}}
-{{- if not (dig "models" "default" "" $config) -}}
-{{- $config = $config | setValueAtPath "models.default" (printf "grok/%s" .ai.grok.defaultModel) -}}
-{{- end -}}
 {{- /* Like the other agents: no tool approval prompts (its sandbox is off by default). */ -}}
 {{- $config = $config | setValueAtPath "ui.permission_mode" "always-approve" -}}
 {{ $config | toToml }}
