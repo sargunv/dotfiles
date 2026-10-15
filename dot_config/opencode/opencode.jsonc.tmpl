@@ -3,10 +3,11 @@
   "policies": [
     { "action": "provider.use", "resource": "*", "effect": "deny" },
     { "action": "provider.use", "resource": "openai", "effect": "allow" },
-    { "action": "provider.use", "resource": "opencode-go", "effect": "allow" }
+    { "action": "provider.use", "resource": "opencode-go", "effect": "allow" },
+    { "action": "provider.use", "resource": "xai", "effect": "allow" }
   ],
-  // Saved ChatGPT logins must not override LiteLLM routing or model availability.
-  "plugins": ["-opencode.provider.openai"],
+  // Saved ChatGPT and Grok logins must not override LiteLLM routing or model availability.
+  "plugins": ["-opencode.provider.openai", "-opencode.provider.xai"],
   "model": {{ printf "openai/%s" .ai.openai.defaultModel | toJson }},
   "agents": {
     "title": { "model": {{ .ai.opencode.smallModel | toJson }} }
@@ -20,6 +21,12 @@
       }
     },
     "opencode-go": {
+      "settings": {
+        "baseURL": {{ printf "%s/v1" .ai.origin | toJson }},
+        "apiKey": {{ printf "{file:~/%s}" .ai.keyFile | toJson }}
+      }
+    },
+    "xai": {
       "settings": {
         "baseURL": {{ printf "%s/v1" .ai.origin | toJson }},
         "apiKey": {{ printf "{file:~/%s}" .ai.keyFile | toJson }}

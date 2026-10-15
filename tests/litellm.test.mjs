@@ -12,7 +12,7 @@ import {
 } from "../dot_local/lib/coding-agents/litellm.mjs";
 
 const goPrefix = "opencode-go/";
-const routes = ["gpt-6-sol", "claude-*", "chatgpt/gpt-6-sol", "opencode-go/kimi-k3", "opencode-go/claude-haiku", "opencode-go/literal.v*"];
+const routes = ["gpt-6-sol", "grok-4.5", "claude-*", "chatgpt/gpt-6-sol", "opencode-go/kimi-k3", "opencode-go/claude-haiku", "opencode-go/literal.v*"];
 
 async function withKeyFile(contents, run) {
   const directory = await mkdtemp(join(tmpdir(), "litellm-test-"));
@@ -32,6 +32,8 @@ test("route filter offers routed models and prefers dedicated routes over Go cop
   assert.equal(visible("opencode-go", "kimi-k3"), true);
   assert.equal(visible("opencode-go", "claude-haiku"), false);
   assert.equal(visible("opencode-go", "gpt-6-sol"), false);
+  assert.equal(visible("xai", "grok-4.5"), true);
+  assert.equal(visible("xai", "grok-4.7"), false);
 });
 
 test("route wildcards do not interpret regex metacharacters", () => {
