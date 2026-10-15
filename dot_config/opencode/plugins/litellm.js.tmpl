@@ -8,19 +8,18 @@ const goPrefix = {{ .ai.goPrefix | toJson }};
 const escapeRegExp = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const routePattern = (route) => new RegExp(`^${route.split("*").map(escapeRegExp).join(".*")}$`);
 
-// LiteLLM routes outside the Go prefix are dedicated subscriptions, as exact
-// names or wildcard patterns like `kimi-*`.
-const dedicatedRoutes = async () => {
+// LiteLLM's routes, including wildcard patterns like `kimi-*`. Go routes use
+// the Go prefix; any other route is a dedicated subscription.
+const gatewayRoutes = async () => {
   const key = await readFile(join(homedir(), {{ .ai.keyFile | toJson }}), "utf8");
   const response = await fetch(`${origin}/v1/models?return_wildcard_routes=true`, {
     headers: { Authorization: `Bearer ${key.trim()}` },
   });
   if (!response.ok) throw new Error(`${response.status} ${await response.text()}`);
-  const { data } = await response.json();
-  return data
-    .map((model) => model.id)
-    .filter((id) => !id.startsWith(goPrefix))
-    .map(routePattern);
+  const ids = (await response.json()).data.map((model) => model.id);
+  const go = ids.filter((id) => id.startsWith(goPrefix)).map((id) => routePattern(id.slice(goPrefix.length)));
+  const dedicated = ids.filter((id) => !id.startsWith(goPrefix)).map(routePattern);
+  return (id) => go.some((route) => route.test(id)) && !dedicated.some((route) => route.test(id));
 };
 
 export const LiteLLM = async () => ({
@@ -29,18 +28,18 @@ export const LiteLLM = async () => ({
   config: async (config) => {
     config.provider.openai.options.fetch = globalThis.fetch;
   },
-  // Keep Go's catalog current, minus models LiteLLM serves from a dedicated
-  // subscription, and route the rest via LiteLLM's Go prefix.
+  // Keep Go models LiteLLM serves, minus those a dedicated subscription
+  // serves, and route them via LiteLLM's Go prefix.
   provider: {
     id: "opencode-go",
     models: async (provider) => {
-      const dedicated = await dedicatedRoutes().catch((error) => {
+      const visible = await gatewayRoutes().catch((error) => {
         console.warn(`LiteLLM: showing all Go models; couldn't list routes: ${error}`);
-        return [];
+        return () => true;
       });
       return Object.fromEntries(
         Object.entries(provider.models)
-          .filter(([id]) => !dedicated.some((route) => route.test(id)))
+          .filter(([id]) => visible(id))
           .map(([id, model]) => [id, {
             ...model,
             api: { ...model.api, id: goPrefix + model.api.id },
