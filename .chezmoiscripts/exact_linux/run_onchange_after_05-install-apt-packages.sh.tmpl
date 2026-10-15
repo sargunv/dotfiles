@@ -1,0 +1,43 @@
+#!/bin/sh
+set -eu
+
+if ! command -v apt-get >/dev/null 2>&1; then
+  echo "apt-get is required for Debian and Ubuntu package installation." >&2
+  exit 1
+fi
+
+set --{{ range .apt_packages }} {{ . | quote }}{{ end }}
+
+if [ "$#" -eq 0 ]; then
+  echo "apt_packages is empty; refusing to mark apt package installation complete." >&2
+  exit 1
+fi
+
+# Skip sudo when everything is already installed, so applies need no password.
+missing=""
+for package in "$@"; do
+  if ! dpkg-query -W -f='${Status}' "$package" 2>/dev/null | grep -q "install ok installed"; then
+    missing="$missing $package"
+  fi
+done
+
+if [ -z "$missing" ]; then
+  exit 0
+fi
+
+run_as_root() {
+  if [ "$(id -u)" -eq 0 ]; then
+    "$@"
+  else
+    sudo "$@"
+  fi
+}
+
+if [ "$(id -u)" -ne 0 ] && ! command -v sudo >/dev/null 2>&1; then
+  echo "sudo is required to install apt packages as a non-root user." >&2
+  exit 1
+fi
+
+run_as_root apt-get update
+# shellcheck disable=SC2086 # Word splitting of package names is intended.
+run_as_root apt-get install -y $missing
