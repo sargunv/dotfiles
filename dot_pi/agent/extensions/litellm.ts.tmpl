@@ -1,11 +1,25 @@
-import { streamSimple } from "@earendil-works/pi-ai";
-import { registerGateway } from {{ joinPath .chezmoi.homeDir ".local/lib/coding-agents/litellm.mjs" | toJson }};
+import { builtinProviders } from "@earendil-works/pi-ai/providers/all";
+import {
+  loadRouteFilter,
+  piGatewayProvider,
+  piUnprefixResponseModel,
+  providers,
+} from {{ joinPath .chezmoi.homeDir ".local/lib/coding-agents/litellm.mjs" | toJson }};
+
+const gateway = {
+  origin: {{ .ai.origin | toJson }},
+  keyFile: {{ joinPath .chezmoi.homeDir .ai.keyFile | toJson }},
+  goPrefix: {{ .ai.goPrefix | toJson }},
+};
 
 export default async function (pi) {
-  await registerGateway(pi, {
-    origin: {{ .ai.origin | toJson }},
-    keyFile: {{ joinPath .chezmoi.homeDir .ai.keyFile | toJson }},
-    goPrefix: {{ .ai.goPrefix | toJson }},
-    cacheDir: {{ joinPath .chezmoi.homeDir ".cache/coding-agents/litellm" | toJson }},
-  }, { openai: streamSimple, "opencode-go": streamSimple });
+  const visible = await loadRouteFilter(gateway);
+  // Wraps the bundled catalogs; update-agents keeps Pi, and so them, current.
+  for (const base of builtinProviders()) {
+    if (providers.includes(base.id)) pi.registerProvider(piGatewayProvider(base, gateway, visible));
+  }
+  pi.on("message_end", (event) => {
+    const message = piUnprefixResponseModel(event.message, gateway.goPrefix);
+    return message ? { message } : undefined;
+  });
 }
