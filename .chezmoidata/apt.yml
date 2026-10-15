@@ -6,7 +6,7 @@ apt_packages:
   - eza
   - fd-find # Installs as fdfind. Homebrew: fd
   - fzf
-  - gh
+  # gh comes from mise; apt's is too old for `gh auth status --json`.
   - git-delta
   - git-lfs
   - jq
