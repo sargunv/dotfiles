@@ -16,7 +16,9 @@ have [mise](https://mise.jdx.dev) installed; projects bootstrap toolchains via
 uv, cargo, and so on) install the rest.
 
 Use lockfiles and frozen or locked installs everywhere the ecosystem supports
-them. Avoid package managers that lack lockfiles or release-cooldown support.
+them. Gradle is the exception: skip its dependency locking (see
+[kotlin.md](references/kotlin.md)). Avoid package managers that lack lockfiles
+or release-cooldown support.
 
 For repos we own (new or existing), apply all relevant setup sections below. In
 someone else's repo, defer to upstream conventions but use mise to set up a
