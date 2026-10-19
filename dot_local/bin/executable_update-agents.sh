@@ -25,5 +25,6 @@ mkdir -p "$LOG_DIR"
   echo "Updating omp (curl installer)..."; curl -fsSL https://omp.sh/install | sh -s -- --binary 2>&1 || echo "omp install failed: $?" >&2
   # An unrecognized SHELL stops Grok's installer from editing ~/.zshrc or ~/.bashrc.
   echo "Updating grok (curl installer)..."; curl -fsSL https://x.ai/cli/install.sh | SHELL=/bin/sh bash 2>&1 || echo "grok install failed: $?" >&2
+  echo "Updating workflow-cli (git checkout)..."; update-workflow-cli 2>&1 || echo "workflow-cli update failed: $?" >&2
   echo "--- $(date -u +"%Y-%m-%dT%H:%M:%SZ") update-agents done ---"
 } >>"$LOG_FILE" 2>&1

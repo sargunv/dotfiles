@@ -1,0 +1,25 @@
+#!/bin/sh
+set -eu
+
+# Clones or fast-forwards sargunv/workflow-cli at main, then rebuilds when HEAD moves.
+
+dir="$HOME/.local/share/workflow-cli"
+stamp="$dir/dist/.built-from"
+
+if [ -d "$dir/.git" ]; then
+  git -C "$dir" pull --ff-only --quiet origin main
+else
+  git clone --quiet --branch main https://github.com/sargunv/workflow-cli.git "$dir"
+fi
+
+head="$(git -C "$dir" rev-parse HEAD)"
+if [ -f "$stamp" ] && [ "$(cat "$stamp")" = "$head" ]; then
+  exit 0
+fi
+
+echo "Building workflow-cli at $head..."
+cd "$dir"
+mise install --yes
+mise exec -- pnpm install --frozen-lockfile
+mise exec -- pnpm run build
+echo "$head" >"$stamp"

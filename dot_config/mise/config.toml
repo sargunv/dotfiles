@@ -3,6 +3,7 @@ experimental = true
 install_layout = "identity"
 trusted_config_paths = [
   "~/.local/share/chezmoi",
+  "~/.local/share/workflow-cli",
   "~/Code",
   "~/Projects",
   "~/.codex/worktrees",

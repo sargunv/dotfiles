@@ -1,0 +1,14 @@
+#!/bin/sh
+set -eu
+
+# Runs the checkout built by update-workflow-cli. Resolves Node 24 directly, so a
+# project's mise node pin can't drop below workflow-cli's `engines` floor and
+# `mise exec` doesn't trigger the project's own hooks.
+
+cli="$HOME/.local/share/workflow-cli/dist/cli.js"
+if [ ! -f "$cli" ]; then
+  echo "workflow-cli is not built; run update-workflow-cli." >&2
+  exit 1
+fi
+
+exec "$(mise where node@24)/bin/node" "$cli" "$@"
