@@ -1,14 +1,17 @@
 #!/bin/sh
 set -eu
 
-# Runs the checkout built by update-workflow-cli. Resolves Node 24 directly, so a
-# project's mise node pin can't drop below workflow-cli's `engines` floor and
-# `mise exec` doesn't trigger the project's own hooks.
+# Runs workflow-cli's TypeScript sources from the chezmoi external checkout. pnpm
+# keeps a copy of the lockfile it last installed, so dependencies are reinstalled
+# only after a pull changes them. Node 24 is resolved directly, so a project's mise
+# node pin can't drop below workflow-cli's `engines` floor and `mise exec` doesn't
+# trigger the project's own hooks.
 
-cli="$HOME/.local/share/workflow-cli/dist/cli.js"
-if [ ! -f "$cli" ]; then
-  echo "workflow-cli is not built; run update-workflow-cli." >&2
-  exit 1
+dir="$HOME/.local/share/workflow-cli"
+
+if ! cmp -s "$dir/pnpm-lock.yaml" "$dir/node_modules/.pnpm/lock.yaml"; then
+  echo "Installing workflow-cli dependencies..." >&2
+  (cd "$dir" && mise install --yes && mise exec -- pnpm install --frozen-lockfile) >&2
 fi
 
-exec "$(mise where node@24)/bin/node" "$cli" "$@"
+exec "$(mise where node@24)/bin/node" "$dir/src/cli.ts" "$@"
