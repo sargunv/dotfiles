@@ -2,7 +2,9 @@
 
 ## Mise
 
-Commit a Gradle wrapper.
+Commit a Gradle wrapper. Don't enable Gradle dependency locking
+(`dependencyLocking`, `gradle.lockfile`); Gradle handles it poorly. Pin
+dependency versions explicitly instead.
 
 ```toml
 # mise.toml
