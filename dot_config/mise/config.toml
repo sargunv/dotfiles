@@ -30,4 +30,4 @@ exclude = ["bash"]
 "aqua:cli/cli" = { version = "latest", os = ["linux"] }
 "github:Foxboron/ssh-tpm-agent" = { version = "latest", os = ["linux"] }
 "github:sargunv/starship-multi-config" = "latest"
-android-sdk = "22"
+"vfox:mise-plugins/vfox-android-sdk" = "22"
