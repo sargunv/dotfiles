@@ -10,29 +10,17 @@ dependency versions explicitly instead.
 # mise.toml
 [tools]
 "core:java" = "zulu-…"
-"aqua:facebook/ktfmt" = "…"
 ```
 
 ## Formatter
 
-ktfmt **google-style** via dprint exec:
-
-```toml
-# mise.toml
-[tasks._ktfmt]
-hide = true
-run = 'java -jar {{ tools["aqua:facebook/ktfmt"].path }}/ktfmt'
-```
+Dprint plugin: `https://plugins.dprint.dev/sargunv/ktfmt-<ver>.json`. No ktfmt
+mise tool or task.
 
 ```jsonc
-// dprint.jsonc
-"exec": {
-  "commands": [
-    {
-      "command": "mise run _ktfmt --google-style - --stdin-name={{file_path}}",
-      "exts": ["kt", "kts"],
-    },
-  ]
+"ktfmt": {
+  "style": "google", // or "kotlinlang" | "meta"
+  "lineWidth": 100,
 }
 ```
 

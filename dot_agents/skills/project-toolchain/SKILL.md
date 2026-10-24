@@ -17,8 +17,11 @@ uv, cargo, and so on) install the rest.
 
 Use lockfiles and frozen or locked installs everywhere the ecosystem supports
 them. Gradle is the exception: skip its dependency locking (see
-[kotlin.md](references/kotlin.md)). Avoid package managers that lack lockfiles
-or release-cooldown support.
+[kotlin.md](references/kotlin.md)). Avoid package managers that lack lockfiles.
+Rely on each tool's built-in release cooldown — mise 24h, pnpm >= 11 one day,
+Dependabot's default cooldown — and don't add settings that duplicate or tighten
+those defaults. Never disable or zero a cooldown. Configure one only when the
+tool has no built-in default (for example uv `exclude-newer`).
 
 For repos we own (new or existing), apply all relevant setup sections below. In
 someone else's repo, defer to upstream conventions but use mise to set up a
@@ -120,7 +123,6 @@ writes the resolved version into `mise.toml`.
 touch mise.toml
 mise settings set --local experimental true
 mise settings set --local pin true
-mise settings set --local minimum_release_age 3d
 mise settings set --local lockfile true
 mise trust -y
 mise use --pin aqua:jdx/hk@latest aqua:dprint/dprint@latest
@@ -164,24 +166,24 @@ auto = true
 mise x -- hk init
 ```
 
-Replace the generated linter mapping with the baseline dprint step and the
+Replace the generated steps with the baseline dprint step, GitHub Actions
+linting (`Builtins.jactionlint` or `Builtins.actionlint`), and the
 language-specific steps from the references. Keep the `hk.pkl` `amends` URL
 matched to the pinned hk version in `mise.toml`. Hk includes the Pkl runtime for
 its configuration.
+
+Top-level `steps` materializes `check`, `fix`, and `pre-commit`. Use explicit
+`hooks` only when a hook needs a different set (for example slow linters on
+`check`/`fix` but not `pre-commit`).
 
 ```pkl
 amends "package://github.com/jdx/hk/releases/download/vX.Y.Z/hk@X.Y.Z#/Config.pkl"
 import "package://github.com/jdx/hk/releases/download/vX.Y.Z/hk@X.Y.Z#/Builtins.pkl"
 
-local lintSteps = new Mapping<String, Step> {
-  ["dprint"] = (Builtins.dprint)
+steps {
+  ["dprint"] = Builtins.dprint
+  ["jactionlint"] = Builtins.jactionlint // or Builtins.actionlint
   // …language-specific steps — see extension references
-}
-
-hooks {
-  ["pre-commit"] { fix = true; stash = "git"; steps { ...lintSteps } }
-  ["check"]      { steps { ...lintSteps } }
-  ["fix"]        { fix = true; steps { ...lintSteps } }
 }
 ```
 
@@ -274,18 +276,26 @@ orchestrator. Reference docs:
 - [exec plugin](https://dprint.dev/plugins/exec/),
 - [plugin hub](https://dprint.dev/plugins/).
 
-Dprint owns formatting wherever possible, linters should be configured with
-formatting disabled if relevant. Put generated files in dprint `excludes`;
-gitignored files are excluded by default.
+Dprint owns formatting. Prefer dedicated dprint plugins. Use the exec plugin
+only when no dedicated plugin exists and the formatter supports stdin/stdout;
+pass `--assume-filename` or `--stdin-name` when rules depend on path. If a
+formatter cannot do stdin/stdout, run it as an hk step instead of dprint exec.
+
+Adopt a formatter's current defaults rather than pinning an older style.
+Generated files are not dprint-formatted: exclude them, or let generators write
+deterministic output that does not need a second pass. Gitignored files are
+excluded by default.
+
+Linters stay as hk steps (`Builtins.jactionlint` or `Builtins.actionlint`, ruff
+check, shellcheck, detekt, and so on) and must not run a second formatter on
+dprint-owned files — no `ruff format`, no hk `ryl_format`/`yamlfmt`. Format YAML
+with dprint's `g-plane/pretty_yaml` plugin (or oxc with other languages
+disabled).
 
 Dprint plugin entries should come from `dprint config add` so versions and
-checksums are current. Exec formatters read stdin and write stdout; pass
-`--assume-filename` or `--stdin-name` when rules depend on path. WASM plugins
-ignore external config like `.prettierrc` — put all necessary settings in
-`dprint.jsonc`, though it's usually best to stick close to defaults.
-
-If a formatter cannot do stdin/stdout, run it as an hk linter step instead of
-dprint exec.
+checksums are current. WASM plugins ignore external config like `.prettierrc` —
+put all necessary settings in `dprint.jsonc`, though it's usually best to stick
+close to defaults.
 
 ## Editor config
 

@@ -28,12 +28,11 @@ metadata (Renovate and editors read it); it is not what activates pnpm.
 
 Every repo gets a `pnpm-workspace.yaml` — pnpm v10+ reads its config from there
 even for single-package repos. Monorepos add `packages` and `catalog`;
-single-package repos omit them. Set `minimumReleaseAge` (minutes) for the npm
-release cooldown so it mirrors mise's `minimum_release_age`.
+single-package repos omit them. Pin pnpm >= 11 so the built-in 1-day
+`minimumReleaseAge` applies; don't set it explicitly.
 
 ```yaml
 # pnpm-workspace.yaml
-minimumReleaseAge: 4320 # 3-day release cooldown
 # packages: # monorepos only
 #   - "apps/*"
 #   - "packages/*"

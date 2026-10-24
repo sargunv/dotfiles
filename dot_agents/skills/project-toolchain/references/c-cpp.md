@@ -12,8 +12,8 @@
 
 Dprint plugins:
 
-- `sargunv/dprint-clang-format`
-- `sargunv/dprint-cmakefmt`
+- `clang-format` — `dprint config add clang-format`
+- `cmakefmt/cmakefmt` — `dprint config add cmakefmt/cmakefmt`
 
 The clang-format plugin formats `c`, `cc`, `cpp`, `cxx`, `h`, `hh`, `hpp`,
 `hxx`, `m`, and `mm`. The cmakefmt plugin formats `CMakeLists.txt`,
@@ -63,39 +63,22 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 ```
 
 ```pkl
-local fastSteps = new Mapping<String, Step> {
+steps {
   ["dprint"] = Builtins.dprint
   // …other fast steps
 }
 
-local slowSteps = new Mapping<String, Step> {
-  ["clang-tidy"] {
-    glob = List("**/*.cpp", "**/*.cc", "**/*.cxx", "**/*.c", "**/*.h", "**/*.hpp", "**/*.m", "**/*.mm")
-    workspace_indicator = "compile_commands.json"
-    check = "clang-tidy -p {{workspace}} {{files}}"
-    fix = "clang-tidy -p {{workspace}} --fix {{files}}"
-    exclusive = true
-  }
+local clangTidy = new Step {
+  glob = List("**/*.cpp", "**/*.cc", "**/*.cxx", "**/*.c", "**/*.h", "**/*.hpp", "**/*.m", "**/*.mm")
+  workspace_indicator = "compile_commands.json"
+  check = "clang-tidy -p {{workspace}} {{files}}"
+  fix = "clang-tidy -p {{workspace}} --fix {{files}}"
+  exclusive = true
 }
 
+// Explicit hooks inherit top-level steps and add clang-tidy for check/fix only.
 hooks {
-  ["pre-commit"] {
-    fix = true
-    stash = "git"
-    steps { ...fastSteps }
-  }
-  ["check"] {
-    steps {
-      ...fastSteps
-      ...slowSteps
-    }
-  }
-  ["fix"] {
-    fix = true
-    steps {
-      ...fastSteps
-      ...slowSteps
-    }
-  }
+  ["check"] { steps { ["clang-tidy"] = clangTidy } }
+  ["fix"] { fix = true; steps { ["clang-tidy"] = clangTidy } }
 }
 ```

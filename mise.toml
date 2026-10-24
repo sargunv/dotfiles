@@ -4,7 +4,6 @@
 [settings]
 experimental = true
 pin = true
-minimum_release_age = "3d"
 lockfile = true
 
 [tools]
