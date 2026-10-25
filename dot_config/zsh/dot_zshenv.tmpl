@@ -25,6 +25,10 @@ unset environment_file
 export PAGER="less -RF --mouse"
 export DELTA_PAGER="$PAGER"
 
+# adb's mDNS discovery aborts its server when the LAN carries a malformed
+# service record. Wireless debugging still works through `adb connect`.
+export ADB_MDNS=0
+
 {{ if eq .chezmoi.os "darwin" -}}
 export SSH_SK_PROVIDER="/usr/lib/ssh-keychain.dylib"
 

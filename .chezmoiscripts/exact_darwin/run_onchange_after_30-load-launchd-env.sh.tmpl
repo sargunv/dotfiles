@@ -1,0 +1,7 @@
+#!/bin/sh
+set -eu
+
+# com.chezmoi.launchd-env.plist hash: {{ include "Library/LaunchAgents/com.chezmoi.launchd-env.plist" | sha256sum }}
+domain="gui/$(id -u)"
+launchctl bootout "$domain/com.chezmoi.launchd-env" 2>/dev/null || true
+launchctl bootstrap "$domain" "$HOME/Library/LaunchAgents/com.chezmoi.launchd-env.plist"
