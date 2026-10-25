@@ -28,12 +28,11 @@ metadata (Renovate and editors read it); it is not what activates pnpm.
 
 Every repo gets a `pnpm-workspace.yaml` — pnpm v10+ reads its config from there
 even for single-package repos. Monorepos add `packages` and `catalog`;
-single-package repos omit them. Set `minimumReleaseAge` (minutes) for the npm
-release cooldown so it mirrors mise's `minimum_release_age`.
+single-package repos omit them. Pin pnpm >= 11 so the built-in 1-day
+`minimumReleaseAge` applies; don't set it explicitly.
 
 ```yaml
 # pnpm-workspace.yaml
-minimumReleaseAge: 4320 # 3-day release cooldown
 # packages: # monorepos only
 #   - "apps/*"
 #   - "packages/*"
@@ -57,8 +56,8 @@ minimumReleaseAge: 4320 # 3-day release cooldown
 Single-package repos pin versions directly in `devDependencies` (caret ranges by
 default; the committed lockfile is the source of truth).
 
-Use dprint's oxc plugin for formatting and vite-plus for lint checks
-(`pnpm exec vp check`).
+Use dprint's oxc plugin for JS/TS (and JSON, YAML, TOML, Markdown, CSS) and
+vite-plus for lint checks (`pnpm exec vp check`).
 
 Commit `pnpm-lock.yaml`.
 
@@ -69,6 +68,9 @@ Dprint plugin: `oxc`.
 ```jsonc
 "oxc": {
   "experimentalSortImports": { "newlinesBetween": true },
+  "lineWidth": 80,
+  "proseWrap": "always",
+  "sortPackageJson": false,
 }
 ```
 

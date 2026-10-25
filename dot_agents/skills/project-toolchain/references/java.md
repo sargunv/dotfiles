@@ -10,19 +10,16 @@ dependency versions explicitly instead.
 # mise.toml
 [tools]
 "core:java" = "zulu-…"
-"github:google/google-java-format" = "…"
 ```
 
 ## Formatter
 
+Dprint plugin: `sargunv/google-java-format`
+(`https://plugins.dprint.dev/sargunv/google-java-format-<ver>.json`).
+
 ```jsonc
-"exec": {
-  "commands": [
-    {
-      "command": "google-java-format - --assume-filename {{file_path}}",
-      "exts": ["java"],
-    },
-  ]
+"googleJavaFormat": {
+  "lineWidth": 100,
 }
 ```
 

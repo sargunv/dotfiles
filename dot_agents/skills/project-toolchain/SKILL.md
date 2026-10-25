@@ -17,8 +17,11 @@ uv, cargo, and so on) install the rest.
 
 Use lockfiles and frozen or locked installs everywhere the ecosystem supports
 them. Gradle is the exception: skip its dependency locking (see
-[kotlin.md](references/kotlin.md)). Avoid package managers that lack lockfiles
-or release-cooldown support.
+[kotlin.md](references/kotlin.md)). Avoid package managers that lack lockfiles.
+Rely on each tool's built-in release cooldown — mise 24h, pnpm >= 11 one day,
+Dependabot's default cooldown — and don't add settings that duplicate or tighten
+those defaults. Never disable or zero a cooldown. Configure one only when the
+tool has no built-in default (for example uv `exclude-newer`).
 
 For repos we own (new or existing), apply all relevant setup sections below. In
 someone else's repo, defer to upstream conventions but use mise to set up a
@@ -46,10 +49,10 @@ These are guidance, not hard rules. Please pick the right tool for the job, even
 if it's not in this list, rather than going out of your way to stick to my
 preferred tools. I'm always happy to learn a new language or tool.
 
-Prefer modern strict linters and opinionated AST-rewriting formatters (Prettier,
-oxfmt, ktfmt, ruff, gofumpt) over classic linter-style formatters. Ban `any`,
-avoid type casts, and use strict modes where the language allows. Prefer
-statically typed languages when the problem fits.
+Prefer modern strict linters and opinionated AST-rewriting formatters (oxc,
+ktfmt, ruff, gofumpt) over classic linter-style formatters. Ban `any`, avoid
+type casts, and use strict modes where the language allows. Prefer statically
+typed languages when the problem fits.
 
 For API contracts, when the stack spans languages and communicates over a
 serialized medium (like a network), use [TypeSpec](https://typespec.io/) to emit
@@ -120,10 +123,9 @@ writes the resolved version into `mise.toml`.
 touch mise.toml
 mise settings set --local experimental true
 mise settings set --local pin true
-mise settings set --local minimum_release_age 3d
 mise settings set --local lockfile true
 mise trust -y
-mise use --pin aqua:jdx/hk@latest aqua:dprint/dprint@latest
+mise use --pin github:jdx/hk@latest aqua:jdx/jactionlint@latest aqua:dprint/dprint@latest
 ```
 
 2. Add language tools from the references with the same command shape:
@@ -164,25 +166,30 @@ auto = true
 mise x -- hk init
 ```
 
-Replace the generated linter mapping with the baseline dprint step and the
-language-specific steps from the references. Keep the `hk.pkl` `amends` URL
-matched to the pinned hk version in `mise.toml`. Hk includes the Pkl runtime for
-its configuration.
+Replace the generated steps with the baseline dprint step,
+`Builtins.jactionlint`, and the language-specific steps from the references.
+Commit `.github/jactionlint.yaml` with `profile: correctness`. Keep the `hk.pkl`
+`amends` URL matched to the pinned hk version in `mise.toml`. Hk includes the
+Pkl runtime for its configuration.
+
+Top-level `steps` materializes `check`, `fix`, and `pre-commit`. Use explicit
+`hooks` only when a hook needs a different set (for example slow linters on
+`check`/`fix` but not `pre-commit`).
 
 ```pkl
 amends "package://github.com/jdx/hk/releases/download/vX.Y.Z/hk@X.Y.Z#/Config.pkl"
 import "package://github.com/jdx/hk/releases/download/vX.Y.Z/hk@X.Y.Z#/Builtins.pkl"
 
-local lintSteps = new Mapping<String, Step> {
-  ["dprint"] = (Builtins.dprint)
+steps {
+  ["dprint"] = Builtins.dprint
+  ["jactionlint"] = Builtins.jactionlint
   // …language-specific steps — see extension references
 }
+```
 
-hooks {
-  ["pre-commit"] { fix = true; stash = "git"; steps { ...lintSteps } }
-  ["check"]      { steps { ...lintSteps } }
-  ["fix"]        { fix = true; steps { ...lintSteps } }
-}
+```yaml
+# .github/jactionlint.yaml
+profile: correctness
 ```
 
 5. Create `dprint.jsonc`, add current plugin URLs/checksums, then patch settings
@@ -195,15 +202,19 @@ hooks {
   "indentWidth": 2,
   "useTabs": false,
   "newLineKind": "lf",
-  "json": { "preferSingleLine": true },
-  "markdown": { "textWrap": "always" },
+  "oxc": {
+    "experimentalSortImports": { "newlinesBetween": true },
+    "lineWidth": 80,
+    "proseWrap": "always",
+    "sortPackageJson": false,
+  },
   "exec": { "commands": [] },
   "plugins": []
 }
 ```
 
 ```sh
-mise x -- dprint config add json markdown toml g-plane/pretty_yaml exec
+mise x -- dprint config add oxc exec
 ```
 
 Add formatter plugins from the references with the same command shape:
@@ -224,12 +235,13 @@ mise x -- hk install --mise
 mise run check
 ```
 
-Use explicit backends (`core:node`, `core:rust`, `aqua:jdx/hk`) rather than bare
-(`node`, `rust`, `hk`). Backend priority is core, then aqua, then github; then
-conda, npm, or pipx. Avoid asdf and vfox unless they're the only choice for the
-tool. Mise bootstraps the toolchain; ecosystem package managers are mise tools
-too (mise → pnpm, mise → uv), and project dependencies live behind their
-lockfiles.
+Use explicit backends (`core:node`, `core:rust`, `github:jdx/hk`) rather than
+bare (`node`, `rust`, `hk`). Backend priority is core, then aqua, then github;
+then conda, npm, or pipx. Pin `github:jdx/hk`: aqua's hk recipe hardcodes
+`unknown-linux-gnu` and has no musl variant. Avoid asdf and vfox unless they're
+the only choice for the tool. Mise bootstraps the toolchain; ecosystem package
+managers are mise tools too (mise → pnpm, mise → uv), and project dependencies
+live behind their lockfiles.
 
 For monorepos with multiple package roots that each have their own `mise.toml`,
 set `experimental_monorepo_root = true` and list roots under
@@ -274,18 +286,27 @@ orchestrator. Reference docs:
 - [exec plugin](https://dprint.dev/plugins/exec/),
 - [plugin hub](https://dprint.dev/plugins/).
 
-Dprint owns formatting wherever possible, linters should be configured with
-formatting disabled if relevant. Put generated files in dprint `excludes`;
-gitignored files are excluded by default.
+Dprint owns formatting. Prefer dedicated dprint plugins. Use the exec plugin
+only when no dedicated plugin exists and the formatter supports stdin/stdout;
+pass a stdin path flag when rules depend on path. If a formatter cannot do
+stdin/stdout, run it as an hk step instead of dprint exec.
+
+Oxc formats JavaScript, TypeScript, JSON/JSONC/JSON5, CSS/SCSS/Less, GraphQL,
+YAML, TOML, and Markdown. Do not add the json, markdown, toml, or
+`g-plane/pretty_yaml` plugins. Add a separate plugin only for a language oxc
+does not format (ruff, gofumpt, ktfmt, clang-format, and so on).
+
+Adopt a formatter's current defaults rather than pinning an older style. Exclude
+generated files from dprint. Gitignored files are excluded by default.
+
+Linters stay as hk steps (`Builtins.jactionlint`, ruff check, shellcheck,
+detekt, and so on) and must not run a second formatter on dprint-owned files —
+no `ruff format`, no hk `ryl_format`/`yamlfmt`.
 
 Dprint plugin entries should come from `dprint config add` so versions and
-checksums are current. Exec formatters read stdin and write stdout; pass
-`--assume-filename` or `--stdin-name` when rules depend on path. WASM plugins
-ignore external config like `.prettierrc` — put all necessary settings in
-`dprint.jsonc`, though it's usually best to stick close to defaults.
-
-If a formatter cannot do stdin/stdout, run it as an hk linter step instead of
-dprint exec.
+checksums are current. WASM plugins ignore external config like `.prettierrc` —
+put all necessary settings in `dprint.jsonc`, though it's usually best to stick
+close to defaults.
 
 ## Editor config
 

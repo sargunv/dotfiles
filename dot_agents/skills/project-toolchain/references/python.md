@@ -17,6 +17,9 @@ auto = true
 
 ```toml
 # pyproject.toml
+[tool.uv]
+exclude-newer = "3 days" # uv has no built-in cooldown
+
 [dependency-groups]
 dev = [
   "ruff==…",
@@ -32,7 +35,8 @@ Dprint plugin: `ruff`.
 
 ## Linter
 
-Formatting belongs to dprint; use hk for ruff lint checks and ty type checks.
+Formatting belongs to dprint; use hk for ruff lint checks and ty type checks. Do
+not add `ruff format` — dprint's ruff plugin owns that.
 
 ```pkl
 ["ruff"] {

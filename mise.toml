@@ -4,11 +4,13 @@
 [settings]
 experimental = true
 pin = true
-minimum_release_age = "3d"
 lockfile = true
 
 [tools]
-"aqua:jdx/hk" = "1.46.0"
+# Aqua's hk recipe hardcodes unknown-linux-gnu (no musl variant). GitHub
+# release matching picks the musl tarball on linux-*-musl. matching_regex
+# excludes the Pkl package zip (hk@<ver>.zip), which is not a binary.
+"github:jdx/hk" = { version = "1.46.0", matching_regex = "unknown-linux|apple-darwin|pc-windows" }
 "aqua:apple/pkl" = "0.31.1"
 "aqua:dprint/dprint" = "0.54.0"
 "core:python" = "3.14.7"
