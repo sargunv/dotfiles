@@ -19,7 +19,7 @@ mise tool or task.
 
 ```jsonc
 "ktfmt": {
-  "style": "google", // or "kotlinlang" | "meta"
+  "style": "google",
   "lineWidth": 100,
 }
 ```

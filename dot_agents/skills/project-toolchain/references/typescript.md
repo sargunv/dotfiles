@@ -56,8 +56,8 @@ single-package repos omit them. Pin pnpm >= 11 so the built-in 1-day
 Single-package repos pin versions directly in `devDependencies` (caret ranges by
 default; the committed lockfile is the source of truth).
 
-Use dprint's oxc plugin for formatting and vite-plus for lint checks
-(`pnpm exec vp check`).
+Use dprint's oxc plugin for JS/TS (and JSON, YAML, TOML, Markdown, CSS) and
+vite-plus for lint checks (`pnpm exec vp check`).
 
 Commit `pnpm-lock.yaml`.
 
@@ -68,6 +68,9 @@ Dprint plugin: `oxc`.
 ```jsonc
 "oxc": {
   "experimentalSortImports": { "newlinesBetween": true },
+  "lineWidth": 80,
+  "proseWrap": "always",
+  "sortPackageJson": false,
 }
 ```
 

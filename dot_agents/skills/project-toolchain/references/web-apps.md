@@ -25,7 +25,8 @@ Types from the tRPC router — no OpenAPI codegen. See
 ## React UI
 
 Vite + vite-plus, Tailwind v4, daisyUI v5, TanStack Router, TanStack Query,
-valibot, Radix UI, Ark UI.
+valibot, Radix UI. Format HTML/Vue/Svelte/Astro with dprint's
+`g-plane/markup_fmt` plugin.
 
 ```css
 @import "tailwindcss";
