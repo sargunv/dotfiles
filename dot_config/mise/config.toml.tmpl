@@ -1,6 +1,8 @@
 [settings]
 experimental = true
 install_layout = "identity"
+# The global lockfile is per machine, so lock only the current platform.
+lockfile_platforms = ["{{ replace "darwin" "macos" .chezmoi.os }}-{{ replace "amd64" "x64" .chezmoi.arch }}"]
 trusted_config_paths = [
   "~/.local/share/chezmoi",
   "~/.local/share/workflow-cli",
