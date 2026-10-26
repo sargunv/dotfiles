@@ -21,3 +21,10 @@ url = "https://raw.githubusercontent.com/anthropics/claude-code/refs/heads/main/
 type = "git-repo"
 url = "https://github.com/sargunv/workflow-cli.git"
 refreshPeriod = "24h"
+
+[".agents/skills"]
+type = "archive"
+url = "https://github.com/t3dotgg/tstack/archive/refs/heads/main.tar.gz"
+stripComponents = 2
+include = ["*/skills/**"]
+refreshPeriod = "24h"

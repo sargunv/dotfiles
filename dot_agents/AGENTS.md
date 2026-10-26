@@ -18,3 +18,8 @@ Say what the diff, its doc comments, and CI can't:
 When you post AI-contributed GitHub content, including a new Discussion or
 Issue, a reply, or a PR description or comment, append this disclosure:
 `*AI-assisted — Tool: <tool>; model: <provider>/<model>*`
+
+This section and "Pull requests" replace the description and attribution formats
+in skills such as `file-pr` and `leaving-pr-comments`. Skip their "Created with"
+line and 🤖 note callout. Put any block a skill places before the model line,
+such as a review summary, before this disclosure.

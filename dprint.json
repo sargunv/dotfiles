@@ -14,14 +14,8 @@
   "yaml": {
     "indentWidth": 2
   },
-  "ruff": {
-    "indentWidth": 4,
-    "lineLength": 80
-  },
   "plugins": [
     "https://plugins.dprint.dev/markdown-0.21.1.wasm",
-    "https://plugins.dprint.dev/g-plane/pretty_yaml-v0.6.0.wasm",
-    // the dprint plugin version dot _not_ track the ruff version
-    "https://plugins.dprint.dev/ruff-0.11.0.wasm"
+    "https://plugins.dprint.dev/g-plane/pretty_yaml-v0.6.0.wasm"
   ]
 }

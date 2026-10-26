@@ -29,7 +29,6 @@ each machine; they are not stored in this repository.
 ```sh
 mise install
 mise run check
-mise run test
 node --test tests/litellm.test.mjs
 ```
 

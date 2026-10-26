@@ -1,0 +1,8 @@
+# Leftovers from the old babysit-pr skill, now replaced by tstack's.
+.agents/skills/babysit-pr/references
+.agents/skills/babysit-pr/scripts/__pycache__
+.agents/skills/babysit-pr/scripts/fixtures
+.agents/skills/babysit-pr/scripts/LICENSE
+.agents/skills/babysit-pr/scripts/NOTICE
+.agents/skills/babysit-pr/scripts/gh_pr_watch.py
+.agents/skills/babysit-pr/scripts/test_gh_pr_watch.py
