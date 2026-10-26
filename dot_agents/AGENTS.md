@@ -2,6 +2,16 @@
 
 These are defaults. A project's own guidance overrides them.
 
+## Tests
+
+In a repository I own or maintain, fix a flaky test if it is worth keeping and
+delete it otherwise. Never rerun past one.
+
+## Shared machine
+
+Several agent sessions often run at once on one machine and share `/tmp`. Create
+temporary files with `mktemp`, never with fixed names.
+
 ## Pull requests
 
 Write a short PR title and description for a reviewer who will read the diff.
