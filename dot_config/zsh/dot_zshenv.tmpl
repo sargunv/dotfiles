@@ -21,6 +21,11 @@ for environment_file in "${XDG_CONFIG_HOME:-$HOME/.config}"/environment.d/*.conf
 done
 unset environment_file
 
+# Proton's Wine runs Windows test suites that are cross-compiled on Linux.
+if [ -x "$HOME/.local/share/Steam/steamapps/common/Proton - Experimental/files/bin/wine" ]; then
+  export WINE="$HOME/.local/share/Steam/steamapps/common/Proton - Experimental/files/bin/wine"
+fi
+
 {{ end -}}
 export PAGER="less -RF --mouse"
 export DELTA_PAGER="$PAGER"
