@@ -33,3 +33,9 @@ This section and "Pull requests" replace the description and attribution formats
 in skills such as `file-pr` and `leaving-pr-comments`. Skip their "Created with"
 line and 🤖 note callout. Put any block a skill places before the model line,
 such as a review summary, before this disclosure.
+
+## Takeover
+
+When taking over a PR you can push to, push your commits to its branch instead
+of filing a replacement, unless the takeover changes the PR's direction. This
+overrides the `takeover` skill's replacement-PR default.
