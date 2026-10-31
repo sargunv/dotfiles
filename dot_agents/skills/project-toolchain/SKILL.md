@@ -210,7 +210,7 @@ profile: correctness
     "sortPackageJson": false,
   },
   "exec": { "commands": [] },
-  "plugins": []
+  "plugins": [],
 }
 ```
 

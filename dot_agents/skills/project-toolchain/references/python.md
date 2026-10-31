@@ -21,10 +21,7 @@ auto = true
 exclude-newer = "3 days" # uv has no built-in cooldown
 
 [dependency-groups]
-dev = [
-  "ruff==…",
-  "ty==…",
-]
+dev = ["ruff==…", "ty==…"]
 ```
 
 Commit `uv.lock`.
