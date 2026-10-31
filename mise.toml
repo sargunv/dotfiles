@@ -5,6 +5,11 @@
 experimental = true
 pin = true
 lockfile = true
+# mise 2026.10.19 rebuilds every platform by default and fails when a tool
+# has no asset for one of them (github:jdx/hk has no macos-x64 build).
+# Merge keeps existing entries and records only the current platform.
+# https://github.com/jdx/mise/releases/tag/v2026.10.19
+lockfile_mode = "merge"
 
 [tools]
 # Aqua's hk recipe hardcodes unknown-linux-gnu (no musl variant). GitHub
@@ -12,7 +17,7 @@ lockfile = true
 # excludes the Pkl package zip (hk@<ver>.zip), which is not a binary.
 "github:jdx/hk" = { version = "1.46.0", matching_regex = "unknown-linux|apple-darwin|pc-windows" }
 "aqua:apple/pkl" = "0.31.1"
-"aqua:dprint/dprint" = "0.54.0"
+"aqua:dprint/dprint" = "0.64.3"
 
 [hooks]
 postinstall = ["hk install --mise --quiet"]
