@@ -2,7 +2,8 @@
 self_managed_tools:
   - name: chezmoi
     command: chezmoi
-    install: 'sh -c "$(curl -fsLS https://get.chezmoi.io)" -- -b "$HOME/.local/bin"'
+    install:
+      'sh -c "$(curl -fsLS https://get.chezmoi.io)" -- -b "$HOME/.local/bin"'
   - name: mise
     command: mise
     install: "curl https://mise.run | sh"

@@ -7,10 +7,15 @@ export const providers = ["openai", "opencode-go", "xai"];
 // Protocols LiteLLM serves these providers' chat models over. It has no
 // Google route, and can't serve OpenAI's Decisions or image APIs from the
 // ChatGPT subscription.
-export const gatewayApis = ["openai-completions", "openai-responses", "anthropic-messages"];
+export const gatewayApis = [
+  "openai-completions",
+  "openai-responses",
+  "anthropic-messages",
+];
 
 const escapeRegExp = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-const routePattern = (route) => new RegExp(`^${route.split("*").map(escapeRegExp).join(".*")}$`);
+const routePattern = (route) =>
+  new RegExp(`^${route.split("*").map(escapeRegExp).join(".*")}$`);
 
 /** Reads the gateway key; undefined when the key file does not exist. */
 export function readKey(keyFile) {
@@ -31,26 +36,40 @@ export function readKey(keyFile) {
  * other route is a dedicated subscription, which wins over the Go copy.
  */
 export function routeFilter(routes, goPrefix) {
-  const go = routes.filter((id) => id.startsWith(goPrefix)).map((id) => routePattern(id.slice(goPrefix.length)));
-  const dedicated = routes.filter((id) => !id.startsWith(goPrefix)).map(routePattern);
+  const go = routes
+    .filter((id) => id.startsWith(goPrefix))
+    .map((id) => routePattern(id.slice(goPrefix.length)));
+  const dedicated = routes
+    .filter((id) => !id.startsWith(goPrefix))
+    .map(routePattern);
   const isDedicated = (id) => dedicated.some((route) => route.test(id));
   return (provider, id) =>
-    provider === "opencode-go" ? go.some((route) => route.test(id)) && !isDedicated(id) : isDedicated(id);
+    provider === "opencode-go"
+      ? go.some((route) => route.test(id)) && !isDedicated(id)
+      : isDedicated(id);
 }
 
 export async function loadRouteFilter({ origin, keyFile, goPrefix }) {
   try {
     const key = readKey(keyFile);
     if (!key) throw new Error(`missing ${keyFile}`);
-    const response = await fetch(`${origin}/v1/models?return_wildcard_routes=true`, {
-      headers: { Authorization: `Bearer ${key}` },
-      signal: AbortSignal.timeout(5000),
-    });
+    const response = await fetch(
+      `${origin}/v1/models?return_wildcard_routes=true`,
+      {
+        headers: { Authorization: `Bearer ${key}` },
+        signal: AbortSignal.timeout(5000),
+      },
+    );
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const { data } = await response.json();
-    return routeFilter(data.map((model) => model.id), goPrefix);
+    return routeFilter(
+      data.map((model) => model.id),
+      goPrefix,
+    );
   } catch (error) {
-    console.warn(`LiteLLM: showing all models; couldn't list routes: ${error.message}`);
+    console.warn(
+      `LiteLLM: showing all models; couldn't list routes: ${error.message}`,
+    );
     return () => true;
   }
 }
@@ -60,27 +79,39 @@ export async function loadRouteFilter({ origin, keyFile, goPrefix }) {
  * protocol, limits, and compatibility settings; only the endpoint, the key, and
  * the Go model id sent upstream change, so sessions keep Pi's model identity.
  */
-export function piGatewayProvider(base, { origin, keyFile, goPrefix }, visible) {
+export function piGatewayProvider(
+  base,
+  { origin, keyFile, goPrefix },
+  visible,
+) {
   // Chat models only; see gatewayApis.
-  const models = base.getModels()
-    .filter((model) => gatewayApis.includes(model.api) && visible(base.id, model.id))
+  const models = base
+    .getModels()
+    .filter(
+      (model) => gatewayApis.includes(model.api) && visible(base.id, model.id),
+    )
     // Pi's Anthropic client appends /v1/messages itself.
-    .map((model) => ({ ...model, baseUrl: model.api === "anthropic-messages" ? origin : `${origin}/v1` }));
+    .map((model) => ({
+      ...model,
+      baseUrl: model.api === "anthropic-messages" ? origin : `${origin}/v1`,
+    }));
   const upstream = (model, options) =>
     base.id === "opencode-go"
       ? {
-        ...options,
-        // Runs after Pi's own payload hooks, which see the model's Pi id.
-        onPayload: async (payload, payloadModel) => {
-          const { thinking, ...next } = (await options?.onPayload?.(payload, payloadModel)) ?? payload;
-          next.model = goPrefix + model.id;
-          if (thinking === undefined) return next;
-          // LiteLLM's OpenAI route rejects vendor fields like DeepSeek's
-          // `thinking` unless they arrive through its extra_body passthrough.
-          if (model.api !== "openai-completions") return { ...next, thinking };
-          return { ...next, extra_body: { ...next.extra_body, thinking } };
-        },
-      }
+          ...options,
+          // Runs after Pi's own payload hooks, which see the model's Pi id.
+          onPayload: async (payload, payloadModel) => {
+            const { thinking, ...next } =
+              (await options?.onPayload?.(payload, payloadModel)) ?? payload;
+            next.model = goPrefix + model.id;
+            if (thinking === undefined) return next;
+            // LiteLLM's OpenAI route rejects vendor fields like DeepSeek's
+            // `thinking` unless they arrive through its extra_body passthrough.
+            if (model.api !== "openai-completions")
+              return { ...next, thinking };
+            return { ...next, extra_body: { ...next.extra_body, thinking } };
+          },
+        }
       : options;
   return {
     id: base.id,
@@ -97,18 +128,23 @@ export function piGatewayProvider(base, { origin, keyFile, goPrefix }, visible) 
       },
     },
     getModels: () => models,
-    stream: (model, context, options) => base.stream(model, context, upstream(model, options)),
-    streamSimple: (model, context, options) => base.streamSimple(model, context, upstream(model, options)),
+    stream: (model, context, options) =>
+      base.stream(model, context, upstream(model, options)),
+    streamSimple: (model, context, options) =>
+      base.streamSimple(model, context, upstream(model, options)),
   };
 }
 
 /** Undoes the Go prefix in the model name LiteLLM echoes back. */
 export function piUnprefixResponseModel(message, goPrefix) {
-  if (message.role !== "assistant" || message.provider !== "opencode-go") return undefined;
+  if (message.role !== "assistant" || message.provider !== "opencode-go")
+    return undefined;
   if (!message.responseModel?.startsWith(goPrefix)) return undefined;
   const { responseModel, ...rest } = message;
   const unprefixed = responseModel.slice(goPrefix.length);
-  return unprefixed === message.model ? rest : { ...rest, responseModel: unprefixed };
+  return unprefixed === message.model
+    ? rest
+    : { ...rest, responseModel: unprefixed };
 }
 
 /**
@@ -118,24 +154,33 @@ export function piUnprefixResponseModel(message, goPrefix) {
  * after the last slash, so its compatibility rules still apply.
  */
 export function ompGatewayModels(provider, models, goPrefix, visible) {
-  return models
-    // Chat models only, see gatewayApis. Variants that request a different
-    // upstream id (OpenAI "-pro" tiers, collapsed effort families) can't be
-    // registered that way.
-    .filter((model) => (model.kind ?? "chat") === "chat" && gatewayApis.includes(model.api))
-    .filter((model) => model.requestModelId === undefined && model.thinking?.effortRouting === undefined)
-    .filter((model) => visible(provider, model.id))
-    .map((model) => ({
-      id: provider === "opencode-go" ? goPrefix + model.id : model.id,
-      name: model.name,
-      api: model.api,
-      reasoning: model.reasoning,
-      thinking: model.thinking,
-      input: model.input,
-      cost: model.cost,
-      contextWindow: model.contextWindow,
-      maxTokens: model.maxTokens,
-      supportsTools: model.supportsTools,
-      compat: model.compatConfig,
-    }));
+  return (
+    models
+      // Chat models only, see gatewayApis. Variants that request a different
+      // upstream id (OpenAI "-pro" tiers, collapsed effort families) can't be
+      // registered that way.
+      .filter(
+        (model) =>
+          (model.kind ?? "chat") === "chat" && gatewayApis.includes(model.api),
+      )
+      .filter(
+        (model) =>
+          model.requestModelId === undefined &&
+          model.thinking?.effortRouting === undefined,
+      )
+      .filter((model) => visible(provider, model.id))
+      .map((model) => ({
+        id: provider === "opencode-go" ? goPrefix + model.id : model.id,
+        name: model.name,
+        api: model.api,
+        reasoning: model.reasoning,
+        thinking: model.thinking,
+        input: model.input,
+        cost: model.cost,
+        contextWindow: model.contextWindow,
+        maxTokens: model.maxTokens,
+        supportsTools: model.supportsTools,
+        compat: model.compatConfig,
+      }))
+  );
 }
