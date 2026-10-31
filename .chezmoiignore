@@ -9,7 +9,7 @@ tests/**
 mise.toml
 mise.lock
 hk.pkl
-dprint.json
+dprint.jsonc
 .vscode/
 .vscode/**
 .zed/

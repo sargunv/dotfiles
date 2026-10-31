@@ -1,0 +1,21 @@
+{
+  "$schema": "https://dprint.dev/schemas/v0.json",
+  "lineWidth": 80,
+  "indentWidth": 2,
+  "useTabs": false,
+  "newLineKind": "lf",
+  "excludes": [
+    ".git/**",
+    // chezmoi modify-templates are Go templates, not the language of their suffix
+    "**/modify_*",
+    "mise.lock",
+    "**/.mise/locks",
+  ],
+  "oxc": {
+    "experimentalSortImports": { "newlinesBetween": true },
+    "lineWidth": 80,
+    "proseWrap": "always",
+    "sortPackageJson": false,
+  },
+  "plugins": ["npm:@dprint/oxc@0.48.0"],
+}

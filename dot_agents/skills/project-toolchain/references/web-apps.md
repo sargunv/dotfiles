@@ -31,7 +31,9 @@ valibot, Radix UI. Format HTML/Vue/Svelte/Astro with dprint's
 ```css
 @import "tailwindcss";
 @plugin "daisyui" {
-  themes: light --default, dark --prefersdark;
+  themes:
+    light --default,
+    dark --prefersdark;
   root: ":root";
 }
 ```

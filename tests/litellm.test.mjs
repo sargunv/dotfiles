@@ -3,6 +3,7 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
+
 import {
   loadRouteFilter,
   ompGatewayModels,
@@ -12,7 +13,15 @@ import {
 } from "../dot_local/lib/coding-agents/litellm.mjs";
 
 const goPrefix = "opencode-go/";
-const routes = ["gpt-6-sol", "grok-4.5", "claude-*", "chatgpt/gpt-6-sol", "opencode-go/kimi-k3", "opencode-go/claude-haiku", "opencode-go/literal.v*"];
+const routes = [
+  "gpt-6-sol",
+  "grok-4.5",
+  "claude-*",
+  "chatgpt/gpt-6-sol",
+  "opencode-go/kimi-k3",
+  "opencode-go/claude-haiku",
+  "opencode-go/literal.v*",
+];
 
 async function withKeyFile(contents, run) {
   const directory = await mkdtemp(join(tmpdir(), "litellm-test-"));
@@ -47,7 +56,11 @@ test("route listing failures offer every model", async () => {
   console.warn = () => {};
   try {
     await withKeyFile(undefined, async (keyFile) => {
-      const visible = await loadRouteFilter({ origin: "https://gateway.invalid", keyFile, goPrefix });
+      const visible = await loadRouteFilter({
+        origin: "https://gateway.invalid",
+        keyFile,
+        goPrefix,
+      });
       assert.equal(visible("openai", "anything"), true);
     });
   } finally {
@@ -71,37 +84,74 @@ test("Pi providers keep model metadata and change only endpoint and auth", async
   await withKeyFile("gateway-key\n", async (keyFile) => {
     const gateway = { origin: "https://gateway.example", keyFile, goPrefix };
     const base = baseProvider("opencode-go", [
-      { id: "kimi-k3", api: "openai-completions", baseUrl: "https://opencode.ai/zen/go/v1", thinkingLevelMap: { max: "max" } },
-      { id: "qwen", api: "anthropic-messages", baseUrl: "https://opencode.ai/zen/go", compat: { supportsTemperature: false } },
-      { id: "grok", api: "openai-responses", baseUrl: "https://opencode.ai/zen/go/v1" },
-      { id: "unrouted", api: "openai-completions", baseUrl: "https://opencode.ai/zen/go/v1" },
-      { id: "gemini", api: "google-generative-ai", baseUrl: "https://opencode.ai/zen/go/v1" },
+      {
+        id: "kimi-k3",
+        api: "openai-completions",
+        baseUrl: "https://opencode.ai/zen/go/v1",
+        thinkingLevelMap: { max: "max" },
+      },
+      {
+        id: "qwen",
+        api: "anthropic-messages",
+        baseUrl: "https://opencode.ai/zen/go",
+        compat: { supportsTemperature: false },
+      },
+      {
+        id: "grok",
+        api: "openai-responses",
+        baseUrl: "https://opencode.ai/zen/go/v1",
+      },
+      {
+        id: "unrouted",
+        api: "openai-completions",
+        baseUrl: "https://opencode.ai/zen/go/v1",
+      },
+      {
+        id: "gemini",
+        api: "google-generative-ai",
+        baseUrl: "https://opencode.ai/zen/go/v1",
+      },
     ]);
-    const provider = piGatewayProvider(base, gateway, (_, id) => id !== "unrouted");
+    const provider = piGatewayProvider(
+      base,
+      gateway,
+      (_, id) => id !== "unrouted",
+    );
     assert.equal(provider.id, "opencode-go");
-    assert.deepEqual(provider.getModels().map((model) => [model.id, model.baseUrl]), [
-      ["kimi-k3", "https://gateway.example/v1"],
-      ["qwen", "https://gateway.example"],
-      ["grok", "https://gateway.example/v1"],
-    ]);
+    assert.deepEqual(
+      provider.getModels().map((model) => [model.id, model.baseUrl]),
+      [
+        ["kimi-k3", "https://gateway.example/v1"],
+        ["qwen", "https://gateway.example"],
+        ["grok", "https://gateway.example/v1"],
+      ],
+    );
     const [kimi, qwen] = provider.getModels();
     assert.deepEqual(kimi.thinkingLevelMap, { max: "max" });
     assert.deepEqual(qwen.compat, { supportsTemperature: false });
 
     const stored = { type: "api_key", key: "saved-login" };
-    assert.deepEqual(await provider.auth.apiKey.resolve({ credential: stored }), {
-      auth: { apiKey: "gateway-key" },
-      source: keyFile,
-    });
+    assert.deepEqual(
+      await provider.auth.apiKey.resolve({ credential: stored }),
+      {
+        auth: { apiKey: "gateway-key" },
+        source: keyFile,
+      },
+    );
     await writeFile(keyFile, "rotated-key\n");
-    assert.equal((await provider.auth.apiKey.resolve({})).auth.apiKey, "rotated-key");
+    assert.equal(
+      (await provider.auth.apiKey.resolve({})).auth.apiKey,
+      "rotated-key",
+    );
   });
 });
 
 test("Pi Go requests send the gateway model id after Pi's own payload hooks", async () => {
   await withKeyFile("key", async (keyFile) => {
     const gateway = { origin: "https://gateway.example", keyFile, goPrefix };
-    const go = baseProvider("opencode-go", [{ id: "kimi-k3", api: "openai-completions" }]);
+    const go = baseProvider("opencode-go", [
+      { id: "kimi-k3", api: "openai-completions" },
+    ]);
     const provider = piGatewayProvider(go, gateway, () => true);
     const model = provider.getModels()[0];
     const seen = [];
@@ -124,31 +174,62 @@ test("Pi Go requests send the gateway model id after Pi's own payload hooks", as
     assert.deepEqual(seen, [["kimi-k3", "kimi-k3"]]);
 
     provider.stream(model, "context");
-    assert.deepEqual(await go.calls[1][3].onPayload({ model: "kimi-k3" }, model), { model: "opencode-go/kimi-k3" });
+    assert.deepEqual(
+      await go.calls[1][3].onPayload({ model: "kimi-k3" }, model),
+      { model: "opencode-go/kimi-k3" },
+    );
 
-    const openai = baseProvider("openai", [{ id: "gpt-6-sol", api: "openai-responses" }]);
+    const openai = baseProvider("openai", [
+      { id: "gpt-6-sol", api: "openai-responses" },
+    ]);
     const openaiOptions = { sessionId: "session-1" };
-    piGatewayProvider(openai, gateway, () => true).streamSimple(openai.getModels()[0], "context", openaiOptions);
+    piGatewayProvider(openai, gateway, () => true).streamSimple(
+      openai.getModels()[0],
+      "context",
+      openaiOptions,
+    );
     assert.equal(openai.calls[0][3], openaiOptions);
   });
 });
 
 test("Pi providers are unconfigured without a key file", async () => {
   await withKeyFile(undefined, async (keyFile) => {
-    const provider = piGatewayProvider(baseProvider("openai", []), { origin: "https://gateway.example", keyFile, goPrefix }, () => true);
+    const provider = piGatewayProvider(
+      baseProvider("openai", []),
+      { origin: "https://gateway.example", keyFile, goPrefix },
+      () => true,
+    );
     assert.equal(await provider.auth.apiKey.resolve({}), undefined);
   });
 });
 
 test("Go response model names lose the gateway prefix", () => {
-  const message = { role: "assistant", provider: "opencode-go", model: "qwen", responseModel: "opencode-go/qwen" };
-  assert.deepEqual(piUnprefixResponseModel(message, goPrefix), { role: "assistant", provider: "opencode-go", model: "qwen" });
+  const message = {
+    role: "assistant",
+    provider: "opencode-go",
+    model: "qwen",
+    responseModel: "opencode-go/qwen",
+  };
+  assert.deepEqual(piUnprefixResponseModel(message, goPrefix), {
+    role: "assistant",
+    provider: "opencode-go",
+    model: "qwen",
+  });
   assert.equal(
-    piUnprefixResponseModel({ ...message, responseModel: "opencode-go/qwen-fallback" }, goPrefix).responseModel,
+    piUnprefixResponseModel(
+      { ...message, responseModel: "opencode-go/qwen-fallback" },
+      goPrefix,
+    ).responseModel,
     "qwen-fallback",
   );
-  assert.equal(piUnprefixResponseModel({ ...message, responseModel: undefined }, goPrefix), undefined);
-  assert.equal(piUnprefixResponseModel({ ...message, provider: "openai" }, goPrefix), undefined);
+  assert.equal(
+    piUnprefixResponseModel({ ...message, responseModel: undefined }, goPrefix),
+    undefined,
+  );
+  assert.equal(
+    piUnprefixResponseModel({ ...message, provider: "openai" }, goPrefix),
+    undefined,
+  );
 });
 
 test("Pi Go chat requests pass vendor thinking controls through LiteLLM's extra_body", async () => {
@@ -163,14 +244,23 @@ test("Pi Go chat requests pass vendor thinking controls through LiteLLM's extra_
     provider.streamSimple(deepseek, "context");
     provider.streamSimple(qwen, "context");
     const thinking = { type: "enabled" };
-    assert.deepEqual(await go.calls[0][3].onPayload({ model: "deepseek", thinking, extra_body: { a: 1 } }, deepseek), {
-      model: "opencode-go/deepseek",
-      extra_body: { a: 1, thinking },
-    });
-    assert.deepEqual(await go.calls[1][3].onPayload({ model: "qwen", thinking }, qwen), {
-      model: "opencode-go/qwen",
-      thinking,
-    });
+    assert.deepEqual(
+      await go.calls[0][3].onPayload(
+        { model: "deepseek", thinking, extra_body: { a: 1 } },
+        deepseek,
+      ),
+      {
+        model: "opencode-go/deepseek",
+        extra_body: { a: 1, thinking },
+      },
+    );
+    assert.deepEqual(
+      await go.calls[1][3].onPayload({ model: "qwen", thinking }, qwen),
+      {
+        model: "opencode-go/qwen",
+        thinking,
+      },
+    );
   });
 });
 
@@ -193,26 +283,47 @@ test("OMP models keep bundled metadata, and Go models take their gateway ids", (
   const go = [
     kimi,
     { ...kimi, id: "unrouted" },
-    { ...kimi, id: "collapsed", thinking: { effortRouting: { off: "collapsed", high: "collapsed-thinking" } } },
+    {
+      ...kimi,
+      id: "collapsed",
+      thinking: {
+        effortRouting: { off: "collapsed", high: "collapsed-thinking" },
+      },
+    },
     { ...kimi, id: "image-model", kind: "image" },
     { ...kimi, id: "gemini", api: "google-generative-ai" },
   ];
-  assert.deepEqual(ompGatewayModels("opencode-go", go, goPrefix, (_, id) => id !== "unrouted"), [{
-    id: "opencode-go/kimi-k3",
-    name: "Kimi K3",
-    api: "openai-completions",
-    reasoning: true,
-    thinking: { efforts: ["high", "max"] },
-    input: ["text", "image"],
-    cost: { input: 1, output: 2, cacheRead: 0, cacheWrite: 0 },
-    contextWindow: 1000000,
-    maxTokens: 131072,
-    supportsTools: true,
-    compat: { supportsToolChoice: false },
-  }]);
+  assert.deepEqual(
+    ompGatewayModels("opencode-go", go, goPrefix, (_, id) => id !== "unrouted"),
+    [
+      {
+        id: "opencode-go/kimi-k3",
+        name: "Kimi K3",
+        api: "openai-completions",
+        reasoning: true,
+        thinking: { efforts: ["high", "max"] },
+        input: ["text", "image"],
+        cost: { input: 1, output: 2, cacheRead: 0, cacheWrite: 0 },
+        contextWindow: 1000000,
+        maxTokens: 131072,
+        supportsTools: true,
+        compat: { supportsToolChoice: false },
+      },
+    ],
+  );
   const openai = [
     { ...kimi, id: "gpt-6-sol", api: "openai-responses" },
-    { ...kimi, id: "gpt-6-sol-pro", api: "openai-responses", requestModelId: "gpt-6-sol" },
+    {
+      ...kimi,
+      id: "gpt-6-sol-pro",
+      api: "openai-responses",
+      requestModelId: "gpt-6-sol",
+    },
   ];
-  assert.deepEqual(ompGatewayModels("openai", openai, goPrefix, () => true).map((model) => model.id), ["gpt-6-sol"]);
+  assert.deepEqual(
+    ompGatewayModels("openai", openai, goPrefix, () => true).map(
+      (model) => model.id,
+    ),
+    ["gpt-6-sol"],
+  );
 });
