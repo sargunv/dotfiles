@@ -171,11 +171,13 @@ Replace the generated steps with the baseline dprint step,
 `Builtins.jactionlint`, and the language-specific steps from the references.
 Commit `.github/jactionlint.yaml` with `profile: correctness`. Keep the `hk.pkl`
 `amends` URL matched to the pinned hk version in `mise.toml`. Hk includes the
-Pkl runtime for its configuration.
+Pkl runtime for its configuration; do not pin `aqua:apple/pkl` just for hk.
 
 Top-level `steps` materializes `check`, `fix`, and `pre-commit`. Use explicit
 `hooks` only when a hook needs a different set (for example slow linters on
-`check`/`fix` but not `pre-commit`).
+`check`/`fix` but not `pre-commit`). `hk fix` applies fixes without staging;
+only `pre-commit` stages by default. Scripts that relied on `hk fix` updating
+the index should pass `--stage`.
 
 ```pkl
 amends "package://github.com/jdx/hk/releases/download/vX.Y.Z/hk@X.Y.Z#/Config.pkl"
