@@ -124,6 +124,7 @@ touch mise.toml
 mise settings set --local experimental true
 mise settings set --local pin true
 mise settings set --local lockfile true
+mise settings set --local lockfile_mode merge
 mise trust -y
 mise use --pin github:jdx/hk@latest aqua:jdx/jactionlint@latest aqua:dprint/dprint@latest
 ```
@@ -235,6 +236,9 @@ mise x -- hk install --mise
 mise run check
 ```
 
+Commit `mise.lock`. When mise writes `.mise/locks/` (npm and PyPI tool
+dependency graphs), commit that sidecar directory too.
+
 Use explicit backends (`core:node`, `core:rust`, `github:jdx/hk`) rather than
 bare (`node`, `rust`, `hk`). Backend priority is core, then aqua, then github;
 then conda, npm, or pipx. Pin `github:jdx/hk`: aqua's hk recipe hardcodes
@@ -243,10 +247,14 @@ the only choice for the tool. Mise bootstraps the toolchain; ecosystem package
 managers are mise tools too (mise → pnpm, mise → uv), and project dependencies
 live behind their lockfiles.
 
+Set `lockfile_mode = "merge"` so `mise lock` records only the current platform.
+The default since mise 2026.10.19 rebuilds every platform and fails when a tool
+has no asset for one of them — `github:jdx/hk` has no macos-x64 build.
+
 For monorepos with multiple package roots that each have their own `mise.toml`,
-set `experimental_monorepo_root = true` and list roots under
-`monorepo.config_roots`. See the
-[mise monorepo docs](https://mise.jdx.dev/monorepo.html).
+set `monorepo_root = true` and list roots under `monorepo.config_roots`.
+`experimental_monorepo_root` is a deprecated alias. See the
+[mise monorepo docs](https://mise.jdx.dev/tasks/monorepo.html).
 
 ### Third-party repos
 
