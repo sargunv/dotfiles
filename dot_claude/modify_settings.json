@@ -8,6 +8,8 @@
 {{- $settings = $settings | setValueAtPath "env.ANTHROPIC_BASE_URL" .ai.origin -}}
 {{- $settings = $settings | setValueAtPath "promptCacheTtl" "1h" -}}
 {{- $settings = $settings | setValueAtPath "subagentPromptCacheTtl" "5m" -}}
+{{- /* Saved memories drift from and contradict each project's AGENTS.md. */ -}}
+{{- $settings = $settings | setValueAtPath "autoMemoryEnabled" false -}}
 {{- /* Claude Code's alias for its newest Opus; a model picked in /model replaces it. */ -}}
 {{- if not (hasKey $settings "model") -}}
 {{- $settings = $settings | setValueAtPath "model" "opus" -}}
