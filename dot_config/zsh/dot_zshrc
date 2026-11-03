@@ -150,6 +150,17 @@ if command -v eza >/dev/null 2>&1; then
   alias lt='eza --tree --icons auto --git'
 fi
 
+# Bypass the LiteLLM gateway for this invocation using provider authentication.
+function codex-direct() {
+  command codex -c 'model_provider="openai"' "$@"
+}
+
+function claude-direct() {
+  command claude --settings \
+    '{"apiKeyHelper":"","env":{"ANTHROPIC_BASE_URL":"https://api.anthropic.com"}}' \
+    "$@"
+}
+
 function lg() {
   export LAZYGIT_NEW_DIR_FILE="$HOME/.lazygit/newdir"
   command lazygit "$@"

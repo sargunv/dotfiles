@@ -13,6 +13,17 @@ install -m 600 /dev/null ~/.config/litellm/api-key
 $EDITOR ~/.config/litellm/api-key
 ```
 
+To bypass the gateway for one invocation, use these zsh commands:
+
+```sh
+codex-direct
+claude-direct --continue
+```
+
+They use the provider's normal authentication, such as your existing ChatGPT or
+Claude login. Arguments pass through to the CLI. Regular `codex` and `claude`
+launches keep using the gateway.
+
 ## Git signing
 
 On macOS, commits and tags use `~/.ssh/commit_signing_key.pub`, backed by a
