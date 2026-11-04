@@ -23,6 +23,11 @@ Say what the diff, its doc comments, and CI can't:
   one-line method, and validation that CI does not run.
 - Rewrite both when review changes the scope.
 
+A merge gate's "up to date with the default branch", as in `full-send` and
+`full-stop`, means that GitHub doesn't report the PR as BEHIND or DIRTY and that
+no base commit since the last green run touches the PR's files. Don't rebase
+only because the default branch moved, since each rebase reruns CI.
+
 ## AI disclosure
 
 When you post AI-contributed GitHub content, including a new Discussion or
