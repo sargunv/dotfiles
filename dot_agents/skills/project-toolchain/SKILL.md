@@ -355,8 +355,8 @@ so the editor runs the pinned dprint from `mise.toml`:
 ## AGENTS.md
 
 Every owned repo gets a root `AGENTS.md` with agent context for the project.
-Symlink `CLAUDE.md` to `AGENTS.md` so Claude Code reads the same file. Leave
-Project invariants empty at setup and fill it in as non-negotiable rules emerge.
+Leave Project invariants empty at setup and fill it in as non-negotiable rules
+emerge.
 
 ```markdown
 # Project name
