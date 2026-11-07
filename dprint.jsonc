@@ -12,10 +12,10 @@
     "**/.mise/locks",
   ],
   "oxc": {
-    "experimentalSortImports": { "newlinesBetween": true },
+    "sortImports": { "newlinesBetween": true },
     "lineWidth": 80,
     "proseWrap": "always",
     "sortPackageJson": false,
   },
-  "plugins": ["npm:@dprint/oxc@0.48.0"],
+  "plugins": ["npm:@dprint/oxc@0.49.1"],
 }

@@ -67,7 +67,7 @@ Dprint plugin: `oxc`.
 
 ```jsonc
 "oxc": {
-  "experimentalSortImports": { "newlinesBetween": true },
+    "sortImports": { "newlinesBetween": true },
   "lineWidth": 80,
   "proseWrap": "always",
   "sortPackageJson": false,
