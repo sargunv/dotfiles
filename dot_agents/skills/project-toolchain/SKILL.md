@@ -126,7 +126,7 @@ mise settings set --local pin true
 mise settings set --local lockfile true
 mise settings set --local lockfile_mode merge
 mise trust -y
-mise use --pin github:jdx/hk@latest aqua:jdx/jactionlint@latest aqua:dprint/dprint@latest
+mise use --pin aqua:jdx/hk@latest aqua:jdx/jactionlint@latest aqua:dprint/dprint@latest
 ```
 
 2. Add language tools from the references with the same command shape:
@@ -171,11 +171,13 @@ Replace the generated steps with the baseline dprint step,
 `Builtins.jactionlint`, and the language-specific steps from the references.
 Commit `.github/jactionlint.yaml` with `profile: correctness`. Keep the `hk.pkl`
 `amends` URL matched to the pinned hk version in `mise.toml`. Hk includes the
-Pkl runtime for its configuration.
+Pkl runtime for its configuration; do not pin `aqua:apple/pkl` just for hk.
 
 Top-level `steps` materializes `check`, `fix`, and `pre-commit`. Use explicit
 `hooks` only when a hook needs a different set (for example slow linters on
-`check`/`fix` but not `pre-commit`).
+`check`/`fix` but not `pre-commit`). `hk fix` applies fixes without staging;
+only `pre-commit` stages by default. Scripts that relied on `hk fix` updating
+the index should pass `--stage`.
 
 ```pkl
 amends "package://github.com/jdx/hk/releases/download/vX.Y.Z/hk@X.Y.Z#/Config.pkl"
@@ -230,7 +232,7 @@ checksums.
 6. Finish setup:
 
 ```sh
-mise lock
+mise lock --platform linux-x64,linux-arm64,macos-arm64,windows-x64,windows-arm64
 mise install
 mise x -- hk install --mise
 mise run check
@@ -239,17 +241,19 @@ mise run check
 Commit `mise.lock`. When mise writes `.mise/locks/` (npm and PyPI tool
 dependency graphs), commit that sidecar directory too.
 
-Use explicit backends (`core:node`, `core:rust`, `github:jdx/hk`) rather than
-bare (`node`, `rust`, `hk`). Backend priority is core, then aqua, then github;
-then conda, npm, or pipx. Pin `github:jdx/hk`: aqua's hk recipe hardcodes
-`unknown-linux-gnu` and has no musl variant. Avoid asdf and vfox unless they're
-the only choice for the tool. Mise bootstraps the toolchain; ecosystem package
-managers are mise tools too (mise → pnpm, mise → uv), and project dependencies
-live behind their lockfiles.
+Use explicit backends (`core:node`, `core:rust`, `aqua:jdx/hk`) rather than bare
+(`node`, `rust`, `hk`). Backend priority is core, then aqua, then github; then
+conda, npm, or pipx. Pin `aqua:jdx/hk` unless musl platforms are locked: aqua's
+hk recipe hardcodes `unknown-linux-gnu` and has no musl variant, so use
+`github:jdx/hk` only when the lockfile includes linux-*-musl. Avoid asdf and
+vfox unless they're the only choice for the tool. Mise bootstraps the toolchain;
+ecosystem package managers are mise tools too (mise → pnpm, mise → uv), and
+project dependencies live behind their lockfiles.
 
-Set `lockfile_mode = "merge"` so `mise lock` records only the current platform.
-The default since mise 2026.10.19 rebuilds every platform and fails when a tool
-has no asset for one of them — `github:jdx/hk` has no macos-x64 build.
+Set `lockfile_mode = "merge"` so later `mise lock` keeps existing entries. The
+default since mise 2026.10.19 rebuilds every platform and fails when a tool has
+no asset for one of them. Lock only linux-x64, linux-arm64, macos-arm64,
+windows-x64, and windows-arm64 (not musl or Intel Mac).
 
 For monorepos with multiple package roots that each have their own `mise.toml`,
 set `monorepo_root = true` and list roots under `monorepo.config_roots`.
