@@ -31,6 +31,8 @@ dprint.jsonc
 {{ if ne .chezmoi.os "linux" }}
 .chezmoiscripts/linux
 .chezmoiscripts/linux/**
+.config/sccache
+.config/sccache/**
 dot_config/systemd
 dot_config/systemd/**
 dot_local/bin/executable_setup-tpm-key.tmpl

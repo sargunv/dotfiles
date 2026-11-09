@@ -1,0 +1,4 @@
+# Every Rust build on this machine shares one compiler cache, so worktrees
+# reuse each other's dependency builds.
+[build]
+rustc-wrapper = "sccache"
