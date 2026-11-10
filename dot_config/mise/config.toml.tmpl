@@ -1,6 +1,10 @@
 [settings]
 experimental = true
 install_layout = "identity"
+# Let a project's own version files (.nvmrc, .python-version,
+# rust-toolchain.toml, ...) override the global tools below. Without this,
+# mise's global rust sets RUSTUP_TOOLCHAIN, which beats rust-toolchain.toml.
+idiomatic_version_file_enable_tools = ["go", "java", "node", "python", "rust"]
 # The global lockfile is per machine, so lock only the current platform.
 lockfile_platforms = ["{{ replace "darwin" "macos" .chezmoi.os }}-{{ replace "amd64" "x64" .chezmoi.arch }}"]
 trusted_config_paths = [
