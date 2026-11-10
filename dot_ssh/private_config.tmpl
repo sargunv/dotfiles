@@ -13,3 +13,5 @@ Host *
   IdentityFile ~/.ssh/id_ecdsa_tpm.pub
   IdentityAgent /run/user/{{ .chezmoi.uid }}/ssh-tpm-agent.sock
 {{- end }}
+
+Include config.d/*.conf
