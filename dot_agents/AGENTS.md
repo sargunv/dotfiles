@@ -28,6 +28,9 @@ A merge gate's "up to date with the default branch", as in `full-send` and
 no base commit since the last green run touches the PR's files. Don't rebase
 only because the default branch moved, since each rebase reruns CI.
 
+`babysit-pr` authorizes replies only to review bots such as Codex, Greptile,
+Copilot and CodeRabbit, never to comments or reviews from real users.
+
 ## AI disclosure
 
 When you post AI-contributed GitHub content, including a new Discussion or
