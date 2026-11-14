@@ -25,7 +25,12 @@ exclude = ["bash"]
 
 [tools]
 "core:go" = "latest"
+{{ if and (eq .chezmoi.os "windows") (eq .chezmoi.arch "arm64") -}}
+# Temurin does not publish a Windows ARM64 build.
+"core:java" = "zulu-25"
+{{ else -}}
 "core:java" = "temurin-25"
+{{ end -}}
 "core:node" = "lts"
 "core:python" = "latest"
 "core:rust" = "latest"

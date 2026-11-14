@@ -111,8 +111,10 @@ Neovim, LazyGit, sccache, and tealdeer receive copies of the shared configs in
 their Windows AppData locations. Neovim's optional native Telescope sorter is
 disabled on Windows; Treesitter parsers still need a C compiler. The custom
 `starship-multi-config` binary currently has no Windows release, so PowerShell
-uses the shared Starship config directly. zsh, tmux, Atuin shell integration,
-Ghostty, and the hardware-backed macOS/Linux SSH setup remain platform-specific.
+uses the shared Starship config directly. Windows ARM64 uses Zulu Java 25.
+
+zsh, tmux, Atuin shell integration, Ghostty, and the hardware-backed macOS/Linux
+SSH setup remain platform-specific.
 
 ### macOS and Linux
 

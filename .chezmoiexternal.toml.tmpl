@@ -10,7 +10,7 @@ url = "https://github.com/tmux-plugins/tpm/archive/refs/heads/master.tar.gz"
 stripComponents = 1
 
 {{ end -}}
-[{{ if eq .chezmoi.os "windows" }}"AppData/Local/nvim-data/lazy/lazy.nvim"{{ else }}".local/share/nvim/lazy/lazy.nvim"{{ end }}]
+[{{ if eq .chezmoi.os "windows" }}"AppData/Local/nvim-data/chezmoi/lazy.nvim"{{ else }}".local/share/nvim/chezmoi/lazy.nvim"{{ end }}]
 type = "archive"
 url = "https://github.com/folke/lazy.nvim/archive/refs/tags/stable.tar.gz"
 stripComponents = 1
@@ -19,11 +19,13 @@ stripComponents = 1
 type = "file"
 url = "https://raw.githubusercontent.com/anthropics/claude-plugins-official/refs/heads/main/plugins/frontend-design/skills/frontend-design/SKILL.md"
 
+{{ if ne .chezmoi.os "windows" -}}
 [".local/share/workflow-cli"]
 type = "git-repo"
 url = "https://github.com/sargunv/workflow-cli.git"
 refreshPeriod = "24h"
 
+{{ end -}}
 [".agents/skills"]
 type = "archive"
 url = "https://github.com/t3dotgg/tstack/archive/refs/heads/main.tar.gz"

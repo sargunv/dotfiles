@@ -7,7 +7,7 @@ if (Get-Command mise -ErrorAction SilentlyContinue) {
 if (Get-Command zoxide -ErrorAction SilentlyContinue) {
   (& zoxide init powershell) | Out-String | Invoke-Expression
 }
-if (Get-Command starship -ErrorAction SilentlyContinue) {
+if ($env:TERM -ne 'dumb' -and (Get-Command starship -ErrorAction SilentlyContinue)) {
   (& starship init powershell) | Out-String | Invoke-Expression
 }
 

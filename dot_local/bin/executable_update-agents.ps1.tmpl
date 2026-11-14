@@ -55,11 +55,6 @@ try {
       $failures += $installer.Name
     }
   }
-
-  if (-not $InstallOnly) {
-    git -C "$HOME/.local/share/workflow-cli" pull --ff-only --quiet
-    if ($LASTEXITCODE -ne 0) { $failures += 'workflow-cli' }
-  }
 } finally {
   $env:CODEX_NON_INTERACTIVE = $previousNonInteractive
   # This directory was created above solely for downloaded installer scripts.

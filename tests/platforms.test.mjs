@@ -150,8 +150,8 @@ for (const os of ["windows", "darwin", "linux"]) {
     );
     const lazy =
       os === "windows"
-        ? "AppData/Local/nvim-data/lazy/lazy.nvim"
-        : ".local/share/nvim/lazy/lazy.nvim";
+        ? "AppData/Local/nvim-data/chezmoi/lazy.nvim"
+        : ".local/share/nvim/chezmoi/lazy.nvim";
     assert.ok(externals[lazy]);
     assert.equal(Boolean(externals[".config/zsh/antidote"]), os !== "windows");
     assert.equal(
