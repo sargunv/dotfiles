@@ -1,0 +1,3 @@
+$ErrorActionPreference = 'Stop'
+$keyPath = {{ includeTemplate "powershell-quote" (joinPath .chezmoi.homeDir .ai.keyFile) }}
+[Console]::Write((Get-Content -LiteralPath $keyPath -Raw).Trim())

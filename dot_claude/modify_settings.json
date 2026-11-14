@@ -4,7 +4,7 @@
 {{- $settings = $settings | setValueAtPath "permissions.defaultMode" "bypassPermissions" -}}
 {{- $settings = $settings | setValueAtPath "sandbox.enabled" false -}}
 {{- $settings = $settings | setValueAtPath "attribution" (dict "commit" "" "pr" "" "sessionUrl" false) -}}
-{{- $settings = $settings | setValueAtPath "apiKeyHelper" (printf "cat %s" (joinPath .chezmoi.homeDir .ai.keyFile | quote)) -}}
+{{- $settings = $settings | setValueAtPath "apiKeyHelper" (includeTemplate "litellm-key-command" .) -}}
 {{- $settings = $settings | setValueAtPath "env.ANTHROPIC_BASE_URL" .ai.origin -}}
 {{- $settings = $settings | setValueAtPath "promptCacheTtl" "1h" -}}
 {{- $settings = $settings | setValueAtPath "subagentPromptCacheTtl" "5m" -}}

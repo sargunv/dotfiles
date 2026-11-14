@@ -6,6 +6,9 @@
 {{- $config = $config | setValueAtPath "sandbox_mode" "danger-full-access" -}}
 {{- $config = $config | setValueAtPath "model_provider" "litellm" -}}
 {{- $auth := dict "command" "/bin/cat" "args" (list (joinPath .chezmoi.homeDir .ai.keyFile)) -}}
+{{- if eq .chezmoi.os "windows" -}}
+{{- $auth = dict "command" "pwsh" "args" (list "-NoProfile" "-File" (joinPath .chezmoi.homeDir ".local/bin/litellm-key.ps1")) -}}
+{{- end -}}
 {{- $provider := dict "name" "LiteLLM" "base_url" (printf "%s/v1" .ai.origin) "wire_api" "responses" "supports_websockets" false "auth" $auth -}}
 {{- $config = $config | setValueAtPath "model_providers.litellm" $provider -}}
 {{ $config | toToml }}

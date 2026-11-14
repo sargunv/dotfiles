@@ -23,7 +23,8 @@ vim.opt.clipboard = "unnamedplus"
 vim.opt.showmode = false
 vim.opt.termguicolors = true
 
-local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+-- Keep chezmoi's archive outside lazy's Git-managed plugin directory.
+local lazypath = vim.fn.stdpath("data") .. "/chezmoi/lazy.nvim"
 vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup("plugins", {

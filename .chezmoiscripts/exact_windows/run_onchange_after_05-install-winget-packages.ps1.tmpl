@@ -1,0 +1,17 @@
+$ErrorActionPreference = 'Stop'
+
+$packages = @(
+{{ range .winget_packages -}}
+  {{ . | quote }}
+{{ end -}}
+)
+
+foreach ($package in $packages) {
+  winget list --id $package --exact --source winget --accept-source-agreements --disable-interactivity | Out-Null
+  if ($LASTEXITCODE -eq 0) { continue }
+
+  winget install --id $package --exact --source winget --silent --accept-package-agreements --accept-source-agreements --disable-interactivity
+  if ($LASTEXITCODE -notin @(0, 3010)) {
+    throw "WinGet failed to install $package (exit $LASTEXITCODE)."
+  }
+}

@@ -1,4 +1,4 @@
-import { loadRouteFilter, providers } from {{ joinPath .chezmoi.homeDir ".local/lib/coding-agents/litellm.mjs" | toJson }};
+import { loadRouteFilter, providers } from {{ includeTemplate "file-url" (joinPath .chezmoi.homeDir ".local/lib/coding-agents/litellm.mjs") | toJson }};
 
 const gateway = {
   origin: {{ .ai.origin | toJson }},

@@ -12,6 +12,7 @@ trusted_config_paths = [
   "~/.local/share/workflow-cli",
   "~/Code",
   "~/Projects",
+  "~/source/repos",
   "~/.codex/worktrees",
   "~/.t3/worktrees"
 ]
@@ -24,7 +25,12 @@ exclude = ["bash"]
 
 [tools]
 "core:go" = "latest"
+{{ if and (eq .chezmoi.os "windows") (eq .chezmoi.arch "arm64") -}}
+# Temurin does not publish a Windows ARM64 build.
+"core:java" = "zulu-25"
+{{ else -}}
 "core:java" = "temurin-25"
+{{ end -}}
 "core:node" = "lts"
 "core:python" = "latest"
 "core:rust" = "latest"
@@ -36,5 +42,7 @@ exclude = ["bash"]
 "aqua:mozilla/sccache" = "latest"
 "aqua:cli/cli" = { version = "latest", os = ["linux"] }
 "github:Foxboron/ssh-tpm-agent" = { version = "latest", os = ["linux"] }
+{{ if ne .chezmoi.os "windows" -}}
 "github:sargunv/starship-multi-config" = "latest"
+{{ end -}}
 "vfox:mise-plugins/vfox-android-sdk" = "23.0"

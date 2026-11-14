@@ -1,0 +1,5 @@
+{{- $path := . | replace "\\" "/" -}}
+{{- if not (hasPrefix "/" $path) -}}
+{{- $path = printf "/%s" $path -}}
+{{- end -}}
+{{- printf "file://%s" ($path | urlquery | replace "%2F" "/" | replace "%3A" ":" | replace "+" "%20") -}}

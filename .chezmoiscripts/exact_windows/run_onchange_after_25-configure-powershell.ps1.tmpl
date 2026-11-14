@@ -1,0 +1,23 @@
+$ErrorActionPreference = 'Stop'
+
+# PowerShell profile: {{ include "dot_config/powershell/profile.ps1" | sha256sum }}
+{{ template "windows-path.ps1" }}
+
+# Ask PowerShell 7 for its profile path: Documents may be redirected to OneDrive.
+$profilePath = pwsh -NoProfile -Command '$PROFILE.CurrentUserAllHosts'
+if ($LASTEXITCODE -ne 0) { throw 'Could not locate the PowerShell profile.' }
+New-Item -ItemType Directory -Path (Split-Path $profilePath) -Force | Out-Null
+$line = '. "$HOME/.config/powershell/profile.ps1"'
+if (-not (Test-Path -LiteralPath $profilePath) -or
+  -not ((Get-Content -LiteralPath $profilePath) -contains $line)) {
+  Add-Content -LiteralPath $profilePath -Value "`n$line" -Encoding UTF8
+}
+
+# Shims also make tools available to GUI apps and noninteractive shells.
+$userPath = [Environment]::GetEnvironmentVariable('Path', 'User')
+$entries = @($userPath -split ';' | Where-Object { $_ })
+foreach ($entry in @("$env:LOCALAPPDATA\mise\shims", "$HOME\.local\bin", "$HOME\.opencode\bin")) {
+  if ($entries -notcontains $entry) { $entries += $entry }
+}
+[Environment]::SetEnvironmentVariable('Path', ($entries -join ';'), 'User')
+[Environment]::SetEnvironmentVariable('ADB_MDNS', '0', 'User')

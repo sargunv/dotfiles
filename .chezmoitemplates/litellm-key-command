@@ -1,0 +1,5 @@
+{{- if eq .chezmoi.os "windows" -}}
+litellm-key.cmd
+{{- else -}}
+cat {{ joinPath .chezmoi.homeDir .ai.keyFile | quote }}
+{{- end -}}

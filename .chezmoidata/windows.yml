@@ -1,0 +1,18 @@
+# Development tools and terminal utilities. Agent CLIs use their own installers.
+winget_packages:
+  - Microsoft.PowerShell
+  - Git.Git
+  - GitHub.cli
+  - GitHub.GitLFS
+  - jdx.mise
+  - Neovim.Neovim
+  - Starship.Starship
+  - BurntSushi.ripgrep.MSVC
+  - sharkdp.bat
+  - sharkdp.fd
+  - junegunn.fzf
+  - eza-community.eza
+  - ajeetdsouza.zoxide
+  - jqlang.jq
+  - dandavison.delta
+  - JesseDuffield.lazygit

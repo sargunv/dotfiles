@@ -1,0 +1,17 @@
+$ErrorActionPreference = 'Stop'
+
+$keyPath = {{ includeTemplate "powershell-quote" (joinPath .chezmoi.homeDir ".ssh/id_ed25519") }}
+if ((Test-Path -LiteralPath $keyPath) -or (Test-Path -LiteralPath "$keyPath.pub")) {
+  return
+}
+
+New-Item -ItemType Directory -Path (Split-Path $keyPath) -Force | Out-Null
+# Start-Process preserves the empty passphrase argument in both Windows
+# PowerShell and PowerShell 7.
+$process = Start-Process ssh-keygen -ArgumentList @(
+  '-t', 'ed25519', '-f', "`"$keyPath`"", '-N', '""',
+  '-C', "$env:USERNAME@$env:COMPUTERNAME"
+) -NoNewWindow -Wait -PassThru
+if ($process.ExitCode -ne 0) {
+  throw "ssh-keygen failed (exit $($process.ExitCode))."
+}

@@ -31,7 +31,11 @@ format = ssh
 
 [gpg "ssh"]
 allowedSignersFile = ~/.config/git/allowed_signers
+{{ if eq .chezmoi.os "windows" -}}
+program = ssh-keygen
+{{ else -}}
 program = {{ .chezmoi.homeDir }}/.local/bin/git-ssh-sign
+{{ end -}}
 
 [init]
 defaultBranch = main
@@ -73,6 +77,8 @@ email = {{ .github_username }}@users.noreply.github.com
 name = {{ .full_name }}
 {{ if eq .chezmoi.os "darwin" -}}
 signingKey = ~/.ssh/commit_signing_key.pub
+{{ else if eq .chezmoi.os "windows" -}}
+signingKey = ~/.ssh/id_ed25519
 {{ else -}}
 signingKey = ~/.ssh/signing_key.pub
 {{ end -}}

@@ -1,0 +1,69 @@
+param([switch]$InstallOnly)
+
+$ErrorActionPreference = 'Stop'
+{{ template "windows-path.ps1" }}
+
+$logDirectory = Join-Path $env:LOCALAPPDATA 'chezmoi/logs'
+New-Item -ItemType Directory -Path $logDirectory -Force | Out-Null
+Start-Transcript -Path "$logDirectory/update-agents.log" -Append | Out-Null
+$temporaryDirectory = Join-Path ([IO.Path]::GetTempPath()) ([IO.Path]::GetRandomFileName())
+New-Item -ItemType Directory -Path $temporaryDirectory | Out-Null
+$failures = @()
+$previousNonInteractive = $env:CODEX_NON_INTERACTIVE
+
+try {
+  if (-not $InstallOnly) {
+    # mise is managed by WinGet; its own self-update cannot update that copy.
+    mise --cd $HOME upgrade --yes
+    if ($LASTEXITCODE -ne 0) { $failures += 'mise' }
+  }
+
+  $gitRoot = Split-Path (Split-Path (Get-Command git.exe).Source)
+  $gitBash = Join-Path $gitRoot 'bin/bash.exe'
+  if (-not (Test-Path -LiteralPath $gitBash)) {
+    throw 'Git Bash is required to install OpenCode. Install Git for Windows first.'
+  }
+  $env:CLAUDE_CODE_GIT_BASH_PATH = $gitBash
+  $env:CODEX_NON_INTERACTIVE = '1'
+
+  $installers = @(
+    @{ Name = 'claude'; Url = 'https://claude.ai/install.ps1' }
+    @{ Name = 'codex'; Url = 'https://chatgpt.com/codex/install.ps1' }
+    @{ Name = 'opencode'; Url = 'https://opencode.ai/v2/install'; Bash = $true }
+    @{ Name = 'pi'; Url = 'https://pi.dev/install.ps1' }
+    @{ Name = 'omp'; Url = 'https://omp.sh/install.ps1'; Arguments = @('-Binary') }
+    @{ Name = 'grok'; Url = 'https://x.ai/cli/install.ps1' }
+  )
+
+  foreach ($installer in $installers) {
+    try {
+      Write-Host "Installing/updating $($installer.Name)..."
+      $extension = if ($installer.Bash) { 'sh' } else { 'ps1' }
+      $script = Join-Path $temporaryDirectory "$($installer.Name).$extension"
+      Invoke-WebRequest -Uri $installer.Url -OutFile $script
+      if ($installer.Bash) {
+        # The official installer selects a native Windows ARM64/x64
+        # binary, even when Git Bash itself runs under x64 emulation.
+        & $gitBash ($script.Replace('\', '/')) --no-modify-path
+      } else {
+        $installerArguments = @($installer.Arguments | Where-Object { $_ })
+        & pwsh -NoProfile -File $script @installerArguments
+      }
+      if ($LASTEXITCODE -ne 0) { throw "Installer exited with $LASTEXITCODE." }
+    } catch {
+      Write-Warning "$($installer.Name): $_"
+      $failures += $installer.Name
+    }
+  }
+} finally {
+  $env:CODEX_NON_INTERACTIVE = $previousNonInteractive
+  # This directory was created above solely for downloaded installer scripts.
+  if ((Split-Path (Resolve-Path -LiteralPath $temporaryDirectory).Path) -ne
+    ([IO.Path]::GetTempPath().TrimEnd('\', '/'))) {
+    throw "Refusing to remove an unexpected directory: $temporaryDirectory"
+  }
+  Remove-Item -LiteralPath $temporaryDirectory -Recurse -Force
+  Stop-Transcript | Out-Null
+}
+
+if ($failures.Count) { throw "Updates failed: $($failures -join ', '). See $logDirectory/update-agents.log." }

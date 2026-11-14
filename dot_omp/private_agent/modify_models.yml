@@ -3,7 +3,7 @@
      OMP reads this before resolving any model; extension providers register
      later (can1357/oh-my-pi#12427), so they only choose the models listed. */}}
 {{- $config := .chezmoi.stdin | default "{}" | fromYaml -}}
-{{- $apiKey := printf "!cat %s" (joinPath .chezmoi.homeDir .ai.keyFile | quote) -}}
+{{- $apiKey := printf "!%s" (includeTemplate "litellm-key-command" .) -}}
 {{- range $provider := list "openai" "opencode-go" "xai" -}}
 {{- $config = $config | setValueAtPath (printf "providers.%s.baseUrl" $provider) (printf "%s/v1" $.ai.origin) -}}
 {{- $config = $config | setValueAtPath (printf "providers.%s.apiKey" $provider) $apiKey -}}

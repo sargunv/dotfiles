@@ -1,5 +1,5 @@
 import { getBundledModels } from "@oh-my-pi/pi-catalog";
-import { loadRouteFilter, ompGatewayModels, providers } from {{ joinPath .chezmoi.homeDir ".local/lib/coding-agents/litellm.mjs" | toJson }};
+import { loadRouteFilter, ompGatewayModels, providers } from {{ includeTemplate "file-url" (joinPath .chezmoi.homeDir ".local/lib/coding-agents/litellm.mjs") | toJson }};
 
 const gateway = {
   origin: {{ .ai.origin | toJson }},
@@ -16,7 +16,7 @@ export default async function (pi) {
     pi.registerProvider(provider, {
       // OMP's Anthropic client strips the /v1 before appending /v1/messages.
       baseUrl: `${gateway.origin}/v1`,
-      apiKey: `!cat ${JSON.stringify(gateway.keyFile)}`,
+      apiKey: {{ printf "!%s" (includeTemplate "litellm-key-command" .) | toJson }},
       models,
       // An authoritative roster replaces OMP's live OpenCode Go discovery,
       // which would list every gateway route as a Go model.

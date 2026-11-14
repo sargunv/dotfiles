@@ -1,0 +1,7 @@
+$ErrorActionPreference = 'Stop'
+
+# Global mise config: {{ include "dot_config/mise/config.toml.tmpl" | sha256sum }}
+{{ template "windows-path.ps1" }}
+
+mise install --yes
+if ($LASTEXITCODE -ne 0) { throw "mise install failed (exit $LASTEXITCODE)." }
