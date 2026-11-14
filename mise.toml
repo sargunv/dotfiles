@@ -14,7 +14,8 @@ lockfile = true
 lockfile_mode = "merge"
 
 [tools]
-"aqua:jdx/hk" = "2.11.1"
+"aqua:jdx/hk" = "2.12.0"
+"aqua:jdx/jactionlint" = "2.6.0"
 "aqua:dprint/dprint" = "0.64.3"
 
 [hooks]
