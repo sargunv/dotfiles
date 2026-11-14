@@ -17,5 +17,5 @@
     "proseWrap": "always",
     "sortPackageJson": false,
   },
-  "plugins": ["npm:@dprint/oxc@0.49.1"],
+  "plugins": ["npm:@dprint/oxc@0.50.0"],
 }

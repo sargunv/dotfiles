@@ -1,10 +1,11 @@
 // hk orchestrates checks for pre-commit, `mise run check`, and `mise run fix`.
 // hk 2 stages fixes only in pre-commit; `hk fix` leaves the index alone.
 
-amends "package://github.com/jdx/hk/releases/download/v2.11.1/hk@2.11.1#/Config.pkl"
+amends "package://github.com/jdx/hk/releases/download/v2.12.0/hk@2.12.0#/Config.pkl"
 
-import "package://github.com/jdx/hk/releases/download/v2.11.1/hk@2.11.1#/Builtins.pkl"
+import "package://github.com/jdx/hk/releases/download/v2.12.0/hk@2.12.0#/Builtins.pkl"
 
 steps {
   ["dprint"] = Builtins.dprint
+  ["jactionlint"] = Builtins.jactionlint
 }
