@@ -1,0 +1,6 @@
+$ErrorActionPreference = 'Stop'
+
+# Agent installer: {{ include "dot_local/bin/executable_update-agents.ps1.tmpl" | sha256sum }}
+{{ template "windows-path.ps1" }}
+
+& "$HOME/.local/bin/update-agents.ps1" -InstallOnly

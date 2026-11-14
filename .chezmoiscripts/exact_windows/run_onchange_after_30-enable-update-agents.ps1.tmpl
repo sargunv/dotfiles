@@ -1,0 +1,13 @@
+$ErrorActionPreference = 'Stop'
+
+# Agent updater: {{ include "dot_local/bin/executable_update-agents.ps1.tmpl" | sha256sum }}
+{{ template "windows-path.ps1" }}
+
+$arguments = '-NoProfile -File "{0}\.local\bin\update-agents.ps1"' -f $HOME
+$action = New-ScheduledTaskAction -Execute (Get-Command pwsh.exe).Source -Argument $arguments
+$trigger = New-ScheduledTaskTrigger -Daily -At '09:00'
+$settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
+# The interactive token uses the current user's credentials without storing a
+# password or requiring elevation. Missed runs start at the next sign-in.
+$principal = New-ScheduledTaskPrincipal -UserId ([Security.Principal.WindowsIdentity]::GetCurrent().Name) -LogonType Interactive -RunLevel Limited
+Register-ScheduledTask -TaskName 'chezmoi-update-agents' -Action $action -Trigger $trigger -Settings $settings -Principal $principal -Force | Out-Null

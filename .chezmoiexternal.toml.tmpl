@@ -1,3 +1,4 @@
+{{ if ne .chezmoi.os "windows" -}}
 [".config/zsh/antidote"]
 type = "archive"
 url = "https://github.com/mattmc3/antidote/archive/refs/heads/main.tar.gz"
@@ -8,7 +9,8 @@ type = "archive"
 url = "https://github.com/tmux-plugins/tpm/archive/refs/heads/master.tar.gz"
 stripComponents = 1
 
-[".local/share/nvim/lazy/lazy.nvim"]
+{{ end -}}
+[{{ if eq .chezmoi.os "windows" }}"AppData/Local/nvim-data/lazy/lazy.nvim"{{ else }}".local/share/nvim/lazy/lazy.nvim"{{ end }}]
 type = "archive"
 url = "https://github.com/folke/lazy.nvim/archive/refs/tags/stable.tar.gz"
 stripComponents = 1

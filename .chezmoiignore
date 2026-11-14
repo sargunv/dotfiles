@@ -2,6 +2,7 @@
 .github/**
 LICENSE
 README.md
+.gitattributes
 tests/
 tests/**
 
@@ -33,9 +34,36 @@ dprint.jsonc
 .chezmoiscripts/linux/**
 .config/sccache
 .config/sccache/**
-dot_config/systemd
-dot_config/systemd/**
-dot_local/bin/executable_setup-tpm-key.tmpl
+.config/systemd
+.config/systemd/**
+.local/bin/setup-tpm-key
+{{ end }}
+
+{{ if eq .chezmoi.os "windows" }}
+.chezmoiscripts/*.sh
+.zshenv
+.config/zsh
+.config/zsh/**
+.config/tmux
+.config/tmux/**
+.config/ghostty
+.config/ghostty/**
+.config/atuin
+.config/atuin/**
+.local/bin/git-ssh-sign
+.local/bin/litellm-key
+.local/bin/load-yubikey
+.local/bin/update-agents.sh
+.local/bin/workflow-cli
+{{ else }}
+.chezmoiscripts/windows
+.chezmoiscripts/windows/**
+AppData
+AppData/**
+.config/powershell
+.config/powershell/**
+.local/bin/*.ps1
+.local/bin/*.cmd
 {{ end }}
 
 {{ if ne .chezmoi.os "darwin" }}

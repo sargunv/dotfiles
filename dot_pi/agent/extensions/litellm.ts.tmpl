@@ -4,7 +4,7 @@ import {
   piGatewayProvider,
   piUnprefixResponseModel,
   providers,
-} from {{ joinPath .chezmoi.homeDir ".local/lib/coding-agents/litellm.mjs" | toJson }};
+} from {{ includeTemplate "file-url" (joinPath .chezmoi.homeDir ".local/lib/coding-agents/litellm.mjs") | toJson }};
 
 const gateway = {
   origin: {{ .ai.origin | toJson }},
