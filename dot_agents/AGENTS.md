@@ -19,8 +19,11 @@ Say what the diff, its doc comments, and CI can't:
 
 - Open with the problem and what users can now do, or what maintainers gain.
 - Show one small example of new API, or a bug's trigger with before and after.
-- Add these only if they apply: what callers must adopt, measured numbers with a
-  one-line method, and validation that CI does not run.
+- Add these only when they say something: API changes callers must make,
+  measurements that back a claim or that the project asks for (with a one-line
+  method), and checks CI doesn't run, such as another platform, output diffed
+  against the base, or manual testing. Leave out reruns of CI's suites, checks
+  you couldn't run, and unrequested numbers that show no change.
 - Rewrite both when review changes the scope.
 
 A merge gate's "up to date with the default branch", as in `full-send` and
