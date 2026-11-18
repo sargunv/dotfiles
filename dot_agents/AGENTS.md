@@ -12,6 +12,11 @@ delete it otherwise. Never rerun past one.
 Several agent sessions often run at once on one machine and share `/tmp`. Create
 temporary files with `mktemp`, never with fixed names.
 
+## Commits
+
+Title commits and PRs as Conventional Commits unless the project has its own
+style.
+
 ## Pull requests
 
 Write a short PR title and description for a reviewer who will read the diff.
