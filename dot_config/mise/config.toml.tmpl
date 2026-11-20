@@ -39,10 +39,10 @@ exclude = ["bash"]
 "aqua:jdx/usage" = "latest"
 "aqua:astral-sh/uv" = "latest"
 "aqua:cargo-bins/cargo-binstall" = "latest"
+"cargo:cargo-sweep" = "latest"
 "aqua:mozilla/sccache" = "latest"
 "aqua:cli/cli" = { version = "latest", os = ["linux"] }
 "github:Foxboron/ssh-tpm-agent" = { version = "latest", os = ["linux"] }
 {{ if ne .chezmoi.os "windows" -}}
 "github:sargunv/starship-multi-config" = "latest"
 {{ end -}}
-"vfox:mise-plugins/vfox-android-sdk" = "23.0"

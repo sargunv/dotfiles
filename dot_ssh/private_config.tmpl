@@ -5,13 +5,17 @@ Include ~/.ssh/config.local
 Include ~/.colima/ssh_config
 
 {{ end -}}
+Include config.d/*.conf
+
 Host *
   ForwardAgent yes
 {{- if eq .chezmoi.os "darwin" }}
   IdentityFile ~/.ssh/id_ecdsa_sk_rk
+  IdentityFile ~/.ssh/id_ed25519
 {{- else if eq .chezmoi.os "linux" }}
   IdentityFile ~/.ssh/id_ecdsa_tpm.pub
+  IdentityFile ~/.ssh/id_ed25519
   IdentityAgent /run/user/{{ .chezmoi.uid }}/ssh-tpm-agent.sock
+{{- else if eq .chezmoi.os "windows" }}
+  IdentityFile ~/.ssh/id_ed25519
 {{- end }}
-
-Include config.d/*.conf

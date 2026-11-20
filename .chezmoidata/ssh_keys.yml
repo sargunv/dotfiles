@@ -1,22 +1,79 @@
 git_signing_email: sargunv@users.noreply.github.com
-ssh_public_keys:
-  Sarguns-MacBook-Pro-commit-signing:
-    "sk-ecdsa-sha2-nistp256@openssh.com
-    AAAAInNrLWVjZHNhLXNoYTItbmlzdHAyNTZAb3BlbnNzaC5jb20AAAAIbmlzdHAyNTYAAABBBJ33PAf+Xxk8Lbosz1QyUxVmwt0aQSP3TkemXzteLvIhXKktOpQTWPc5G1QsKFtipd+n0XmypKVPohy5rcamzXgAAAAEc3NoOg==
-    ssh:"
-  Sarguns-MacBook-Pro:
-    "sk-ecdsa-sha2-nistp256@openssh.com
+# Active login keys distributed to ~/.ssh/authorized_keys across all machines.
+# Add a new machine's public key here and run `chezmoi apply`.
+ssh_authorized_keys:
+  Sarguns-MacBook-Pro: >-
+    sk-ecdsa-sha2-nistp256@openssh.com
     AAAAInNrLWVjZHNhLXNoYTItbmlzdHAyNTZAb3BlbnNzaC5jb20AAAAIbmlzdHAyNTYAAABBBMxUe8glyFvPKz1f127yghh5dEt+urSg3w6WnoUHU8/SuGKCHqhGHR9kB2dufSwXHrkm9q7FeK1/yDB51Kz9SJMAAAAEc3NoOg==
-    ssh:"
-  framework-desktop:
-    "ecdsa-sha2-nistp256
-    AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBCwvJI7dMlfnt1rLTZqtuaCIimJd6XehlZtYxtQbvsHvaIkAT32QdBLnN69ahE0L56SzBoqyXjcVZH/5mb5OJU0=
-    sargunv@framework-desktop"
-  optiplex:
-    "ecdsa-sha2-nistp256
-    AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBMbPbSV4/amGaPLqQV8UCxUgtAx9WGMkfTRoSznXIbmGlTzxQgDYThLPWXc5d4NMX3pfujyAZHyKIb88At8s0Rs=
-    sargunv@optiplex"
-  yubikey-sargunv:
-    "sk-ecdsa-sha2-nistp256@openssh.com
+    ssh:
+  Sarguns-MacBook-Pro-ed25519: >-
+    ssh-ed25519
+    AAAAC3NzaC1lZDI1NTE5AAAAINmb+W8bxVL1+mj5jxWY5ufyMS+x8gs8h7TMELjmmEU5
+    sargunv@Sarguns-MacBook-Pro
+  sarguns-mac-mini-ed25519: >-
+    ssh-ed25519
+    AAAAC3NzaC1lZDI1NTE5AAAAIIkJhh/L4YKrLBMpCBu1cpG8ZD/UsqTnPpYJz+Vx9iaB
+    sargunv@Mac-mini
+  fw-desktop-tpm: >-
+    ecdsa-sha2-nistp256
+    AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBBhV6WA6mOocE5YQz1GJ0ubYsvpuo2fHHsvqKKgnkGCxIk8FkjhSijqFTE4cHlFW5ydKRHZtiKqa25UIeg+QHAg=
+    sargunv@fw-desktop
+  fw-desktop-ed25519: >-
+    ssh-ed25519
+    AAAAC3NzaC1lZDI1NTE5AAAAIDomOyB63/ewwnyy3IM3625+gVtPUgpCTIHBkv0sFX0W
+    sargunv@fw-desktop
+  optiplex-tpm: >-
+    ecdsa-sha2-nistp256
+    AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBA9vKKsPQbJ14ton7P5xQNmPet2YbcaDq4K1RvNoVgmrhyILHBy2Jg9hMjwc6DvofTJHg+DKAglDxxXtQXi3Doc=
+    sargunv-bot@optiplex
+  optiplex-ed25519: >-
+    ssh-ed25519
+    AAAAC3NzaC1lZDI1NTE5AAAAIK6UyAvmTZYFYLO1+d1HpCqg0V58cpL++252r2r0FfWR
+    sargunv@optiplex
+  sargunv-surface-ed25519: >-
+    ssh-ed25519
+    AAAAC3NzaC1lZDI1NTE5AAAAIAAa6toZmCCLEJAETQZob07dQMXx/7baXDvo9tTEFggu
+    sargu@SARGUNV-SURFACE
+  yubikey-sargunv: >-
+    sk-ecdsa-sha2-nistp256@openssh.com
     AAAAInNrLWVjZHNhLXNoYTItbmlzdHAyNTZAb3BlbnNzaC5jb20AAAAIbmlzdHAyNTYAAABBBKtNNxgenBai/jyo68hqFdmzT/oVgk+Mv7rAO3CQt1n54A4kEf/FFRQ47yG1e6FTpATEvQN8iAY2LcjjN4ZZ0zUAAAAEc3NoOg==
-    ssh:"
+    ssh:
+
+# Git commit-signing keys written to ~/.config/git/allowed_signers (retains historical keys).
+ssh_public_keys:
+  Sarguns-MacBook-Pro-commit-signing: >-
+    sk-ecdsa-sha2-nistp256@openssh.com
+    AAAAInNrLWVjZHNhLXNoYTItbmlzdHAyNTZAb3BlbnNzaC5jb20AAAAIbmlzdHAyNTYAAABBBJ33PAf+Xxk8Lbosz1QyUxVmwt0aQSP3TkemXzteLvIhXKktOpQTWPc5G1QsKFtipd+n0XmypKVPohy5rcamzXgAAAAEc3NoOg==
+    ssh:
+  Sarguns-MacBook-Pro: >-
+    sk-ecdsa-sha2-nistp256@openssh.com
+    AAAAInNrLWVjZHNhLXNoYTItbmlzdHAyNTZAb3BlbnNzaC5jb20AAAAIbmlzdHAyNTYAAABBBMxUe8glyFvPKz1f127yghh5dEt+urSg3w6WnoUHU8/SuGKCHqhGHR9kB2dufSwXHrkm9q7FeK1/yDB51Kz9SJMAAAAEc3NoOg==
+    ssh:
+  sarguns-mac-mini-commit-signing: >-
+    ssh-ed25519
+    AAAAC3NzaC1lZDI1NTE5AAAAIJWvBIrARcmMyWw8vKQBIjvnSdirwzn+cxqrCsJKr1/l sargunv
+    Git commit signing
+  framework-desktop: >-
+    ecdsa-sha2-nistp256
+    AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBCwvJI7dMlfnt1rLTZqtuaCIimJd6XehlZtYxtQbvsHvaIkAT32QdBLnN69ahE0L56SzBoqyXjcVZH/5mb5OJU0=
+    sargunv@framework-desktop
+  fw-desktop-tpm: >-
+    ecdsa-sha2-nistp256
+    AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBBhV6WA6mOocE5YQz1GJ0ubYsvpuo2fHHsvqKKgnkGCxIk8FkjhSijqFTE4cHlFW5ydKRHZtiKqa25UIeg+QHAg=
+    sargunv@fw-desktop
+  optiplex: >-
+    ecdsa-sha2-nistp256
+    AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBMbPbSV4/amGaPLqQV8UCxUgtAx9WGMkfTRoSznXIbmGlTzxQgDYThLPWXc5d4NMX3pfujyAZHyKIb88At8s0Rs=
+    sargunv@optiplex
+  optiplex-tpm: >-
+    ecdsa-sha2-nistp256
+    AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBA9vKKsPQbJ14ton7P5xQNmPet2YbcaDq4K1RvNoVgmrhyILHBy2Jg9hMjwc6DvofTJHg+DKAglDxxXtQXi3Doc=
+    sargunv-bot@optiplex
+  sargunv-surface-ed25519: >-
+    ssh-ed25519
+    AAAAC3NzaC1lZDI1NTE5AAAAIAAa6toZmCCLEJAETQZob07dQMXx/7baXDvo9tTEFggu
+    sargu@SARGUNV-SURFACE
+  yubikey-sargunv: >-
+    sk-ecdsa-sha2-nistp256@openssh.com
+    AAAAInNrLWVjZHNhLXNoYTItbmlzdHAyNTZAb3BlbnNzaC5jb20AAAAIbmlzdHAyNTYAAABBBKtNNxgenBai/jyo68hqFdmzT/oVgk+Mv7rAO3CQt1n54A4kEf/FFRQ47yG1e6FTpATEvQN8iAY2LcjjN4ZZ0zUAAAAEc3NoOg==
+    ssh:

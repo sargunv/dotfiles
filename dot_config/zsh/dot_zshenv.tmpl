@@ -35,6 +35,10 @@ export DELTA_PAGER="$PAGER"
 export ADB_MDNS=0
 
 {{ if eq .chezmoi.os "darwin" -}}
+export ANDROID_HOME="$HOME/Library/Android/sdk"
+export ANDROID_SDK_ROOT="$ANDROID_HOME"
+path=("$ANDROID_HOME/platform-tools" "$ANDROID_HOME/emulator" "$ANDROID_HOME/cmdline-tools/latest/bin" $path)
+
 export SSH_SK_PROVIDER="/usr/lib/ssh-keychain.dylib"
 
 if [ -d "/Applications/Ghostty.app/Contents/Resources/terminfo" ]; then

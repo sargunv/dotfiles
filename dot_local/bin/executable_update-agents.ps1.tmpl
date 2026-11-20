@@ -16,6 +16,54 @@ try {
     # mise is managed by WinGet; its own self-update cannot update that copy.
     mise --cd $HOME upgrade --yes
     if ($LASTEXITCODE -ne 0) { $failures += 'mise' }
+
+    mise --cd $HOME prune --yes
+    if ($LASTEXITCODE -ne 0) { Write-Warning "mise prune exited with $LASTEXITCODE." }
+
+    if (Get-Command cargo-sweep -ErrorAction SilentlyContinue) {
+      foreach ($dir in @((Join-Path $HOME '.t3/worktrees'), (Join-Path $HOME 'Projects'), 'D:\')) {
+        if (Test-Path -LiteralPath $dir) {
+          Write-Host "Sweeping Rust artifacts in $dir..."
+          cargo-sweep sweep --time 2 --recursive $dir
+        }
+      }
+    }
+
+    $worktreesRoot = Join-Path $HOME '.t3/worktrees'
+    if (Test-Path -LiteralPath $worktreesRoot) {
+      $cutoff = (Get-Date).AddDays(-3)
+      $parentRepos = [System.Collections.Generic.HashSet[string]]::new()
+      foreach ($repoDir in Get-ChildItem -LiteralPath $worktreesRoot -Directory -ErrorAction SilentlyContinue) {
+        foreach ($wt in Get-ChildItem -LiteralPath $repoDir.FullName -Directory -ErrorAction SilentlyContinue) {
+          $newest = Get-ChildItem -LiteralPath $wt.FullName -Recurse -File -ErrorAction SilentlyContinue |
+            Where-Object { $_.FullName -notmatch '[\\/](target|node_modules|\.git)[\\/]' } |
+            Sort-Object LastWriteTime -Descending |
+            Select-Object -First 1
+          $lastTouched = if ($newest) { $newest.LastWriteTime } else { $wt.LastWriteTime }
+          if ($lastTouched -ge $cutoff) { continue }
+
+          $gitFile = Join-Path $wt.FullName '.git'
+          $parent = $null
+          if (Test-Path -LiteralPath $gitFile -PathType Leaf) {
+            $gitDirLine = (Get-Content -LiteralPath $gitFile -TotalCount 1 -ErrorAction SilentlyContinue)
+            if ($gitDirLine -match '^gitdir:\s*(.+)$') {
+              $parent = Split-Path (Split-Path (Split-Path $Matches[1].Trim()))
+            }
+          }
+          Write-Host "Pruning aged T3 worktree: $($wt.FullName)"
+          if ($parent -and (Test-Path -LiteralPath $parent)) {
+            git -C $parent worktree remove --force $wt.FullName 2>$null
+            if ($LASTEXITCODE -ne 0) { Remove-Item -LiteralPath $wt.FullName -Recurse -Force -ErrorAction SilentlyContinue }
+            [void]$parentRepos.Add($parent)
+          } else {
+            Remove-Item -LiteralPath $wt.FullName -Recurse -Force -ErrorAction SilentlyContinue
+          }
+        }
+      }
+      foreach ($parent in $parentRepos) {
+        git -C $parent worktree prune 2>$null
+      }
+    }
   }
 
   $gitRoot = Split-Path (Split-Path (Get-Command git.exe).Source)
