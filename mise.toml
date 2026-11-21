@@ -14,9 +14,9 @@ lockfile = true
 lockfile_mode = "merge"
 
 [tools]
-"aqua:jdx/hk" = "2.12.0"
+"aqua:jdx/hk" = "2.13.0"
 "aqua:jdx/jactionlint" = "2.6.0"
-"aqua:dprint/dprint" = "0.64.3"
+"aqua:dprint/dprint" = "0.65.0"
 
 [hooks]
 postinstall = ["hk install --mise --quiet"]
